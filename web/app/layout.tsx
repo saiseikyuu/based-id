@@ -17,7 +17,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://basedid.xyz"),
+  metadataBase: new URL("https://basedid.space"),
   title: "Based ID — Your Permanent Number on Base",
   description:
     "Mint your permanent sequential identity on Base. $2 USDC flat. The lower your number, the earlier you were. Partner NFT drops and whitelist access included.",

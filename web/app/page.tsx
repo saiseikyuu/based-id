@@ -1014,7 +1014,7 @@ function MintAction({
 
 function SuccessCard({ id, onMintAnother }: { id: bigint; onMintAnother: () => void }) {
   function shareOnX() {
-    const text = `Just minted Based ID #${id.toString()} on Base 🔵\n\nLower number = earlier = bigger $BASED airdrop.\n$2 USDC flat. No phases. No price hikes.\n\nMint yours → basedid.xyz`;
+    const text = `Just minted Based ID #${id.toString()} on Base 🔵\n\nLower number = earlier = bigger $BASED airdrop.\n$2 USDC flat. No phases. No price hikes.\n\nMint yours → basedid.space`;
     window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`, "_blank");
   }
   return (

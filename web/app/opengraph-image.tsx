@@ -61,7 +61,7 @@ export default function OgImage() {
               }}>
                 BASE
               </div>
-              <span style={{ color: "#334155", fontSize: 14 }}>basedid.xyz</span>
+              <span style={{ color: "#334155", fontSize: 14 }}>basedid.space</span>
             </div>
           </div>
 
