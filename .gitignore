@@ -1,0 +1,14 @@
+# Foundry
+/out
+/cache
+/broadcast
+
+# Environment — never commit these
+.env
+.env.local
+.env.*.local
+
+# Dependencies
+/lib
+/web/node_modules
+/web/.next

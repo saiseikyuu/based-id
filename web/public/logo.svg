@@ -1,0 +1,93 @@
+<svg width="400" height="400" viewBox="0 0 680 520" role="img" xmlns="http://www.w3.org/2000/svg">
+  <title>Blue pufferfish mascot</title>
+  <desc>A cute blue pufferfish character with big eyes, rosy cheeks, and spikes, styled as an app mascot.</desc>
+
+  <style>
+    .spike { fill: #2a7fbe; stroke: #1a5f9e; stroke-width: 1.5; }
+    .body { fill: #3aa0e8; stroke: #1a7bc4; stroke-width: 2; }
+    .belly { fill: #6dc8f5; }
+    .eye-white { fill: #fff; }
+    .eye-iris { fill: #1a4fa0; }
+    .pupil { fill: #0a1a40; }
+    .eye-shine { fill: #fff; }
+    .mouth { fill: none; stroke: #1a5f9e; stroke-width: 3; stroke-linecap: round; }
+    .cheek { fill: #7ad0ff; opacity: 0.55; }
+    .heart { fill: #ff8cb0; }
+    .lash { fill: none; stroke: #1a4fa0; stroke-width: 2.5; stroke-linecap: round; }
+    .spike-tip { fill: #a8e0ff; }
+  </style>
+
+  <!-- Top spikes -->
+  <ellipse class="spike" cx="340" cy="148" rx="14" ry="38" transform="rotate(-20,340,148)"/>
+  <ellipse class="spike-tip" cx="334" cy="122" rx="5" ry="10" transform="rotate(-20,334,122)"/>
+  <ellipse class="spike" cx="370" cy="138" rx="13" ry="36" transform="rotate(5,370,138)"/>
+  <ellipse class="spike-tip" cx="371" cy="113" rx="4" ry="9" transform="rotate(5,371,113)"/>
+  <ellipse class="spike" cx="310" cy="155" rx="13" ry="36" transform="rotate(-42,310,155)"/>
+  <ellipse class="spike-tip" cx="297" cy="132" rx="4" ry="9" transform="rotate(-42,297,132)"/>
+  <ellipse class="spike" cx="396" cy="148" rx="12" ry="34" transform="rotate(28,396,148)"/>
+  <ellipse class="spike-tip" cx="403" cy="125" rx="4" ry="8" transform="rotate(28,403,125)"/>
+  <ellipse class="spike" cx="288" cy="173" rx="12" ry="33" transform="rotate(-62,288,173)"/>
+  <ellipse class="spike-tip" cx="272" cy="155" rx="4" ry="8" transform="rotate(-62,272,155)"/>
+
+  <!-- Right spikes -->
+  <ellipse class="spike" cx="422" cy="200" rx="12" ry="34" transform="rotate(55,422,200)"/>
+  <ellipse class="spike-tip" cx="436" cy="182" rx="4" ry="8" transform="rotate(55,436,182)"/>
+  <ellipse class="spike" cx="434" cy="255" rx="11" ry="32" transform="rotate(80,434,255)"/>
+  <ellipse class="spike-tip" cx="452" cy="248" rx="4" ry="8" transform="rotate(80,452,248)"/>
+  <ellipse class="spike" cx="430" cy="310" rx="11" ry="32" transform="rotate(100,430,310)"/>
+  <ellipse class="spike-tip" cx="447" cy="320" rx="4" ry="8" transform="rotate(100,447,320)"/>
+
+  <!-- Left spikes -->
+  <ellipse class="spike" cx="258" cy="200" rx="12" ry="34" transform="rotate(-55,258,200)"/>
+  <ellipse class="spike-tip" cx="244" cy="182" rx="4" ry="8" transform="rotate(-55,244,182)"/>
+  <ellipse class="spike" cx="246" cy="255" rx="11" ry="32" transform="rotate(-80,246,255)"/>
+  <ellipse class="spike-tip" cx="228" cy="248" rx="4" ry="8" transform="rotate(-80,228,248)"/>
+  <ellipse class="spike" cx="250" cy="310" rx="11" ry="32" transform="rotate(-100,250,310)"/>
+  <ellipse class="spike-tip" cx="233" cy="320" rx="4" ry="8" transform="rotate(-100,233,320)"/>
+
+  <!-- Bottom spikes -->
+  <ellipse class="spike" cx="340" cy="396" rx="12" ry="34" transform="rotate(180,340,396)"/>
+  <ellipse class="spike-tip" cx="340" cy="420" rx="4" ry="9" transform="rotate(180,340,420)"/>
+  <ellipse class="spike" cx="305" cy="390" rx="11" ry="30" transform="rotate(150,305,390)"/>
+  <ellipse class="spike-tip" cx="292" cy="410" rx="4" ry="8" transform="rotate(150,292,410)"/>
+  <ellipse class="spike" cx="375" cy="390" rx="11" ry="30" transform="rotate(-150,375,390)"/>
+  <ellipse class="spike-tip" cx="388" cy="410" rx="4" ry="8" transform="rotate(-150,388,410)"/>
+
+  <!-- Main body -->
+  <ellipse class="body" cx="340" cy="278" rx="115" ry="108"/>
+  <ellipse class="belly" cx="340" cy="295" rx="72" ry="65"/>
+
+  <!-- Cheeks -->
+  <ellipse class="cheek" cx="266" cy="298" rx="34" ry="22"/>
+  <ellipse class="cheek" cx="414" cy="298" rx="34" ry="22"/>
+
+  <!-- Left eye -->
+  <ellipse class="eye-white" cx="299" cy="255" rx="36" ry="38"/>
+  <ellipse class="eye-iris" cx="302" cy="259" rx="22" ry="24"/>
+  <ellipse class="pupil" cx="303" cy="261" rx="13" ry="14"/>
+  <ellipse class="eye-shine" cx="295" cy="252" rx="7" ry="8"/>
+  <ellipse class="eye-shine" cx="307" cy="267" rx="3" ry="3.5"/>
+  <line class="lash" x1="283" y1="232" x2="276" y2="220"/>
+  <line class="lash" x1="298" y1="226" x2="295" y2="213"/>
+  <line class="lash" x1="314" y1="228" x2="316" y2="216"/>
+
+  <!-- Right eye -->
+  <ellipse class="eye-white" cx="381" cy="255" rx="36" ry="38"/>
+  <ellipse class="eye-iris" cx="378" cy="259" rx="22" ry="24"/>
+  <ellipse class="pupil" cx="377" cy="261" rx="13" ry="14"/>
+  <ellipse class="eye-shine" cx="369" cy="252" rx="7" ry="8"/>
+  <ellipse class="eye-shine" cx="381" cy="267" rx="3" ry="3.5"/>
+  <line class="lash" x1="366" y1="228" x2="364" y2="216"/>
+  <line class="lash" x1="382" y1="226" x2="385" y2="213"/>
+  <line class="lash" x1="398" y1="232" x2="406" y2="221"/>
+
+  <!-- Mouth -->
+  <path class="mouth" d="M322,316 Q340,334 358,316"/>
+
+  <!-- Heart -->
+  <path class="heart" d="M338,178 C338,175 334,171 330,174 C326,177 326,182 330,186 L338,194 L346,186 C350,182 350,177 346,174 C342,171 338,175 338,178 Z"/>
+
+  <!-- Fins -->
+  <ellipse fill="#2a7fbe" stroke="#1a5f9e" stroke-width="1.5" cx="222" cy="300" rx="18" ry="11" transform="rotate(-30,222,300)"/>
+  <ellipse fill="#2a7fbe" stroke="#1a5f9e" stroke-width="1.5" cx="458" cy="300" rx="18" ry="11" transform="rotate(30,458,300)"/>
+</svg>
