@@ -570,21 +570,9 @@ export default function Home() {
                   <div
                     key={n}
                     title={`#${n}`}
-                    className={`aspect-square rounded-md flex items-center justify-center text-[8px] font-mono transition-colors
-                      ${n <= 10
-                        ? "bg-amber-950/40 border border-amber-800/30 text-amber-700/60"
-                        : "bg-zinc-900/60 border border-white/[0.04] text-zinc-700"
-                      }`}
+                    className="aspect-square rounded-md flex items-center justify-center bg-amber-950/40 border border-amber-800/30 text-amber-700/50 text-[7px] font-mono"
                   >
-                    {n <= 10 ? (
-                      <svg width="8" height="8" viewBox="0 0 10 12" fill="currentColor" className="text-amber-700/50">
-                        <path d="M8 5V3.5C8 1.57 6.43 0 4.5 0S1 1.57 1 3.5V5H0v7h9V5H8zM3 3.5C3 2.67 3.67 2 4.5 2S6 2.67 6 3.5V5H3V3.5z"/>
-                      </svg>
-                    ) : (
-                      <svg width="7" height="7" viewBox="0 0 10 12" fill="currentColor" className="opacity-30">
-                        <path d="M8 5V3.5C8 1.57 6.43 0 4.5 0S1 1.57 1 3.5V5H0v7h9V5H8zM3 3.5C3 2.67 3.67 2 4.5 2S6 2.67 6 3.5V5H3V3.5z"/>
-                      </svg>
-                    )}
+                    {n}
                   </div>
                 ))}
               </div>
