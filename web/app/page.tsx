@@ -220,23 +220,29 @@ export default function Home() {
       {/* ── HERO ────────────────────────────────────────────────── */}
       <section id="mint" className="min-h-screen flex items-center relative overflow-hidden">
 
+        {/* Background ambient glows */}
+        <div className="absolute top-1/3 right-1/4 w-[600px] h-[600px] rounded-full bg-blue-600/[0.05] blur-[160px] pointer-events-none" />
+        <div className="absolute top-1/2 right-1/3 w-72 h-72 rounded-full bg-blue-500/[0.04] blur-[100px] pointer-events-none" />
+        <div className="absolute bottom-1/4 left-1/4 w-48 h-48 rounded-full bg-blue-900/[0.06] blur-[80px] pointer-events-none" />
 
-        <div className="max-w-7xl mx-auto px-6 pt-24 pb-24 w-full grid grid-cols-1 lg:grid-cols-2 gap-20 items-center relative z-10">
+        <div className="max-w-7xl mx-auto px-6 pt-28 pb-24 w-full grid grid-cols-1 lg:grid-cols-2 gap-20 items-center relative z-10">
 
           {/* Left */}
-          <div className="space-y-8">
+          <div className="space-y-9">
 
-            {/* Badge */}
-            <p className="flex items-center gap-2.5 text-[11px] uppercase tracking-[0.2em]">
-              <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse flex-shrink-0" />
-              <ShinyText text="Live on Base" speed={6} />
-            </p>
-
-            {/* Headline with RotatingText */}
-            <div
-              style={D}
-              className="text-[clamp(3rem,7vw,5.5rem)] font-bold tracking-tight leading-[0.92]"
+            {/* Badge — proper pill */}
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full border border-green-900/35 bg-green-500/[0.04]"
             >
+              <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse flex-shrink-0" />
+              <ShinyText text="Live on Base" speed={6} className="text-green-400/80 text-[11px] uppercase tracking-[0.2em]" />
+            </motion.div>
+
+            {/* Headline */}
+            <div style={D} className="text-[clamp(3rem,7vw,5.5rem)] font-bold tracking-tight leading-[0.92]">
               <motion.div
                 initial={{ opacity: 0, y: 24 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -268,87 +274,99 @@ export default function Home() {
               text="NFTs, airdrops, whitelists, and DAO — all for $2. Safe, permanent, and onchain. The easiest way to start on Base."
               delay={60}
               direction="bottom"
-              className="text-zinc-500 text-[15px] leading-relaxed max-w-[22rem]"
+              className="text-zinc-400 text-[15px] leading-relaxed max-w-[22rem]"
+              style={{ fontFamily: "var(--font-display), system-ui, sans-serif" } as React.CSSProperties}
             />
 
-            {/* Mini stats row */}
-            <div className="flex items-center gap-6 pt-1 border-t border-white/[0.05] flex-wrap">
-              <div className="flex items-center gap-1.5">
-                {totalMinted !== undefined ? (
-                  <CountUp to={Number(totalMinted)} duration={1.8} className="text-xl font-black tabular-nums leading-none" />
-                ) : (
-                  <span className="text-xl font-black leading-none">—</span>
-                )}
-                <span className="w-1 h-1 rounded-full bg-green-500 animate-pulse flex-shrink-0" />
-                <span className="text-zinc-600 text-[10px] uppercase tracking-[0.18em]">Minted</span>
+            {/* Stats — 3-column metric panel */}
+            <div className="grid grid-cols-3 border border-white/[0.06] rounded-2xl overflow-hidden divide-x divide-white/[0.06]">
+              <div className="px-5 py-4">
+                <div className="flex items-center gap-1.5 mb-1.5">
+                  {totalMinted !== undefined ? (
+                    <CountUp to={Number(totalMinted)} duration={1.8} className="text-[1.5rem] font-black tabular-nums leading-none" />
+                  ) : (
+                    <span className="text-[1.5rem] font-black leading-none">—</span>
+                  )}
+                  <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse flex-shrink-0" />
+                </div>
+                <p className="text-zinc-600 text-[10px] uppercase tracking-[0.18em]">Minted</p>
               </div>
-              <span className="w-px h-5 bg-white/[0.05]" />
-              <div className="flex items-center gap-1.5">
-                <span className="text-xl font-black leading-none">$2</span>
-                <span className="text-zinc-600 text-[10px] uppercase tracking-[0.18em]">USDC flat</span>
+              <div className="px-5 py-4">
+                <p className="text-[1.5rem] font-black leading-none mb-1.5">$2</p>
+                <p className="text-zinc-600 text-[10px] uppercase tracking-[0.18em]">USDC flat</p>
               </div>
-              <span className="w-px h-5 bg-white/[0.05]" />
-              <div className="flex items-center gap-1.5">
-                <span className="text-xl font-black leading-none" style={GRAD}>1B</span>
-                <span className="text-zinc-600 text-[10px] uppercase tracking-[0.18em]">$BASED supply</span>
+              <div className="px-5 py-4">
+                <p className="text-[1.5rem] font-black leading-none mb-1.5" style={GRAD}>1B</p>
+                <p className="text-zinc-600 text-[10px] uppercase tracking-[0.18em]">$BASED supply</p>
               </div>
             </div>
           </div>
 
           {/* Right — mint card */}
-          <div id="mint-card" className="space-y-3">
-            <div className="flex items-center justify-between text-[10px] text-zinc-600 px-0.5 uppercase tracking-[0.15em]">
-              <div className="flex items-center gap-2">
-                <span className="w-1 h-1 rounded-full bg-green-500 animate-pulse" />
-                Minting open
-              </div>
-              <span className="tabular-nums normal-case tracking-normal">
-                Snapshot #1 — Sep 30, 2026
-              </span>
-            </div>
+          <div id="mint-card" className="relative">
+            {/* Ambient glow behind card */}
+            <div className="absolute -inset-6 rounded-3xl bg-blue-700/[0.05] blur-2xl pointer-events-none" />
 
-            <NftCard id={previewId} holder={address ?? "connect wallet to mint"} />
-
-            <div className="flex items-center justify-between px-0.5 text-[10px] text-zinc-700 uppercase tracking-[0.12em]">
-              <div className="flex items-center gap-1.5">
-                <span className="w-1 h-1 rounded-full bg-blue-700" />
-                Snapshot #1 — Sep 30, 2026 (UTC)
-              </div>
-              <span className="normal-case tracking-normal">$2 USDC</span>
-            </div>
-
-            {mintState === "success" && mintedId !== null ? (
-              <SuccessCard id={mintedId} onMintAnother={handleReset} />
-            ) : !isConnected ? (
-              <div className="rounded-xl border border-white/[0.07] p-5 text-center space-y-3">
-                <p className="text-zinc-500 text-sm">Connect your wallet to mint</p>
-                <div className="flex justify-center">
-                  <ConnectButton label="Connect Wallet" />
+            <div className="relative space-y-3">
+              {/* Meta top */}
+              <div className="flex items-center justify-between text-[10px] text-zinc-600 px-0.5 uppercase tracking-[0.15em]">
+                <div className="flex items-center gap-2">
+                  <span className="w-1 h-1 rounded-full bg-green-500 animate-pulse" />
+                  Minting open
                 </div>
+                <span className="tabular-nums normal-case tracking-normal text-zinc-600">
+                  Snapshot #1 — Sep 30, 2026
+                </span>
               </div>
-            ) : insufficientBalance ? (
-              <div className="rounded-xl border border-red-900/30 p-4 text-center">
-                <p className="text-red-400 text-sm">You need $2 USDC on Base to mint.</p>
+
+              <NftCard id={previewId} holder={address ?? "connect wallet to mint"} />
+
+              {/* Meta bottom */}
+              <div className="flex items-center justify-between px-0.5 text-[10px] text-zinc-700 uppercase tracking-[0.12em]">
+                <div className="flex items-center gap-1.5">
+                  <span className="w-1 h-1 rounded-full bg-blue-700" />
+                  Snapshot #1 — Sep 30, 2026 (UTC)
+                </div>
+                <span className="normal-case tracking-normal">$2 USDC</span>
               </div>
-            ) : !hasAllowance && mintState !== "approved" ? (
-              <MintAction
-                label="Approve $2 USDC"
-                sub="Step 1 of 2"
-                btnLabel={isLoading && mintState === "approving" ? (isConfirming ? "Confirming…" : "Approving…") : "Approve $2 USDC"}
-                onClick={handleApprove}
-                loading={isLoading && mintState === "approving"}
-              />
-            ) : (
-              <MintAction
-                label={`Mint Based ID #${resolvedNextId.toString()}`}
-                sub="Step 2 of 2 — permanent"
-                btnLabel={isLoading && mintState === "minting" ? (isConfirming ? "Confirming…" : "Minting…") : "Mint Now — $2 USDC"}
-                onClick={handleMint}
-                loading={isLoading && mintState === "minting"}
-                primary
-              />
-            )}
-            {errorMsg && <p className="text-red-400 text-xs text-center">{errorMsg}</p>}
+
+              {mintState === "success" && mintedId !== null ? (
+                <SuccessCard id={mintedId} onMintAnother={handleReset} />
+              ) : !isConnected ? (
+                <div className="rounded-2xl border border-white/[0.08] bg-white/[0.01] p-6 text-center space-y-4">
+                  <div>
+                    <p className="text-white font-semibold text-sm">Ready to claim your number?</p>
+                    <p className="text-zinc-500 text-xs mt-1">Connect your wallet to see the next available ID.</p>
+                  </div>
+                  <div className="flex justify-center">
+                    <ConnectButton label="Connect Wallet" />
+                  </div>
+                </div>
+              ) : insufficientBalance ? (
+                <div className="rounded-2xl border border-red-900/30 bg-red-950/10 p-4 text-center">
+                  <p className="text-red-400 text-sm font-medium">You need $2 USDC on Base to mint.</p>
+                  <p className="text-red-900/80 text-xs mt-1">See the "Before you mint" guide below.</p>
+                </div>
+              ) : !hasAllowance && mintState !== "approved" ? (
+                <MintAction
+                  label="Approve $2 USDC"
+                  sub="Step 1 of 2"
+                  btnLabel={isLoading && mintState === "approving" ? (isConfirming ? "Confirming…" : "Approving…") : "Approve $2 USDC"}
+                  onClick={handleApprove}
+                  loading={isLoading && mintState === "approving"}
+                />
+              ) : (
+                <MintAction
+                  label={`Mint Based ID #${resolvedNextId.toString()}`}
+                  sub="Step 2 of 2 — permanent"
+                  btnLabel={isLoading && mintState === "minting" ? (isConfirming ? "Confirming…" : "Minting…") : "Mint Now — $2 USDC"}
+                  onClick={handleMint}
+                  loading={isLoading && mintState === "minting"}
+                  primary
+                />
+              )}
+              {errorMsg && <p className="text-red-400 text-xs text-center">{errorMsg}</p>}
+            </div>
           </div>
         </div>
       </section>
@@ -1562,20 +1580,35 @@ function MintAction({
   onClick: () => void; loading: boolean; primary?: boolean;
 }) {
   return (
-    <div className="rounded-xl border border-white/[0.07] p-5 space-y-4">
-      <div>
-        <p className="text-white font-semibold text-sm">{label}</p>
-        <p className="text-zinc-600 text-xs mt-0.5">{sub}</p>
+    <div className="rounded-2xl border border-white/[0.08] bg-white/[0.01] p-5 space-y-4">
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-white font-semibold text-[15px]">{label}</p>
+          <p className="text-zinc-600 text-xs mt-0.5">{sub}</p>
+        </div>
+        {primary && (
+          <span className="text-[9px] px-2 py-1 rounded-full border border-green-900/40 bg-green-500/[0.05] text-green-400 uppercase tracking-[0.12em]">
+            Final step
+          </span>
+        )}
       </div>
       <button
         onClick={onClick} disabled={loading}
-        className={`w-full py-3.5 rounded-lg font-bold text-sm tracking-wide transition-all disabled:opacity-30 disabled:cursor-not-allowed
+        className={`w-full py-4 rounded-xl font-bold text-sm tracking-wide transition-all disabled:opacity-30 disabled:cursor-not-allowed
           ${primary
-            ? "bg-white text-black hover:bg-zinc-100"
-            : "bg-zinc-900 border border-white/[0.08] text-white hover:bg-zinc-800"
+            ? "bg-white text-black hover:bg-zinc-100 shadow-[0_0_40px_rgba(255,255,255,0.06)] hover:shadow-[0_0_40px_rgba(255,255,255,0.1)]"
+            : "bg-white/[0.04] border border-white/[0.1] text-white hover:bg-white/[0.07]"
           }`}
       >
-        {btnLabel}
+        {loading ? (
+          <span className="flex items-center justify-center gap-2">
+            <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2.5" strokeOpacity="0.2"/>
+              <path d="M12 2a10 10 0 0110 10" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/>
+            </svg>
+            {btnLabel}
+          </span>
+        ) : btnLabel}
       </button>
     </div>
   );
