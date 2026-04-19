@@ -533,103 +533,107 @@ export default function Home() {
       {/* ── GENESIS VAULT ───────────────────────────────────────── */}
       <section id="genesis" className="border-t border-white/[0.05]">
         <div className="max-w-7xl mx-auto px-6 py-28">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-start">
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.1fr] gap-20 items-center">
 
             {/* Left — copy */}
             <div className="lg:sticky lg:top-24">
               <FadeIn>
-                <p className="text-amber-500/70 text-[11px] uppercase tracking-[0.2em] mb-5">Genesis Reserve</p>
-                <h2 style={D} className="text-[clamp(2.5rem,5vw,4rem)] font-bold tracking-tight leading-tight">
+                <p className="text-amber-500/60 text-[11px] uppercase tracking-[0.2em] mb-6">Genesis Reserve</p>
+                <h2 style={D} className="text-[clamp(2.5rem,5vw,4rem)] font-bold tracking-tight leading-[1.05]">
                   100 IDs.<br />Never publicly<br />minted.
                 </h2>
-                <p className="text-zinc-500 text-sm mt-6 leading-relaxed max-w-sm" style={{ fontFamily: "var(--font-display), system-ui, sans-serif" }}>
-                  IDs #1–#100 are permanently reserved — never available at $2. Auctions start around the 1,000 mint mark,
-                  counting down from #100 to #1. Each winner earns $BASED at the highest weight tier in both snapshots.
-                  The lower the number, the rarer it gets.
+                <p className="mt-6 leading-relaxed text-zinc-400 text-base max-w-sm"
+                  style={{ fontFamily: "var(--font-display), system-ui, sans-serif" }}>
+                  IDs #1–#100 are permanently reserved — never available at $2.
+                  Auctions start around the 1,000 mint mark, counting down from #100 to #1.
+                  Each winner earns $BASED at the highest weight of any ID on Base.
                 </p>
 
-                {/* 3 stat cards */}
+                {/* Stats */}
                 <div className="grid grid-cols-3 gap-3 mt-10">
                   {[
-                    { value: "100", label: "IDs reserved", amber: true },
-                    { value: "1/wk", label: "Auction pace", amber: false },
-                    { value: "1.0×", label: "Max $BASED weight", amber: false },
-                  ].map(({ value, label, amber }) => (
-                    <div
-                      key={label}
-                      className={`rounded-xl border p-4 ${amber ? "border-amber-900/30 bg-amber-950/10" : "border-white/[0.05] bg-white/[0.01]"}`}
-                    >
-                      <p className={`text-2xl font-bold tracking-tight ${amber ? "text-amber-400" : "text-white"}`}>{value}</p>
-                      <p className="text-zinc-600 text-[10px] uppercase tracking-[0.12em] mt-1.5">{label}</p>
+                    { value: "100", label: "IDs reserved", gold: true },
+                    { value: "1 / wk", label: "Auction pace", gold: false },
+                    { value: "1.0×", label: "Peak $BASED weight", gold: false },
+                  ].map(({ value, label, gold }) => (
+                    <div key={label} className={`rounded-xl border p-4 ${gold ? "border-amber-900/35 bg-amber-950/12" : "border-white/[0.05] bg-white/[0.015]"}`}>
+                      <p className={`text-[1.6rem] font-bold leading-none tracking-tight ${gold ? "text-amber-400" : "text-white"}`}>{value}</p>
+                      <p className="text-zinc-600 text-[10px] uppercase tracking-[0.12em] mt-2">{label}</p>
                     </div>
                   ))}
                 </div>
 
-                {/* Auction mechanics — clean divider list */}
+                {/* Mechanics */}
                 <div className="divide-y divide-white/[0.04] mt-10">
                   {[
-                    "Each auction runs one week — bid in USDC, highest bid wins the ID.",
-                    "#100 auctions first. #1 auctions last. Every ID rarer than the last.",
-                    "Winners earn $BASED at the highest weight of any ID on Base.",
-                  ].map((item, i) => (
-                    <div key={i} className="flex items-start gap-5 py-4">
-                      <span className="font-mono text-amber-800/60 text-[11px] flex-shrink-0 mt-0.5">0{i + 1}</span>
-                      <p className="text-zinc-500 text-sm leading-relaxed">{item}</p>
+                    { n: "01", text: "One-week auction — highest USDC bid wins the ID." },
+                    { n: "02", text: "#100 goes first, #1 goes last. Every ID rarer than the previous." },
+                    { n: "03", text: "Winners earn $BASED at the highest weight of any ID." },
+                  ].map(({ n, text }) => (
+                    <div key={n} className="flex items-baseline gap-5 py-4">
+                      <span className="font-mono text-amber-800/50 text-[11px] flex-shrink-0">{n}</span>
+                      <p className="text-zinc-500 text-sm leading-relaxed" style={{ fontFamily: "var(--font-display), system-ui, sans-serif" }}>{text}</p>
                     </div>
                   ))}
                 </div>
 
                 <div className="mt-8 inline-flex items-center gap-2.5 px-4 py-2.5 rounded-xl border border-amber-900/30 bg-amber-500/[0.04]">
                   <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse flex-shrink-0" />
-                  <span className="text-amber-500/80 text-[11px] uppercase tracking-[0.18em]">First auction · ~1,000 mints · Before Sep 30, 2026</span>
+                  <span className="text-amber-500/75 text-[11px] uppercase tracking-[0.16em]">First auction · ~1,000 mints · Before Sep 30, 2026</span>
                 </div>
               </FadeIn>
             </div>
 
-            {/* Right — locked grid with rarity gradient */}
+            {/* Right — rarity map (no numbers, pure color) */}
             <FadeIn delay={0.1}>
-              <div className="relative rounded-2xl border border-amber-900/20 bg-amber-950/[0.06] p-5 overflow-hidden">
-                {/* Radial glow — concentrated on #1 (top-left) */}
+              <div
+                className="relative rounded-2xl border border-amber-900/25 overflow-hidden p-6"
+                style={{ background: "radial-gradient(ellipse 90% 80% at 6% 6%, rgba(180,83,9,0.12) 0%, rgba(12,8,2,0.85) 55%)" }}
+              >
+                {/* #1 glow spot */}
                 <div
-                  className="absolute inset-0 pointer-events-none"
-                  style={{ background: "radial-gradient(ellipse 60% 60% at 8% 8%, rgba(217,119,6,0.10) 0%, transparent 70%)" }}
+                  className="absolute pointer-events-none"
+                  style={{
+                    top: "1.5rem", left: "1.5rem", width: "64px", height: "64px",
+                    background: "radial-gradient(circle, rgba(245,158,11,0.35) 0%, transparent 70%)",
+                    filter: "blur(8px)",
+                  }}
                 />
+
                 <div className="grid grid-cols-10 gap-1.5 relative">
                   {Array.from({ length: 100 }, (_, i) => i + 1).map((n) => {
-                    const rarity = 1 - (n - 1) / 99;
-                    const bgA  = (0.12 + rarity * 0.28).toFixed(2);
-                    const bdA  = (0.08 + rarity * 0.32).toFixed(2);
-                    const txA  = (0.25 + rarity * 0.5).toFixed(2);
+                    const r   = 1 - (n - 1) / 99;
+                    const bg  = (0.06 + r * 0.40).toFixed(2);
+                    const bd  = (0.04 + r * 0.42).toFixed(2);
+                    const isOne = n === 1;
                     return (
                       <div
                         key={n}
                         title={`#${n}`}
-                        className="aspect-square rounded-md flex items-center justify-center text-[7px] font-mono"
+                        className="aspect-square rounded-[5px]"
                         style={{
-                          background: `rgba(120,53,15,${bgA})`,
-                          border:     `1px solid rgba(217,119,6,${bdA})`,
-                          color:      `rgba(251,191,36,${txA})`,
+                          background: isOne ? "rgba(245,158,11,0.55)" : `rgba(120,53,15,${bg})`,
+                          border:     `1px solid rgba(217,119,6,${isOne ? "0.8" : bd})`,
+                          boxShadow:  isOne ? "0 0 12px rgba(245,158,11,0.4)" : undefined,
                         }}
-                      >
-                        {n}
-                      </div>
+                      />
                     );
                   })}
                 </div>
-              </div>
 
-              {/* Caption */}
-              <div className="flex items-center justify-between mt-4 px-1">
-                <p className="text-zinc-700 text-[10px] uppercase tracking-[0.15em]">100 of 100 slots locked</p>
-                <div className="flex items-center gap-3 text-[10px] text-zinc-700 uppercase tracking-[0.12em]">
-                  <span className="flex items-center gap-1.5">
-                    <span className="inline-block w-3 h-2 rounded-sm" style={{ background: "rgba(120,53,15,0.4)", border: "1px solid rgba(217,119,6,0.4)" }} />
-                    Rarest
-                  </span>
-                  <span className="flex items-center gap-1.5">
-                    <span className="inline-block w-3 h-2 rounded-sm" style={{ background: "rgba(120,53,15,0.12)", border: "1px solid rgba(217,119,6,0.08)" }} />
-                    Rare
-                  </span>
+                {/* Caption row inside panel */}
+                <div className="mt-5 flex items-center justify-between">
+                  <p className="text-amber-900/70 text-[10px] uppercase tracking-[0.15em]">100 of 100 slots locked</p>
+                  <div className="flex items-center gap-4 text-[10px] uppercase tracking-[0.1em]">
+                    <span className="flex items-center gap-1.5 text-amber-600/60">
+                      <span className="w-3 h-[9px] rounded-[3px] inline-block" style={{ background: "rgba(245,158,11,0.55)", border: "1px solid rgba(217,119,6,0.8)" }} />
+                      #1 — rarest
+                    </span>
+                    <span className="flex items-center gap-1.5 text-zinc-700">
+                      <span className="w-3 h-[9px] rounded-[3px] inline-block" style={{ background: "rgba(120,53,15,0.06)", border: "1px solid rgba(217,119,6,0.04)" }} />
+                      #100
+                    </span>
+                  </div>
                 </div>
               </div>
             </FadeIn>
