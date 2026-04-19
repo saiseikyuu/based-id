@@ -533,7 +533,7 @@ export default function Home() {
       {/* ── GENESIS VAULT ───────────────────────────────────────── */}
       <section id="genesis" className="border-t border-white/[0.05]">
         <div className="max-w-7xl mx-auto px-6 py-28">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-start">
 
             {/* Left — copy */}
             <div className="lg:sticky lg:top-24">
@@ -542,46 +542,96 @@ export default function Home() {
                 <h2 style={D} className="text-[clamp(2.5rem,5vw,4rem)] font-bold tracking-tight leading-tight">
                   100 IDs.<br />Never publicly<br />minted.
                 </h2>
-                <p className="text-zinc-500 text-sm mt-6 leading-relaxed max-w-sm">
-                  IDs #1–#100 are permanently reserved. They will never be available for $2 mint.
-                  Auctions begin around the 1,000 mint mark — starting from #100 and working down to #1.
-                  Winners earn $BASED at the highest weight in both snapshots. The lower the number, the rarer it gets.
+                <p className="text-zinc-500 text-sm mt-6 leading-relaxed max-w-sm" style={{ fontFamily: "var(--font-display), system-ui, sans-serif" }}>
+                  IDs #1–#100 are permanently reserved — never available at $2. Auctions start around the 1,000 mint mark,
+                  counting down from #100 to #1. Each winner earns $BASED at the highest weight tier in both snapshots.
+                  The lower the number, the rarer it gets.
                 </p>
-                <div className="mt-8 space-y-3">
-                  <div className="flex items-start gap-3">
-                    <span className="w-1 h-1 rounded-full bg-amber-500/50 flex-shrink-0 mt-2" />
-                    <p className="text-zinc-600 text-sm">Each auction is a one-week event — bid in USDC, winner takes the ID.</p>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <span className="w-1 h-1 rounded-full bg-amber-500/50 flex-shrink-0 mt-2" />
-                    <p className="text-zinc-600 text-sm">#100 auctions first. #1 auctions last. Every number rarer than the one before.</p>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <span className="w-1 h-1 rounded-full bg-amber-500/50 flex-shrink-0 mt-2" />
-                    <p className="text-zinc-600 text-sm">Genesis IDs carry the highest $BASED weight of any ID on Base.</p>
-                  </div>
+
+                {/* 3 stat cards */}
+                <div className="grid grid-cols-3 gap-3 mt-10">
+                  {[
+                    { value: "100", label: "IDs reserved", amber: true },
+                    { value: "1/wk", label: "Auction pace", amber: false },
+                    { value: "1.0×", label: "Max $BASED weight", amber: false },
+                  ].map(({ value, label, amber }) => (
+                    <div
+                      key={label}
+                      className={`rounded-xl border p-4 ${amber ? "border-amber-900/30 bg-amber-950/10" : "border-white/[0.05] bg-white/[0.01]"}`}
+                    >
+                      <p className={`text-2xl font-bold tracking-tight ${amber ? "text-amber-400" : "text-white"}`}>{value}</p>
+                      <p className="text-zinc-600 text-[10px] uppercase tracking-[0.12em] mt-1.5">{label}</p>
+                    </div>
+                  ))}
                 </div>
-                <div className="mt-8 inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-amber-900/30 bg-amber-500/[0.04]">
+
+                {/* Auction mechanics — clean divider list */}
+                <div className="divide-y divide-white/[0.04] mt-10">
+                  {[
+                    "Each auction runs one week — bid in USDC, highest bid wins the ID.",
+                    "#100 auctions first. #1 auctions last. Every ID rarer than the last.",
+                    "Winners earn $BASED at the highest weight of any ID on Base.",
+                  ].map((item, i) => (
+                    <div key={i} className="flex items-start gap-5 py-4">
+                      <span className="font-mono text-amber-800/60 text-[11px] flex-shrink-0 mt-0.5">0{i + 1}</span>
+                      <p className="text-zinc-500 text-sm leading-relaxed">{item}</p>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="mt-8 inline-flex items-center gap-2.5 px-4 py-2.5 rounded-xl border border-amber-900/30 bg-amber-500/[0.04]">
                   <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse flex-shrink-0" />
-                  <span className="text-amber-500/80 text-[11px] uppercase tracking-[0.18em]">First auction before Snapshot #1 · Sep 30, 2026</span>
+                  <span className="text-amber-500/80 text-[11px] uppercase tracking-[0.18em]">First auction · ~1,000 mints · Before Sep 30, 2026</span>
                 </div>
               </FadeIn>
             </div>
 
-            {/* Right — locked grid */}
+            {/* Right — locked grid with rarity gradient */}
             <FadeIn delay={0.1}>
-              <div className="grid grid-cols-10 gap-1.5">
-                {Array.from({ length: 100 }, (_, i) => i + 1).map((n) => (
-                  <div
-                    key={n}
-                    title={`#${n}`}
-                    className="aspect-square rounded-md flex items-center justify-center bg-amber-950/40 border border-amber-800/30 text-amber-700/50 text-[7px] font-mono"
-                  >
-                    {n}
-                  </div>
-                ))}
+              <div className="relative rounded-2xl border border-amber-900/20 bg-amber-950/[0.06] p-5 overflow-hidden">
+                {/* Radial glow — concentrated on #1 (top-left) */}
+                <div
+                  className="absolute inset-0 pointer-events-none"
+                  style={{ background: "radial-gradient(ellipse 60% 60% at 8% 8%, rgba(217,119,6,0.10) 0%, transparent 70%)" }}
+                />
+                <div className="grid grid-cols-10 gap-1.5 relative">
+                  {Array.from({ length: 100 }, (_, i) => i + 1).map((n) => {
+                    const rarity = 1 - (n - 1) / 99;
+                    const bgA  = (0.12 + rarity * 0.28).toFixed(2);
+                    const bdA  = (0.08 + rarity * 0.32).toFixed(2);
+                    const txA  = (0.25 + rarity * 0.5).toFixed(2);
+                    return (
+                      <div
+                        key={n}
+                        title={`#${n}`}
+                        className="aspect-square rounded-md flex items-center justify-center text-[7px] font-mono"
+                        style={{
+                          background: `rgba(120,53,15,${bgA})`,
+                          border:     `1px solid rgba(217,119,6,${bdA})`,
+                          color:      `rgba(251,191,36,${txA})`,
+                        }}
+                      >
+                        {n}
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
-              <p className="text-zinc-700 text-[10px] mt-4 uppercase tracking-[0.15em]">100 of 100 slots locked · First auction before Sep 30, 2026</p>
+
+              {/* Caption */}
+              <div className="flex items-center justify-between mt-4 px-1">
+                <p className="text-zinc-700 text-[10px] uppercase tracking-[0.15em]">100 of 100 slots locked</p>
+                <div className="flex items-center gap-3 text-[10px] text-zinc-700 uppercase tracking-[0.12em]">
+                  <span className="flex items-center gap-1.5">
+                    <span className="inline-block w-3 h-2 rounded-sm" style={{ background: "rgba(120,53,15,0.4)", border: "1px solid rgba(217,119,6,0.4)" }} />
+                    Rarest
+                  </span>
+                  <span className="flex items-center gap-1.5">
+                    <span className="inline-block w-3 h-2 rounded-sm" style={{ background: "rgba(120,53,15,0.12)", border: "1px solid rgba(217,119,6,0.08)" }} />
+                    Rare
+                  </span>
+                </div>
+              </div>
             </FadeIn>
           </div>
         </div>
