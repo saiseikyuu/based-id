@@ -221,16 +221,15 @@ export default function Home() {
       <section id="mint" className="min-h-screen flex items-center relative overflow-hidden">
 
         {/* Background ambient glows */}
-        <div className="absolute top-1/3 right-1/4 w-[600px] h-[600px] rounded-full bg-blue-600/[0.05] blur-[160px] pointer-events-none" />
-        <div className="absolute top-1/2 right-1/3 w-72 h-72 rounded-full bg-blue-500/[0.04] blur-[100px] pointer-events-none" />
-        <div className="absolute bottom-1/4 left-1/4 w-48 h-48 rounded-full bg-blue-900/[0.06] blur-[80px] pointer-events-none" />
+        <div className="absolute top-1/4 right-1/3 w-[700px] h-[700px] rounded-full bg-blue-600/[0.06] blur-[180px] pointer-events-none" />
+        <div className="absolute bottom-1/3 left-1/4 w-64 h-64 rounded-full bg-blue-900/[0.07] blur-[100px] pointer-events-none" />
 
-        <div className="max-w-7xl mx-auto px-6 pt-28 pb-24 w-full grid grid-cols-1 lg:grid-cols-2 gap-20 items-center relative z-10">
+        <div className="max-w-7xl mx-auto px-6 pt-28 pb-24 w-full grid grid-cols-1 lg:grid-cols-[1fr_1.05fr] gap-16 items-center relative z-10">
 
-          {/* Left */}
-          <div className="space-y-9">
+          {/* ── Left ── */}
+          <div className="space-y-8">
 
-            {/* Badge — proper pill */}
+            {/* Live badge */}
             <motion.div
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
@@ -278,94 +277,114 @@ export default function Home() {
               style={{ fontFamily: "var(--font-display), system-ui, sans-serif" } as React.CSSProperties}
             />
 
+            {/* Feature chips */}
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.8 }}
+              className="flex flex-wrap gap-2"
+            >
+              {["ERC-721 NFT", "On-chain SVG art", "$2 flat — always", "No expiry"].map((tag) => (
+                <span key={tag} className="text-[11px] px-3 py-1.5 rounded-full border border-white/[0.07] bg-white/[0.02] text-zinc-500 tracking-wide">
+                  {tag}
+                </span>
+              ))}
+            </motion.div>
+
             {/* Stats — 3-column metric panel */}
             <div className="grid grid-cols-3 border border-white/[0.06] rounded-2xl overflow-hidden divide-x divide-white/[0.06]">
-              <div className="px-5 py-4">
+              <div className="px-5 py-5">
                 <div className="flex items-center gap-1.5 mb-1.5">
                   {totalMinted !== undefined ? (
-                    <CountUp to={Number(totalMinted)} duration={1.8} className="text-[1.5rem] font-black tabular-nums leading-none" />
+                    <CountUp to={Number(totalMinted)} duration={1.8} className="text-[1.6rem] font-black tabular-nums leading-none" />
                   ) : (
-                    <span className="text-[1.5rem] font-black leading-none">—</span>
+                    <span className="text-[1.6rem] font-black leading-none">—</span>
                   )}
                   <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse flex-shrink-0" />
                 </div>
                 <p className="text-zinc-600 text-[10px] uppercase tracking-[0.18em]">Minted</p>
               </div>
-              <div className="px-5 py-4">
-                <p className="text-[1.5rem] font-black leading-none mb-1.5">$2</p>
+              <div className="px-5 py-5">
+                <p className="text-[1.6rem] font-black leading-none mb-1.5">$2</p>
                 <p className="text-zinc-600 text-[10px] uppercase tracking-[0.18em]">USDC flat</p>
               </div>
-              <div className="px-5 py-4">
-                <p className="text-[1.5rem] font-black leading-none mb-1.5" style={GRAD}>1B</p>
+              <div className="px-5 py-5">
+                <p className="text-[1.6rem] font-black leading-none mb-1.5" style={GRAD}>1B</p>
                 <p className="text-zinc-600 text-[10px] uppercase tracking-[0.18em]">$BASED supply</p>
               </div>
             </div>
           </div>
 
-          {/* Right — mint card */}
+          {/* ── Right — unified product panel ── */}
           <div id="mint-card" className="relative">
-            {/* Ambient glow behind card */}
-            <div className="absolute -inset-6 rounded-3xl bg-blue-700/[0.05] blur-2xl pointer-events-none" />
+            {/* Outer glow */}
+            <div className="absolute -inset-10 rounded-[2rem] bg-blue-600/[0.07] blur-3xl pointer-events-none" />
 
-            <div className="relative space-y-3">
-              {/* Meta top */}
-              <div className="flex items-center justify-between text-[10px] text-zinc-600 px-0.5 uppercase tracking-[0.15em]">
-                <div className="flex items-center gap-2">
-                  <span className="w-1 h-1 rounded-full bg-green-500 animate-pulse" />
+            <div className="relative rounded-3xl border border-white/[0.09] bg-white/[0.025] overflow-hidden">
+
+              {/* Top meta bar */}
+              <div className="flex items-center justify-between px-5 py-3.5 border-b border-white/[0.06] bg-white/[0.01]">
+                <div className="flex items-center gap-2 text-[10px] text-zinc-500 uppercase tracking-[0.15em]">
+                  <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse flex-shrink-0" />
                   Minting open
                 </div>
-                <span className="tabular-nums normal-case tracking-normal text-zinc-600">
-                  Snapshot #1 — Sep 30, 2026
-                </span>
+                <span className="text-[10px] text-zinc-600 tabular-nums">Snapshot #1 — Sep 30, 2026</span>
               </div>
 
-              <NftCard id={previewId} holder={address ?? "connect wallet to mint"} />
-
-              {/* Meta bottom */}
-              <div className="flex items-center justify-between px-0.5 text-[10px] text-zinc-700 uppercase tracking-[0.12em]">
-                <div className="flex items-center gap-1.5">
-                  <span className="w-1 h-1 rounded-full bg-blue-700" />
-                  Snapshot #1 — Sep 30, 2026 (UTC)
-                </div>
-                <span className="normal-case tracking-normal">$2 USDC</span>
+              {/* NFT card */}
+              <div className="p-5 pb-4">
+                <NftCard id={previewId} holder={address ?? "connect wallet to mint"} />
               </div>
 
-              {mintState === "success" && mintedId !== null ? (
-                <SuccessCard id={mintedId} onMintAnother={handleReset} />
-              ) : !isConnected ? (
-                <div className="rounded-2xl border border-white/[0.08] bg-white/[0.01] p-6 text-center space-y-4">
-                  <div>
-                    <p className="text-white font-semibold text-sm">Ready to claim your number?</p>
-                    <p className="text-zinc-500 text-xs mt-1">Connect your wallet to see the next available ID.</p>
+              {/* Bottom mint area */}
+              <div className="px-5 pb-5 space-y-4">
+                {/* Snapshot + price row */}
+                <div className="flex items-center justify-between text-[10px] text-zinc-700 uppercase tracking-[0.12em]">
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-1 h-1 rounded-full bg-blue-600" />
+                    Snapshot #1 — Sep 30, 2026 (UTC)
                   </div>
-                  <div className="flex justify-center">
-                    <ConnectButton label="Connect Wallet" />
+                  <span className="normal-case tracking-normal font-medium text-zinc-500">$2 USDC</span>
+                </div>
+
+                {/* Mint states */}
+                {mintState === "success" && mintedId !== null ? (
+                  <SuccessCard id={mintedId} onMintAnother={handleReset} />
+                ) : !isConnected ? (
+                  <div className="rounded-2xl border border-white/[0.07] bg-white/[0.02] p-5 text-center space-y-4">
+                    <div>
+                      <p className="text-white font-semibold text-sm">Ready to claim your number?</p>
+                      <p className="text-zinc-500 text-xs mt-1">Connect your wallet to see the next available ID.</p>
+                    </div>
+                    <div className="flex justify-center">
+                      <ConnectButton label="Connect Wallet" />
+                    </div>
                   </div>
-                </div>
-              ) : insufficientBalance ? (
-                <div className="rounded-2xl border border-red-900/30 bg-red-950/10 p-4 text-center">
-                  <p className="text-red-400 text-sm font-medium">You need $2 USDC on Base to mint.</p>
-                  <p className="text-red-900/80 text-xs mt-1">See the "Before you mint" guide below.</p>
-                </div>
-              ) : !hasAllowance && mintState !== "approved" ? (
-                <MintAction
-                  label="Approve $2 USDC"
-                  sub="Step 1 of 2"
-                  btnLabel={isLoading && mintState === "approving" ? (isConfirming ? "Confirming…" : "Approving…") : "Approve $2 USDC"}
-                  onClick={handleApprove}
-                  loading={isLoading && mintState === "approving"}
-                />
-              ) : (
-                <MintAction
-                  label={`Mint Based ID #${resolvedNextId.toString()}`}
-                  sub="Step 2 of 2 — permanent"
-                  btnLabel={isLoading && mintState === "minting" ? (isConfirming ? "Confirming…" : "Minting…") : "Mint Now — $2 USDC"}
-                  onClick={handleMint}
-                  loading={isLoading && mintState === "minting"}
-                  primary
-                />
-              )}
-              {errorMsg && <p className="text-red-400 text-xs text-center">{errorMsg}</p>}
+                ) : insufficientBalance ? (
+                  <div className="rounded-xl border border-red-900/30 bg-red-950/10 p-4 text-center">
+                    <p className="text-red-400 text-sm font-medium">You need $2 USDC on Base to mint.</p>
+                    <p className="text-red-800/70 text-xs mt-1">See the "Before you mint" guide below.</p>
+                  </div>
+                ) : !hasAllowance && mintState !== "approved" ? (
+                  <MintAction
+                    label="Approve $2 USDC"
+                    sub="Step 1 of 2"
+                    btnLabel={isLoading && mintState === "approving" ? (isConfirming ? "Confirming…" : "Approving…") : "Approve $2 USDC"}
+                    onClick={handleApprove}
+                    loading={isLoading && mintState === "approving"}
+                  />
+                ) : (
+                  <MintAction
+                    label={`Mint Based ID #${resolvedNextId.toString()}`}
+                    sub="Step 2 of 2 — permanent"
+                    btnLabel={isLoading && mintState === "minting" ? (isConfirming ? "Confirming…" : "Minting…") : "Mint Now — $2 USDC"}
+                    onClick={handleMint}
+                    loading={isLoading && mintState === "minting"}
+                    primary
+                  />
+                )}
+                {errorMsg && <p className="text-red-400 text-xs text-center">{errorMsg}</p>}
+              </div>
             </div>
           </div>
         </div>
@@ -1580,14 +1599,14 @@ function MintAction({
   onClick: () => void; loading: boolean; primary?: boolean;
 }) {
   return (
-    <div className="rounded-2xl border border-white/[0.08] bg-white/[0.01] p-5 space-y-4">
+    <div className="space-y-3">
       <div className="flex items-center justify-between">
         <div>
           <p className="text-white font-semibold text-[15px]">{label}</p>
           <p className="text-zinc-600 text-xs mt-0.5">{sub}</p>
         </div>
         {primary && (
-          <span className="text-[9px] px-2 py-1 rounded-full border border-green-900/40 bg-green-500/[0.05] text-green-400 uppercase tracking-[0.12em]">
+          <span className="text-[9px] px-2.5 py-1 rounded-full border border-green-900/40 bg-green-500/[0.05] text-green-400 uppercase tracking-[0.12em]">
             Final step
           </span>
         )}
@@ -1596,8 +1615,8 @@ function MintAction({
         onClick={onClick} disabled={loading}
         className={`w-full py-4 rounded-xl font-bold text-sm tracking-wide transition-all disabled:opacity-30 disabled:cursor-not-allowed
           ${primary
-            ? "bg-white text-black hover:bg-zinc-100 shadow-[0_0_40px_rgba(255,255,255,0.06)] hover:shadow-[0_0_40px_rgba(255,255,255,0.1)]"
-            : "bg-white/[0.04] border border-white/[0.1] text-white hover:bg-white/[0.07]"
+            ? "bg-white text-black hover:bg-zinc-100 shadow-[0_2px_40px_rgba(255,255,255,0.07)] hover:shadow-[0_2px_40px_rgba(255,255,255,0.12)]"
+            : "bg-white/[0.05] border border-white/[0.1] text-white hover:bg-white/[0.09]"
           }`}
       >
         {loading ? (
