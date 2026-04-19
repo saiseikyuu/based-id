@@ -633,7 +633,7 @@ export default function Home() {
                   ))}
                 </div>
                 <a
-                  href="https://x.com/basedid"
+                  href="https://x.com/webasedid"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 px-5 py-3 rounded-xl border border-white/[0.08] text-white text-sm font-semibold hover:bg-white/[0.05] transition-colors"
@@ -933,7 +933,7 @@ export default function Home() {
 
             {/* Social */}
             <a
-              href="https://x.com/basedid"
+              href="https://x.com/webasedid"
               target="_blank"
               rel="noopener noreferrer"
               className="text-zinc-600 hover:text-white transition-colors text-sm font-bold"
@@ -1002,7 +1002,7 @@ function MintAction({
 
 function SuccessCard({ id, onMintAnother }: { id: bigint; onMintAnother: () => void }) {
   function shareOnX() {
-    const text = `Just minted Based ID #${id.toString()} on Base 🔵\n\nLower number = earlier = bigger $BASED airdrop.\n$2 USDC flat. No phases. No price hikes.\n\nMint yours → basedid.space`;
+    const text = `Just minted Based ID #${id.toString()} on Base 🔵\n\nLower number = earlier = bigger $BASED airdrop.\n$2 USDC flat. No phases. No price hikes.\n\nMint yours → basedid.space\n\n@webasedid`;
     window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`, "_blank");
   }
   return (
