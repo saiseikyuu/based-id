@@ -606,17 +606,26 @@ export default function Home() {
                     const bg  = (0.06 + r * 0.40).toFixed(2);
                     const bd  = (0.04 + r * 0.42).toFixed(2);
                     const isOne = n === 1;
+                    const txA  = (0.22 + r * 0.55).toFixed(2);
                     return (
                       <div
                         key={n}
                         title={`#${n}`}
-                        className="aspect-square rounded-[5px]"
+                        className="aspect-square rounded-[5px] flex flex-col items-center justify-center gap-[2px]"
                         style={{
                           background: isOne ? "rgba(245,158,11,0.55)" : `rgba(120,53,15,${bg})`,
                           border:     `1px solid rgba(217,119,6,${isOne ? "0.8" : bd})`,
                           boxShadow:  isOne ? "0 0 12px rgba(245,158,11,0.4)" : undefined,
                         }}
-                      />
+                      >
+                        {/* Lock icon */}
+                        <svg width="7" height="7" viewBox="0 0 10 11" fill="none" style={{ opacity: Number(txA) }}>
+                          <rect x="1.5" y="4.5" width="7" height="5.5" rx="1.2" fill={`rgba(251,191,36,${txA})`} />
+                          <path d="M3.2 4.5V3a1.8 1.8 0 013.6 0v1.5" stroke={`rgba(251,191,36,${txA})`} strokeWidth="1.1" strokeLinecap="round" fill="none"/>
+                        </svg>
+                        {/* Number */}
+                        <span className="font-mono leading-none" style={{ fontSize: "5.5px", color: `rgba(251,191,36,${txA})` }}>{n}</span>
+                      </div>
                     );
                   })}
                 </div>
