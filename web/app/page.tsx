@@ -392,64 +392,92 @@ export default function Home() {
 
       {/* ── BUILT ON BASE + PARTNERS ─────────────────────────────── */}
       <section className="border-t border-white/[0.05]">
-        <div className="max-w-7xl mx-auto px-6 py-20 space-y-16">
+        <div className="max-w-7xl mx-auto px-6 py-24">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-start">
 
-          {/* Built on Base badge */}
-          <FadeIn className="flex justify-center">
-            <div className="flex items-center gap-3 px-5 py-3 rounded-2xl border border-white/[0.07] bg-white/[0.02]">
-              <svg width="20" height="20" viewBox="0 0 111 111" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M54.921 110.034C85.359 110.034 110.034 85.402 110.034 55.017C110.034 24.6 85.359 0 54.921 0C26.0 0 2.0 22.0 0 50.354H72.943V59.68H0C2.0 88.0 26.0 110.034 54.921 110.034Z" fill="#0052FF"/>
-              </svg>
-              <span className="text-white/80 text-sm font-medium tracking-wide">Built on Base</span>
-            </div>
-          </FadeIn>
-
-          {/* Partners */}
-          <FadeIn>
-            <div className="space-y-8">
-              <div className="text-center space-y-2">
-                <p className="text-zinc-600 text-[11px] uppercase tracking-[0.2em]">Partner Projects</p>
-                <h3 style={D} className="text-2xl font-bold text-white tracking-tight">Ecosystem partners coming soon</h3>
-                <p className="text-zinc-500 text-sm max-w-sm mx-auto">
-                  Vetted projects will drop NFTs, whitelist spots, and exclusive access directly to every Based ID holder.
-                </p>
+            {/* Left — copy */}
+            <FadeIn className="lg:sticky lg:top-24 space-y-10">
+              {/* Eyebrow with Base logo */}
+              <div className="flex items-center gap-2.5">
+                <svg width="16" height="16" viewBox="0 0 111 111" fill="none">
+                  <path d="M54.921 110.034C85.359 110.034 110.034 85.402 110.034 55.017C110.034 24.6 85.359 0 54.921 0C26.0 0 2.0 22.0 0 50.354H72.943V59.68H0C2.0 88.0 26.0 110.034 54.921 110.034Z" fill="#0052FF"/>
+                </svg>
+                <p className="text-zinc-600 text-[11px] uppercase tracking-[0.2em]">Built on Base · Partner Projects</p>
               </div>
 
-              {/* Blurred placeholder partner slots */}
-              <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
-                {Array.from({ length: 6 }).map((_, i) => (
-                  <div
-                    key={i}
-                    className="aspect-square rounded-2xl border border-white/[0.05] bg-white/[0.02] flex flex-col items-center justify-center gap-1.5"
-                  >
-                    <div className="w-7 h-7 rounded-lg bg-white/[0.04] blur-sm" />
-                    <span className="text-zinc-800 text-[8px] uppercase tracking-[0.15em]">Soon</span>
+              <h2 style={D} className="text-[clamp(2rem,4vw,3.2rem)] font-bold tracking-tight leading-[1.1]">
+                Real drops.<br />Zero friction.<br />Auto-qualify.
+              </h2>
+
+              <p className="text-zinc-400 text-base leading-relaxed max-w-sm" style={{ fontFamily: "var(--font-display), system-ui, sans-serif" }}>
+                Every Based ID holder automatically qualifies for partner drops — no forms, no grinding. Projects choose Based ID for bot-proof wallets with real skin in the game.
+              </p>
+
+              {/* Value props — clean divider list */}
+              <div className="divide-y divide-white/[0.04]">
+                {[
+                  { value: "10,000+", label: "Verified wallets — zero bots" },
+                  { value: "$2 USDC", label: "Entry barrier that filters noise" },
+                  { value: "Automatic", label: "Qualify with zero action required" },
+                ].map(({ value, label }) => (
+                  <div key={label} className="flex items-baseline gap-6 py-4">
+                    <span className="text-white font-bold text-sm w-24 flex-shrink-0" style={{ fontFamily: "var(--font-display), system-ui, sans-serif" }}>{value}</span>
+                    <span className="text-zinc-500 text-sm" style={{ fontFamily: "var(--font-display), system-ui, sans-serif" }}>{label}</span>
                   </div>
                 ))}
               </div>
 
-              {/* Partner CTA */}
-              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-5 rounded-2xl border border-white/[0.06] bg-white/[0.01]">
-                <div>
-                  <p className="text-white font-semibold text-sm">Building on Base?</p>
-                  <p className="text-zinc-500 text-xs mt-0.5">
-                    Drop to 10,000+ verified Base wallets. No bots. Every holder is real.
-                  </p>
-                </div>
-                <a
-                  href="https://x.com/basedidofficial"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex-shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold transition-colors"
-                >
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.737-8.835L1.254 2.25H8.08l4.259 5.631 5.905-5.631zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-                  </svg>
-                  DM us on X
-                </a>
+              <a
+                href="https://x.com/basedidofficial"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2.5 px-6 py-3 rounded-xl bg-white text-black text-sm font-bold hover:bg-zinc-100 transition-colors"
+              >
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.737-8.835L1.254 2.25H8.08l4.259 5.631 5.905-5.631zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                </svg>
+                Apply to partner
+              </a>
+            </FadeIn>
+
+            {/* Right — redacted partner cards */}
+            <FadeIn delay={0.08}>
+              <p className="text-zinc-700 text-[10px] uppercase tracking-[0.2em] mb-5">6 partner slots · Launching with ecosystem</p>
+              <div className="grid grid-cols-2 gap-3">
+                {[
+                  { num: "01", barW: 62, reserved: true },
+                  { num: "02", barW: 48, reserved: true },
+                  { num: "03", barW: 70, reserved: false },
+                  { num: "04", barW: 55, reserved: false },
+                  { num: "05", barW: 66, reserved: false },
+                  { num: "06", barW: 52, reserved: false },
+                ].map(({ num, barW, reserved }) => (
+                  <div
+                    key={num}
+                    className={`rounded-2xl border p-5 space-y-5 ${reserved ? "border-blue-900/25 bg-blue-950/[0.07]" : "border-white/[0.05] bg-white/[0.01]"}`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="font-mono text-zinc-700 text-[10px]">{num}</span>
+                      <span className={`text-[9px] px-2 py-0.5 rounded-full border uppercase tracking-[0.1em] ${reserved ? "border-blue-900/35 text-blue-600/60" : "border-white/[0.06] text-zinc-700"}`}>
+                        {reserved ? "Slot reserved" : "Open"}
+                      </span>
+                    </div>
+
+                    {/* Blurred logo placeholder */}
+                    <div className="w-10 h-10 rounded-xl bg-white/[0.05] blur-[4px]" />
+
+                    {/* Redacted name bars */}
+                    <div className="space-y-2">
+                      <div className="h-2.5 rounded-full bg-white/[0.06]" style={{ width: `${barW}%` }} />
+                      <div className="h-1.5 rounded-full bg-white/[0.03]" style={{ width: `${Math.round(barW * 0.65)}%` }} />
+                    </div>
+
+                    <p className="text-zinc-700 text-[9px] uppercase tracking-[0.15em]">Unannounced</p>
+                  </div>
+                ))}
               </div>
-            </div>
-          </FadeIn>
+            </FadeIn>
+          </div>
         </div>
       </section>
 
