@@ -1065,73 +1065,154 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── VS SECTION ──────────────────────────────────────────── */}
-      <section className="py-24 border-t border-white/[0.05] relative">
-        <div className="max-w-7xl mx-auto px-6 space-y-14">
+      {/* ── WHY BASED ID ─────────────────────────────────────────── */}
+      <section className="py-28 border-t border-white/[0.05] relative">
+        <div className="max-w-7xl mx-auto px-6 space-y-12">
+
           <FadeIn>
-            <div className="space-y-3 max-w-xl">
-              <p className="text-zinc-600 text-[11px] uppercase tracking-[0.2em]">Why Based ID</p>
-              <h2 style={D} className="text-4xl font-bold tracking-tight leading-tight">
-                Built different.<br />By design.
-              </h2>
-              <p className="text-zinc-500 text-sm leading-relaxed">
-                One ID. Every partner drop, whitelist, and airdrop — auto-qualified.
-                No forms. No bots. No expiry.
+            <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+              <div className="space-y-3">
+                <p className="text-zinc-600 text-[11px] uppercase tracking-[0.2em]">Why Based ID</p>
+                <h2 style={D} className="text-[clamp(2.5rem,5vw,4rem)] font-bold tracking-tight leading-tight">
+                  Built different.<br />By design.
+                </h2>
+              </div>
+              <p style={{ fontFamily: "var(--font-display), system-ui, sans-serif" }} className="text-zinc-500 text-sm leading-relaxed max-w-xs">
+                One ID. Every partner drop, whitelist, and airdrop — auto-qualified. No forms. No bots. No expiry.
               </p>
             </div>
           </FadeIn>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-px bg-white/[0.04] rounded-2xl overflow-hidden">
-            {[
-              {
-                label: "Permanent",
-                body: "Your ID is minted onchain and lives forever. No server can take it down. No company can revoke it.",
-                accent: false,
-                icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>,
-              },
-              {
-                label: "Bot-proof",
-                body: "Onchain by default. Wallet-verified. You can't fake a Based ID — every mint is a real wallet.",
-                accent: false,
-                icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>,
-              },
-              {
-                label: "$2. Once.",
-                body: "Flat price. No phases, no presale, no price hike. Every holder paid the same. Always.",
-                accent: true,
-                icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>,
-              },
-              {
-                label: "Auto-qualify",
-                body: "Hold your ID and you're in — every partner drop and whitelist lands in your dashboard automatically.",
-                accent: false,
-                icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>,
-              },
-              {
-                label: "1B $BASED airdrop",
-                body: "Lower number = more weight = larger share. Two snapshots. Claim January 2027.",
-                accent: false,
-                icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>,
-              },
-              {
-                label: "Open source",
-                body: "Every line of code is public on Basescan. No hidden permissions, no admin backdoor, no upgrade proxy.",
-                accent: false,
-                icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>,
-              },
-            ].map(({ label, body, accent, icon }) => (
-              <FadeIn key={label}>
-                <div className={`bg-background p-7 h-full space-y-4 ${accent ? "bg-blue-950/20" : ""}`}>
-                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${accent ? "bg-blue-500/10 text-blue-400" : "bg-white/[0.04] text-zinc-500"}`}>
-                    {icon}
-                  </div>
-                  <div className="space-y-2">
-                    <p className={`text-sm font-semibold ${accent ? "text-blue-400" : "text-white"}`}>{label}</p>
-                    <p className="text-zinc-500 text-sm leading-relaxed">{body}</p>
+          {/* Bento grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+
+            {/* Hero card — $2 flat price */}
+            <FadeIn className="lg:col-span-2">
+              <div className="relative rounded-2xl border border-blue-900/25 bg-blue-950/10 p-8 h-full min-h-[220px] overflow-hidden flex flex-col justify-between gap-8">
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-950/30 via-transparent to-transparent pointer-events-none" />
+                <div className="absolute -right-8 -top-8 w-48 h-48 rounded-full bg-blue-600/5 blur-3xl pointer-events-none" />
+                <div className="relative space-y-2">
+                  <span className="inline-flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-[0.2em] px-2.5 py-1 rounded-full bg-green-900/30 text-green-400 border border-green-900/30">
+                    <span className="w-1 h-1 rounded-full bg-green-400 animate-pulse" />
+                    Live on Base
+                  </span>
+                  <p style={D} className="text-[4.5rem] font-black leading-none text-white">$2</p>
+                  <p style={D} className="text-xl font-bold text-white/80">One flat price. Forever.</p>
+                </div>
+                <div className="relative space-y-3">
+                  <p className="text-zinc-400 text-sm leading-relaxed max-w-sm">
+                    No phases, no presale, no price hike. The mint price is hardcoded in the contract — it cannot be changed by anyone, including us.
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {["No presale", "No phases", "No price hike", "Hardcoded in contract"].map((t) => (
+                      <span key={t} className="text-[10px] text-blue-400/70 border border-blue-900/30 px-2.5 py-1 rounded-full">{t}</span>
+                    ))}
                   </div>
                 </div>
-              </FadeIn>
-            ))}
+              </div>
+            </FadeIn>
+
+            {/* Permanent */}
+            <FadeIn delay={0.06}>
+              <SpotlightCard className="bg-background rounded-2xl border border-white/[0.06] p-7 h-full flex flex-col gap-5" spotlightColor="rgba(37,99,235,0.06)">
+                <div className="w-10 h-10 rounded-xl bg-white/[0.04] border border-white/[0.06] flex items-center justify-center text-zinc-400">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                  </svg>
+                </div>
+                <div className="flex-1 space-y-2">
+                  <p style={D} className="text-white font-bold text-lg">Permanent</p>
+                  <p className="text-zinc-500 text-sm leading-relaxed">No servers. No IPFS. No expiry. Your ID art is generated inside the contract — it lives as long as Base lives.</p>
+                </div>
+                <div className="pt-4 border-t border-white/[0.05]">
+                  <p className="text-zinc-700 text-[10px] uppercase tracking-[0.15em]">On-chain SVG · No external dependencies</p>
+                </div>
+              </SpotlightCard>
+            </FadeIn>
+
+            {/* Bot-proof */}
+            <FadeIn delay={0.08}>
+              <SpotlightCard className="bg-background rounded-2xl border border-white/[0.06] p-7 h-full flex flex-col gap-5" spotlightColor="rgba(37,99,235,0.06)">
+                <div className="w-10 h-10 rounded-xl bg-white/[0.04] border border-white/[0.06] flex items-center justify-center text-zinc-400">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/>
+                  </svg>
+                </div>
+                <div className="flex-1 space-y-2">
+                  <p style={D} className="text-white font-bold text-lg">Bot-proof</p>
+                  <p className="text-zinc-500 text-sm leading-relaxed">Onchain by default. Wallet-verified. You can't fake a Based ID — every mint is a real person paying real money.</p>
+                </div>
+                <div className="pt-4 border-t border-white/[0.05]">
+                  <p className="text-zinc-700 text-[10px] uppercase tracking-[0.15em]">ERC-721 · $2 entry barrier</p>
+                </div>
+              </SpotlightCard>
+            </FadeIn>
+
+            {/* Auto-qualify */}
+            <FadeIn delay={0.10}>
+              <SpotlightCard className="bg-background rounded-2xl border border-white/[0.06] p-7 h-full flex flex-col gap-5" spotlightColor="rgba(37,99,235,0.06)">
+                <div className="w-10 h-10 rounded-xl bg-white/[0.04] border border-white/[0.06] flex items-center justify-center text-zinc-400">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+                  </svg>
+                </div>
+                <div className="flex-1 space-y-2">
+                  <p style={D} className="text-white font-bold text-lg">Auto-qualify</p>
+                  <p className="text-zinc-500 text-sm leading-relaxed">Hold your ID and you're in — every partner drop and whitelist appears in your dashboard. No forms, no grinding.</p>
+                </div>
+                <div className="pt-4 border-t border-white/[0.05]">
+                  <p className="text-zinc-700 text-[10px] uppercase tracking-[0.15em]">Dashboard · Zero friction</p>
+                </div>
+              </SpotlightCard>
+            </FadeIn>
+
+            {/* 1B $BASED */}
+            <FadeIn delay={0.12}>
+              <SpotlightCard className="bg-background rounded-2xl border border-white/[0.06] p-7 h-full flex flex-col gap-5" spotlightColor="rgba(37,99,235,0.06)">
+                <div className="w-10 h-10 rounded-xl bg-white/[0.04] border border-white/[0.06] flex items-center justify-center text-zinc-400">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>
+                  </svg>
+                </div>
+                <div className="flex-1 space-y-2">
+                  <p style={D} className="text-white font-bold text-lg">1B $BASED airdrop</p>
+                  <p className="text-zinc-500 text-sm leading-relaxed">Lower number = more weight = larger share. Two snapshots. The earlier you minted, the more you earn.</p>
+                </div>
+                <div className="pt-4 border-t border-white/[0.05]">
+                  <p className="text-zinc-700 text-[10px] uppercase tracking-[0.15em]">Claim January 2027</p>
+                </div>
+              </SpotlightCard>
+            </FadeIn>
+
+            {/* Open source — full width */}
+            <FadeIn delay={0.14} className="lg:col-span-3">
+              <div className="rounded-2xl border border-white/[0.06] bg-white/[0.01] p-7 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+                <div className="flex items-start gap-5">
+                  <div className="w-10 h-10 rounded-xl bg-white/[0.04] border border-white/[0.06] flex items-center justify-center text-zinc-400 flex-shrink-0">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
+                    </svg>
+                  </div>
+                  <div className="space-y-1.5">
+                    <p style={D} className="text-white font-bold text-lg">Fully open source</p>
+                    <p className="text-zinc-500 text-sm leading-relaxed max-w-lg">
+                      Every line of contract code is public and verified on Basescan. No admin backdoor, no hidden permissions, no upgrade proxy. Read it yourself.
+                    </p>
+                  </div>
+                </div>
+                <a
+                  href={`${BASESCAN_URL}/address/${BASED_ID_ADDRESS}#code`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex-shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-xl border border-white/[0.08] text-zinc-300 text-sm font-medium hover:bg-white/[0.05] hover:text-white transition-colors"
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+                  </svg>
+                  View on Basescan
+                </a>
+              </div>
+            </FadeIn>
           </div>
         </div>
       </section>
