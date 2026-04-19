@@ -21,6 +21,8 @@ export function NftCard({ id, holder = "—", fontSize }: Props) {
   const fs     = fontSize ?? idFontSize(numStr.length);
   const parsed = parseInt(numStr, 10);
   const auction = !isNaN(parsed) && isAuctionId(parsed);
+  // Unique per-instance SVG IDs — prevents gradient bleed when multiple cards render
+  const uid = `nft_${numStr || "x"}`;
 
   // Tier badge — matches contract and dashboard labels exactly
   const badgeText = parsed <= 100 ? "GENESIS"
@@ -47,26 +49,26 @@ export function NftCard({ id, holder = "—", fontSize }: Props) {
       style={{ display: "block", borderRadius: 16 }}
     >
       <defs>
-        <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+        <linearGradient id={`bg_${uid}`} x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%"   style={{ stopColor: "#060818" }} />
           <stop offset="60%"  style={{ stopColor: "#080d22" }} />
           <stop offset="100%" style={{ stopColor: "#0a1030" }} />
         </linearGradient>
-        <linearGradient id="ng" x1="0%" y1="0%" x2="0%" y2="100%">
+        <linearGradient id={`ng_${uid}`} x1="0%" y1="0%" x2="0%" y2="100%">
           <stop offset="0%"   style={{ stopColor: numGradStop0 }} />
           <stop offset="100%" style={{ stopColor: numGradStop1 }} />
         </linearGradient>
-        <pattern id="dots" x="0" y="0" width="22" height="22" patternUnits="userSpaceOnUse">
+        <pattern id={`dots_${uid}`} x="0" y="0" width="22" height="22" patternUnits="userSpaceOnUse">
           <circle cx="1" cy="1" r="0.9" fill={dotColor} fillOpacity="0.09" />
         </pattern>
-        <clipPath id="c">
+        <clipPath id={`c_${uid}`}>
           <rect width="480" height="270" rx="16" />
         </clipPath>
       </defs>
 
       {/* Background */}
-      <rect width="480" height="270" rx="16" fill="url(#bg)" />
-      <rect width="480" height="270" rx="16" fill="url(#dots)" />
+      <rect width="480" height="270" rx="16" fill={`url(#bg_${uid})`} />
+      <rect width="480" height="270" rx="16" fill={`url(#dots_${uid})`} />
 
       {/* BASED ID watermark */}
       <text
@@ -80,14 +82,14 @@ export function NftCard({ id, holder = "—", fontSize }: Props) {
       {/* Holographic stripe */}
       <polygon
         points="300,0 480,0 480,120 100,270 0,270 0,150"
-        fill="white" fillOpacity="0.015" clipPath="url(#c)"
+        fill="white" fillOpacity="0.015" clipPath={`url(#c_${uid})`}
       />
 
       {/* Border */}
       <rect width="480" height="270" rx="16" fill="none" stroke={borderColor} strokeWidth="1.5" strokeOpacity="0.45" />
 
       {/* Top accent line */}
-      <line x1="40" y1="0" x2="440" y2="0" stroke={accentColor} strokeWidth="2.5" strokeOpacity="0.75" clipPath="url(#c)" />
+      <line x1="40" y1="0" x2="440" y2="0" stroke={accentColor} strokeWidth="2.5" strokeOpacity="0.75" clipPath={`url(#c_${uid})`} />
 
       {/* Corner brackets */}
       <path d="M16,42 L16,16 L42,16"   fill="none" stroke={accentColor} strokeWidth="1.5" strokeOpacity="0.6" strokeLinecap="round" />
@@ -114,7 +116,7 @@ export function NftCard({ id, holder = "—", fontSize }: Props) {
         fontFamily="monospace, Courier New"
         fontSize={fs}
         fontWeight="900"
-        fill="url(#ng)"
+        fill={`url(#ng_${uid})`}
         letterSpacing="-0.02em"
       >
         {id}

@@ -416,58 +416,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── PROBLEM / WHY WE EXIST ──────────────────────────────── */}
-      <section className="border-t border-white/[0.05]">
-        <div className="max-w-7xl mx-auto px-6 py-24">
-          <FadeIn className="mb-14 max-w-2xl">
-            <p className="text-zinc-600 text-[11px] uppercase tracking-[0.2em] mb-4">Why Based ID</p>
-            <h2 style={D} className="text-[clamp(2rem,4vw,3.2rem)] font-bold tracking-tight leading-tight">
-              Web3 promised a lot.<br />We actually deliver.
-            </h2>
-            <p className="text-zinc-500 text-sm mt-4 leading-relaxed">
-              You've seen the rugs. The bots. The projects that vanished. The complexity that kept you out.
-              Based ID is built differently — transparent, permanent, and open to anyone with $2.
-            </p>
-          </FadeIn>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-px bg-white/[0.05] rounded-2xl overflow-hidden">
-            {[
-              {
-                pain: "Got rugged before?",
-                fix: "Every partner project is community-vetted. No anonymous teams, no unlocked allocations. The community decides who's legitimate.",
-                accent: false,
-              },
-              {
-                pain: "Worried about scams?",
-                fix: "Fully onchain, open-source contract. No admin wallet, no upgrades, no hidden permissions. Read every line yourself on Basescan.",
-                accent: false,
-              },
-              {
-                pain: "Always miss the good projects?",
-                fix: "Your ID auto-qualifies you for every partner drop and whitelist. No more hunting. No more missing out. It just shows up in your dashboard.",
-                accent: false,
-              },
-              {
-                pain: "Too complex or risky?",
-                fix: "$2 flat on Base. If you have USDC, you're in. No gas surprises, no phases, no price changes. Under 60 seconds from connect to mint.",
-                accent: true,
-              },
-            ].map(({ pain, fix, accent }) => (
-              <SpotlightCard
-                key={pain}
-                className="bg-background p-7 space-y-3"
-                spotlightColor="rgba(37, 99, 235, 0.06)"
-              >
-                <div className="flex items-center gap-2.5">
-                  <span className="w-1 h-1 rounded-full bg-blue-500/60 flex-shrink-0" />
-                  <p className="text-zinc-500 text-[11px] uppercase tracking-[0.18em]">{pain}</p>
-                </div>
-                <p className={`text-sm leading-relaxed ${accent ? "text-zinc-300" : "text-zinc-400"}`}>{fix}</p>
-              </SpotlightCard>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* ── WHAT YOU UNLOCK ─────────────────────────────────────── */}
       <section id="unlock" className="border-t border-white/[0.05]">
         <div className="max-w-7xl mx-auto px-6 py-28">
@@ -1111,7 +1059,7 @@ function MintAction({
 
 function SuccessCard({ id, onMintAnother }: { id: bigint; onMintAnother: () => void }) {
   function shareOnX() {
-    const text = `Just minted Based ID #${id.toString()} on Base 🔵\n\nLower number = earlier = bigger $BASED airdrop.\n$2 USDC flat. No phases. No price hikes.\n\nMint yours → basedid.space\n\n@basedidofficial`;
+    const text = `Just minted Based ID #${id.toString()} on Base.\n\nLower number = earlier = bigger $BASED airdrop.\n$2 USDC flat. No phases. No price changes. Ever.\n\nMint yours → basedid.space\n\n@basedidofficial`;
     window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`, "_blank");
   }
   return (

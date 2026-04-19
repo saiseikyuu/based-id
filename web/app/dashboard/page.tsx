@@ -934,7 +934,7 @@ function IdPreviewModal({
   const idStr = id.toString();
 
   function shareOnX() {
-    const text = `Just minted Based ID #${idStr} on Base 🔵\n\nLower number = earlier = bigger $BASED airdrop.\n$2 USDC flat. No phases. No price hikes.\n\nMint yours → basedid.space`;
+    const text = `Based ID #${idStr} is mine — permanently onchain.\n\nLower number = bigger $BASED airdrop.\n$2 USDC flat. No phases. No price changes. Ever.\n\nMint yours → basedid.space\n\n@basedidofficial`;
     window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`, "_blank");
   }
 
@@ -2049,14 +2049,18 @@ function Shell({ children }: { children: React.ReactNode }) {
         </div>
       </header>
       {children}
-      {/* Trust strip */}
-      <div className="border-t border-white/[0.04] bg-white/[0.01] px-6 py-4 flex flex-wrap items-center gap-3">
-        {["ERC-721 Standard","Contract Verified","Open Source","7.5% Royalty Disclosed","No Admin Keys"].map((b) => (
-          <span key={b} className="text-[10px] text-zinc-700 px-2.5 py-1 rounded-full border border-white/[0.05] tracking-wide">
-            {b}
-          </span>
-        ))}
-      </div>
+      <footer className="border-t border-white/[0.04] px-6 py-5 flex items-center justify-between gap-4 flex-wrap">
+        <div className="flex items-center gap-3">
+          <svg width="16" height="16" viewBox="0 0 111 111" fill="none" xmlns="http://www.w3.org/2000/svg" className="opacity-40">
+            <path d="M54.921 110.034C85.359 110.034 110.034 85.402 110.034 55.017C110.034 24.6 85.359 0 54.921 0C26.0 0 2.0 22.0 0 50.354H72.943V59.68H0C2.0 88.0 26.0 110.034 54.921 110.034Z" fill="#0052FF"/>
+          </svg>
+          <span className="text-zinc-700 text-[11px]">Built on Base · 2026</span>
+        </div>
+        <div className="flex items-center gap-5 text-[11px] text-zinc-700">
+          <Link href="/" className="hover:text-zinc-400 transition-colors">Home</Link>
+          <a href="https://x.com/basedidofficial" target="_blank" rel="noopener noreferrer" className="hover:text-zinc-400 transition-colors">@basedidofficial</a>
+        </div>
+      </footer>
     </div>
   );
 }
