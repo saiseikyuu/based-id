@@ -182,12 +182,12 @@ contract BasedID is ERC721, Ownable {
     function tokenURI(uint256 tokenId) public view override returns (string memory) {
         _requireOwned(tokenId);
 
-        string memory idStr    = tokenId.toString();
+        string memory idStr     = tokenId.toString();
         string memory holderStr = _addressToString(ownerOf(tokenId));
         bool isAuction          = isAuctionId(tokenId);
 
-        string memory svg  = _buildSVG(idStr, holderStr, isAuction);
-        string memory json = _buildJSON(idStr, svg, isAuction);
+        string memory svg  = _buildSVG(idStr, holderStr, tokenId);
+        string memory json = _buildJSON(idStr, svg, tokenId);
 
         return string(abi.encodePacked(
             "data:application/json;base64,",
@@ -200,11 +200,12 @@ contract BasedID is ERC721, Ownable {
     function _buildSVG(
         string memory idStr,
         string memory holderStr,
-        bool isAuction
+        uint256 tokenId
     ) internal pure returns (string memory) {
+        bool isAuction = tokenId <= AUCTION_RESERVE;
         return string(abi.encodePacked(
             _svgHeader(idStr, isAuction),
-            _svgBody(holderStr, isAuction)
+            _svgBody(holderStr, tokenId)
         ));
     }
 
@@ -268,23 +269,50 @@ contract BasedID is ERC721, Ownable {
 
     function _svgBody(
         string memory holderStr,
-        bool isAuction
+        uint256 tokenId
     ) internal pure returns (string memory) {
-        string memory squareColor = isAuction ? "#d97706" : "#2563eb";
-        string memory badgeText   = isAuction ? "AUCTION" : "BASE";
-        string memory badgeFill   = isAuction ? "#2d1a00" : "#0f1f4a";
-        string memory badgeStroke = isAuction ? "#d97706" : "#3b82f6";
-        string memory badgeTextColor = isAuction ? "#fde68a" : "#93c5fd";
+        // Tier logic — matches dashboard labels exactly
+        string memory badgeText;
+        string memory squareColor;
+        string memory badgeFill;
+        string memory badgeStroke;
+        string memory badgeTextColor;
+
+        if (tokenId <= 100) {
+            badgeText      = "GENESIS";
+            squareColor    = "#d97706";
+            badgeFill      = "#2d1a00";
+            badgeStroke    = "#d97706";
+            badgeTextColor = "#fde68a";
+        } else if (tokenId <= 1000) {
+            badgeText      = "FOUNDING";
+            squareColor    = "#2563eb";
+            badgeFill      = "#0f1f4a";
+            badgeStroke    = "#3b82f6";
+            badgeTextColor = "#93c5fd";
+        } else if (tokenId <= 10000) {
+            badgeText      = "PIONEER";
+            squareColor    = "#2563eb";
+            badgeFill      = "#0f1f4a";
+            badgeStroke    = "#3b82f6";
+            badgeTextColor = "#93c5fd";
+        } else {
+            badgeText      = "BUILDER";
+            squareColor    = "#2563eb";
+            badgeFill      = "#0f1f4a";
+            badgeStroke    = "#3b82f6";
+            badgeTextColor = "#93c5fd";
+        }
 
         return string(abi.encodePacked(
             // Top-left: square + label
             '<rect x="30" y="28" width="13" height="13" rx="2.5" fill="', squareColor, '"/>',
             '<text x="50" y="40" font-family="monospace,Courier New" font-size="12" font-weight="700" fill="#e2e8f0" letter-spacing="0.07em">Based ID</text>',
 
-            // Top-right: badge (AUCTION or BASE)
-            '<rect x="396" y="21" width="58" height="22" rx="11" fill="', badgeFill, '" fill-opacity="0.9"/>',
-            '<rect x="396" y="21" width="58" height="22" rx="11" fill="none" stroke="', badgeStroke, '" stroke-width="0.75" stroke-opacity="0.55"/>',
-            '<text x="425" y="36" font-family="monospace,Courier New" font-size="9.5" font-weight="700" fill="', badgeTextColor, '" text-anchor="middle" letter-spacing="0.1em">', badgeText, '</text>',
+            // Top-right: tier badge (wider to fit FOUNDING)
+            '<rect x="384" y="21" width="72" height="22" rx="11" fill="', badgeFill, '" fill-opacity="0.9"/>',
+            '<rect x="384" y="21" width="72" height="22" rx="11" fill="none" stroke="', badgeStroke, '" stroke-width="0.75" stroke-opacity="0.55"/>',
+            '<text x="420" y="36" font-family="monospace,Courier New" font-size="9.5" font-weight="700" fill="', badgeTextColor, '" text-anchor="middle" letter-spacing="0.1em">', badgeText, '</text>',
 
             // Divider
             '<line x1="28" y1="212" x2="452" y2="212" stroke="#1d4ed8" stroke-width="0.75" stroke-opacity="0.25"/>',
@@ -300,9 +328,13 @@ contract BasedID is ERC721, Ownable {
     function _buildJSON(
         string memory idStr,
         string memory svg,
-        bool isAuction
+        uint256 tokenId
     ) internal pure returns (string memory) {
-        string memory edition = isAuction ? "Auction Reserve" : "Public Mint";
+        string memory tier;
+        if      (tokenId <= 100)   tier = "Genesis";
+        else if (tokenId <= 1000)  tier = "Founding";
+        else if (tokenId <= 10000) tier = "Pioneer";
+        else                       tier = "Builder";
 
         return string(abi.encodePacked(
             '{"name":"Based ID #', idStr, '",',
@@ -311,7 +343,7 @@ contract BasedID is ERC721, Ownable {
             '"attributes":[',
               '{"trait_type":"ID Number","value":', idStr, '},',
               '{"trait_type":"Network","value":"Base"},',
-              '{"trait_type":"Edition","value":"', edition, '"}',
+              '{"trait_type":"Tier","value":"', tier, '"}',
             ']}'
         ));
     }
