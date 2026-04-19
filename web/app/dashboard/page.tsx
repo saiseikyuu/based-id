@@ -723,7 +723,9 @@ export default function Dashboard() {
             {/* Hold & wait CTA */}
             <div className="p-5 rounded-xl border border-white/[0.05] flex items-start gap-4">
               <div className="w-9 h-9 rounded-lg border border-white/[0.06] flex items-center justify-center flex-shrink-0 mt-0.5">
-                <span className="text-xs">🔒</span>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-zinc-500">
+                  <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                </svg>
               </div>
               <div className="space-y-1">
                 <p className="text-white font-semibold text-sm">Hold through both snapshots</p>
@@ -1657,7 +1659,9 @@ function AuctionTab({ address, isOwner }: { address: string; isOwner: boolean })
               >
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-2xl bg-amber-900/20 border border-amber-900/30 flex items-center justify-center flex-shrink-0">
-                    <span style={AMBER} className="text-sm font-black">🔒</span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                    </svg>
                   </div>
                   <div>
                     <p style={AMBER} className="font-bold text-sm">Genesis Vault — IDs #1–#100</p>
@@ -2024,6 +2028,14 @@ function Shell({ children }: { children: React.ReactNode }) {
         </div>
       </header>
       {children}
+      {/* Trust strip */}
+      <div className="border-t border-white/[0.04] bg-white/[0.01] px-6 py-4 flex flex-wrap items-center gap-3">
+        {["ERC-721 Standard","Contract Verified","Open Source","7.5% Royalty Disclosed","No Admin Keys"].map((b) => (
+          <span key={b} className="text-[10px] text-zinc-700 px-2.5 py-1 rounded-full border border-white/[0.05] tracking-wide">
+            {b}
+          </span>
+        ))}
+      </div>
     </div>
   );
 }
@@ -2038,7 +2050,7 @@ function ComingSoon({ title, body }: { title: string; body: string }) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
     >
-      <p className="text-[10px] text-zinc-700 uppercase tracking-[0.2em] mb-5">Coming soon</p>
+      <span className="inline-block mb-5 px-3 py-1 rounded-full border border-white/[0.08] text-zinc-600 text-[10px] uppercase tracking-[0.2em]">Coming Soon</span>
       <h2 style={D} className="text-3xl font-bold text-white mb-4 tracking-tight leading-tight">
         {title}
       </h2>
