@@ -760,58 +760,200 @@ export default function Home() {
 
       {/* ── TOKENOMICS ──────────────────────────────────────────── */}
       <section className="border-t border-white/[0.05]">
-        <div className="max-w-7xl mx-auto px-6 py-28">
-          <FadeIn className="mb-14">
-            <p className="text-zinc-600 text-[11px] uppercase tracking-[0.2em] mb-4">Tokenomics</p>
-            <h2 style={D} className="text-[clamp(2.5rem,5vw,4rem)] font-bold tracking-tight">1,000,000,000 $BASED.</h2>
-            <p className="text-zinc-500 text-sm mt-3 max-w-md leading-relaxed">
-              Fixed supply. 80% goes directly to the community — distributed proportionally by ID number.
-              The earlier you minted, the more you earn.
-            </p>
-          </FadeIn>
+        <div className="max-w-7xl mx-auto px-6 py-28 space-y-16">
 
-          <FadeIn>
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-px bg-white/[0.05] rounded-2xl overflow-hidden">
-              {[
-                { pct: "40%", label: "Snapshot #1",  sub: "Sep 30, 2026 UTC · 400M tokens",   blue: true  },
-                { pct: "40%", label: "Snapshot #2",  sub: "Dec 31, 2026 UTC · 400M tokens",   blue: true  },
-                { pct: "15%", label: "Founder",      sub: "Locked until Dec 2026",         blue: false },
-                { pct: "5%",  label: "Partners",     sub: "Ecosystem growth",              blue: false },
-              ].map(({ pct, label, sub, blue }) => (
-                <div key={label} className="bg-background p-7">
-                  <p className="text-[2.5rem] font-black mb-4" style={blue ? GRAD : { color: "#3f3f46" }}>{pct}</p>
-                  <p className="text-white font-semibold text-sm">{label}</p>
-                  <p className="text-zinc-600 text-xs mt-1 leading-relaxed">{sub}</p>
-                </div>
-              ))}
-            </div>
-          </FadeIn>
-
-          {/* Tier table */}
-          <FadeIn delay={0.1} className="mt-6">
-            <div className="rounded-2xl border border-white/[0.05] overflow-hidden">
-              <div className="grid grid-cols-3 border-b border-white/[0.05] px-6 py-3">
-                <p className="text-zinc-600 text-[10px] uppercase tracking-[0.2em]">Tier</p>
-                <p className="text-zinc-600 text-[10px] uppercase tracking-[0.2em]">ID Range</p>
-                <p className="text-zinc-600 text-[10px] uppercase tracking-[0.2em]">$BASED Weight</p>
-              </div>
-              {[
-                { tier: "Genesis",  range: "#1 – #100",     weight: "Highest",   accent: "text-amber-400",   dot: "bg-amber-500"  },
-                { tier: "Founding", range: "#101 – #1,000", weight: "High",      accent: "text-blue-400",    dot: "bg-blue-500"   },
-                { tier: "Pioneer",  range: "#1,001 – #10,000", weight: "Medium", accent: "text-zinc-300",    dot: "bg-zinc-400"   },
-                { tier: "Builder",  range: "#10,001+",      weight: "Base rate", accent: "text-zinc-500",    dot: "bg-zinc-600"   },
-              ].map(({ tier, range, weight, accent, dot }) => (
-                <div key={tier} className="grid grid-cols-3 px-6 py-4 border-b border-white/[0.04] last:border-0 hover:bg-white/[0.02] transition-colors">
-                  <div className="flex items-center gap-2">
-                    <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${dot}`} />
-                    <span className={`font-semibold text-sm ${accent}`}>{tier}</span>
+          {/* Heading row */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-end">
+            <FadeIn>
+              <p className="text-zinc-600 text-[11px] uppercase tracking-[0.2em] mb-4">Tokenomics</p>
+              <h2 style={D} className="text-[clamp(2.5rem,5vw,4rem)] font-bold tracking-tight leading-tight">
+                1,000,000,000<br /><span style={GRAD}>$BASED.</span>
+              </h2>
+              <p style={{ fontFamily: "var(--font-display), system-ui, sans-serif" }} className="text-zinc-400 text-base mt-5 leading-relaxed max-w-sm">
+                Fixed supply. 80% goes directly to the community — distributed by ID number. Earlier = more.
+              </p>
+            </FadeIn>
+            <FadeIn delay={0.1}>
+              {/* Weight formula card */}
+              <div className="rounded-2xl border border-white/[0.06] bg-white/[0.01] p-6 space-y-4">
+                <p className="text-zinc-600 text-[10px] uppercase tracking-[0.2em]">Allocation formula</p>
+                <div className="flex items-center gap-4">
+                  <div className="flex-1 rounded-xl bg-white/[0.03] border border-white/[0.06] px-5 py-4 text-center">
+                    <p className="font-mono text-white text-lg font-bold tracking-wide">
+                      weight = 1 ÷ √id
+                    </p>
+                    <p className="text-zinc-600 text-[10px] mt-1.5">Your share of each 400M pool</p>
                   </div>
-                  <span className="text-zinc-400 text-sm tabular-nums">{range}</span>
-                  <span className="text-zinc-500 text-sm">{weight}</span>
                 </div>
+                <div className="grid grid-cols-4 gap-2 text-center">
+                  {[
+                    { id: "#1",     w: "1.000×", color: "text-amber-400" },
+                    { id: "#100",   w: "0.100×", color: "text-blue-400"  },
+                    { id: "#1,000", w: "0.032×", color: "text-zinc-400"  },
+                    { id: "#10K",   w: "0.010×", color: "text-zinc-600"  },
+                  ].map(({ id, w, color }) => (
+                    <div key={id} className="rounded-lg bg-white/[0.02] border border-white/[0.04] py-2.5 px-1">
+                      <p className="text-zinc-600 text-[9px] font-mono mb-1">{id}</p>
+                      <p className={`text-xs font-bold tabular-nums ${color}`}>{w}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </FadeIn>
+          </div>
+
+          {/* Distribution bar */}
+          <FadeIn>
+            <div className="space-y-3">
+              <p className="text-zinc-600 text-[10px] uppercase tracking-[0.2em]">Token distribution</p>
+              <div className="flex h-3 rounded-full overflow-hidden gap-0.5">
+                <div className="h-full rounded-l-full" style={{ width: "40%", background: "linear-gradient(90deg,#1d4ed8,#3b82f6)" }} />
+                <div className="h-full"                style={{ width: "40%", background: "linear-gradient(90deg,#2563eb,#60a5fa)" }} />
+                <div className="h-full"                style={{ width: "15%", background: "#27272a" }} />
+                <div className="h-full rounded-r-full" style={{ width: "5%",  background: "#18181b" }} />
+              </div>
+              <div className="flex items-center gap-6 flex-wrap">
+                {[
+                  { color: "bg-blue-600",   label: "Community Snapshot #1 — 40%" },
+                  { color: "bg-blue-400",   label: "Community Snapshot #2 — 40%" },
+                  { color: "bg-zinc-700",   label: "Founder — 15%"               },
+                  { color: "bg-zinc-800",   label: "Partners — 5%"               },
+                ].map(({ color, label }) => (
+                  <div key={label} className="flex items-center gap-2">
+                    <span className={`w-2 h-2 rounded-full flex-shrink-0 ${color}`} />
+                    <span className="text-zinc-500 text-xs">{label}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </FadeIn>
+
+          {/* Allocation cards */}
+          <FadeIn>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {[
+                {
+                  pct: "40%",
+                  tokens: "400M",
+                  label: "Snapshot #1",
+                  date: "Sep 30, 2026 UTC",
+                  desc: "Distributed to all holders at first snapshot. Weight by ID number.",
+                  badge: "Community",
+                  badgeColor: "text-blue-400 bg-blue-900/20 border-blue-900/30",
+                  blue: true,
+                  locked: false,
+                },
+                {
+                  pct: "40%",
+                  tokens: "400M",
+                  label: "Snapshot #2",
+                  date: "Dec 31, 2026 UTC",
+                  desc: "Second distribution. Hold through both snapshots to earn the full 800M.",
+                  badge: "Community",
+                  badgeColor: "text-blue-400 bg-blue-900/20 border-blue-900/30",
+                  blue: true,
+                  locked: false,
+                },
+                {
+                  pct: "15%",
+                  tokens: "150M",
+                  label: "Founder",
+                  date: "Locked until Dec 2026",
+                  desc: "Vested alongside community. No early unlock — aligned with holder outcomes.",
+                  badge: "Locked",
+                  badgeColor: "text-zinc-500 bg-white/[0.03] border-white/[0.06]",
+                  blue: false,
+                  locked: true,
+                },
+                {
+                  pct: "5%",
+                  tokens: "50M",
+                  label: "Partners",
+                  date: "Ecosystem growth",
+                  desc: "Reserved for vetted partner projects approved by the DAO.",
+                  badge: "DAO-governed",
+                  badgeColor: "text-zinc-500 bg-white/[0.03] border-white/[0.06]",
+                  blue: false,
+                  locked: false,
+                },
+              ].map(({ pct, tokens, label, date, desc, badge, badgeColor, blue, locked }) => (
+                <SpotlightCard
+                  key={label}
+                  className="bg-background rounded-2xl border border-white/[0.05] p-6 flex flex-col gap-4"
+                  spotlightColor={blue ? "rgba(37,99,235,0.08)" : "rgba(255,255,255,0.02)"}
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <p className="text-[2.8rem] font-black leading-none" style={blue ? GRAD : { color: "#3f3f46" }}>{pct}</p>
+                    <span className={`text-[9px] font-bold px-2 py-1 rounded-full uppercase tracking-[0.1em] border flex-shrink-0 mt-1 ${badgeColor}`}>
+                      {badge}
+                    </span>
+                  </div>
+                  <div className="flex-1 space-y-1">
+                    <p className={`font-bold text-sm ${blue ? "text-white" : "text-zinc-500"}`}>{label}</p>
+                    <p className={`text-[10px] uppercase tracking-[0.12em] ${blue ? "text-blue-400/70" : "text-zinc-700"}`}>{tokens} tokens</p>
+                  </div>
+                  <div className="pt-3 border-t border-white/[0.05] space-y-1.5">
+                    <div className="flex items-center gap-1.5">
+                      {locked && (
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-zinc-600 flex-shrink-0">
+                          <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                        </svg>
+                      )}
+                      <p className={`text-[10px] ${locked ? "text-zinc-600" : "text-zinc-600"}`}>{date}</p>
+                    </div>
+                    <p className="text-zinc-600 text-[11px] leading-relaxed">{desc}</p>
+                  </div>
+                </SpotlightCard>
               ))}
             </div>
-            <p className="text-zinc-700 text-xs mt-3">Your tier is determined by your lowest-owned ID. Multiple IDs each earn separately.</p>
+          </FadeIn>
+
+          {/* Tier weight section */}
+          <FadeIn>
+            <div className="space-y-5">
+              <div className="flex items-end justify-between gap-4 flex-wrap">
+                <div>
+                  <p className="text-zinc-600 text-[10px] uppercase tracking-[0.2em] mb-2">Airdrop weight by tier</p>
+                  <p style={{ fontFamily: "var(--font-display), system-ui, sans-serif" }} className="text-white font-bold text-lg">Lower number. Heavier weight. Larger share.</p>
+                </div>
+                <p className="text-zinc-700 text-xs max-w-xs text-right">Tier determined by your lowest-owned ID. Multiple IDs each earn separately.</p>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                {[
+                  { tier: "Genesis",  range: "#1 – #100",        example: "#1 = 1.000×",  bar: 100, color: "#f59e0b", bg: "rgba(245,158,11,0.06)", border: "rgba(245,158,11,0.15)", text: "text-amber-400" },
+                  { tier: "Founding", range: "#101 – #1,000",    example: "#101 = 0.099×", bar: 10,  color: "#3b82f6", bg: "rgba(59,130,246,0.06)",  border: "rgba(59,130,246,0.15)",  text: "text-blue-400"  },
+                  { tier: "Pioneer",  range: "#1,001 – #10,000", example: "#1K = 0.032×", bar: 3,   color: "#6b7280", bg: "rgba(107,114,128,0.04)", border: "rgba(107,114,128,0.1)",  text: "text-zinc-400"  },
+                  { tier: "Builder",  range: "#10,001+",          example: "#10K = 0.010×",bar: 1,   color: "#3f3f46", bg: "rgba(63,63,70,0.04)",    border: "rgba(63,63,70,0.12)",    text: "text-zinc-600"  },
+                ].map(({ tier, range, example, bar, color, bg, border, text }) => (
+                  <div
+                    key={tier}
+                    className="rounded-2xl p-5 space-y-4"
+                    style={{ backgroundColor: bg, border: `1px solid ${border}` }}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className={`font-bold text-sm ${text}`}>{tier}</span>
+                      <span className="text-zinc-700 text-[10px] font-mono">{range}</span>
+                    </div>
+                    {/* Weight bar */}
+                    <div className="space-y-1.5">
+                      <div className="h-1.5 bg-white/[0.04] rounded-full overflow-hidden">
+                        <div
+                          className="h-full rounded-full transition-all"
+                          style={{ width: `${bar}%`, backgroundColor: color, opacity: 0.7 }}
+                        />
+                      </div>
+                      <p className="font-mono text-[11px] font-semibold" style={{ color }}>{example}</p>
+                    </div>
+                    <p className="text-zinc-600 text-[11px] leading-relaxed">
+                      {tier === "Genesis"  && "Highest weight. Genesis holders earn the most per ID by far."}
+                      {tier === "Founding" && "~10% the weight of #1. Still significantly ahead of later minters."}
+                      {tier === "Pioneer"  && "Locked in early. Higher weight than the vast majority of holders."}
+                      {tier === "Builder"  && "Base rate. Mint more IDs or lower numbers to increase your share."}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
           </FadeIn>
         </div>
       </section>
