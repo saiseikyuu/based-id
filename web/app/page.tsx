@@ -1219,124 +1219,184 @@ export default function Home() {
 
       {/* ── GET USDC GUIDE ───────────────────────────────────────── */}
       <section className="py-24 border-t border-white/[0.05] relative">
-        <div className="max-w-7xl mx-auto px-6 space-y-10">
-          <FadeIn>
-            <div className="space-y-3 max-w-xl">
-              <p className="text-zinc-600 text-[11px] uppercase tracking-[0.2em]">Before you mint</p>
-              <h2 style={D} className="text-4xl font-bold tracking-tight">
-                How to get USDC on Base
-              </h2>
-              <p className="text-zinc-500 text-sm leading-relaxed">
-                You need $2 USDC on the Base network. Here are the easiest ways to get it.
-              </p>
-            </div>
-          </FadeIn>
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
 
-          <FadeIn>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {[
-                {
-                  step: "01",
-                  title: "Bridge from Ethereum",
-                  body: "Go to bridge.base.org, connect your wallet, and bridge USDC from Ethereum mainnet to Base. Takes ~1 minute.",
-                  tag: "Recommended",
-                  tagColor: "text-blue-400",
-                },
-                {
-                  step: "02",
-                  title: "Buy directly on Base",
-                  body: "Use Coinbase, Uniswap, or any DEX on Base to swap ETH → USDC. You'll need a small amount of ETH on Base for gas first.",
-                  tag: "Quick",
-                  tagColor: "text-green-400",
-                },
-                {
-                  step: "03",
-                  title: "Withdraw from Coinbase",
-                  body: "If you have USDC on Coinbase, go to Send → select USDC → choose Base network → paste your wallet address.",
-                  tag: "Easiest for beginners",
-                  tagColor: "text-amber-400",
-                },
-              ].map(({ step, title, body, tag, tagColor }) => (
-                <SpotlightCard
-                  key={step}
-                  className="bg-background rounded-2xl border border-white/[0.05] p-6 space-y-3"
-                  spotlightColor="rgba(37,99,235,0.05)"
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="text-zinc-700 text-[10px] font-mono">{step}</span>
-                    <span className={`text-[9px] font-bold uppercase tracking-[0.12em] ${tagColor}`}>{tag}</span>
+            {/* Left: heading + preflight checklist */}
+            <FadeIn className="lg:sticky lg:top-24">
+              <div className="space-y-10">
+                <div className="space-y-4">
+                  <p className="text-zinc-600 text-[11px] uppercase tracking-[0.2em]">Before you mint</p>
+                  <h2 style={D} className="text-[clamp(2rem,4vw,3.5rem)] font-bold tracking-tight leading-tight">
+                    Ready in<br />under 60 sec.
+                  </h2>
+                  <p className="text-zinc-500 text-sm leading-relaxed max-w-sm" style={{ fontFamily: "var(--font-display), system-ui, sans-serif" }}>
+                    No waitlists, no KYC, no gas surprises. You need three things and you're done.
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <p className="text-zinc-600 text-[10px] uppercase tracking-[0.2em] mb-4">Preflight checklist</p>
+                  {[
+                    { label: "Base-compatible wallet", sub: "Coinbase Wallet, MetaMask, Rainbow", accent: "bg-blue-500" },
+                    { label: "$2 USDC on Base", sub: "Exactly $2 — methods on the right", accent: "bg-green-500" },
+                    { label: "ETH for gas (~$0.01)", sub: "Near-zero — Base gas is negligible", accent: "bg-amber-500" },
+                  ].map(({ label, sub, accent }) => (
+                    <div key={label} className="flex items-start gap-4 p-4 rounded-xl border border-white/[0.05] bg-white/[0.01]">
+                      <div className={`w-5 h-5 rounded-full ${accent} flex items-center justify-center flex-shrink-0 mt-0.5`}>
+                        <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
+                          <path d="M1 4l2.5 2.5L9 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                      </div>
+                      <div>
+                        <p className="text-white text-sm font-medium">{label}</p>
+                        <p className="text-zinc-600 text-xs mt-0.5">{sub}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </FadeIn>
+
+            {/* Right: method cards */}
+            <FadeIn delay={0.08}>
+              <div className="space-y-3">
+                <p className="text-zinc-600 text-[10px] uppercase tracking-[0.2em] mb-5">How to get USDC on Base</p>
+                {[
+                  {
+                    step: "01",
+                    title: "Bridge from Ethereum",
+                    body: "Go to bridge.base.org, connect your wallet, and bridge USDC from Ethereum mainnet to Base. Takes ~1 minute.",
+                    tag: "Recommended",
+                    tagColor: "text-blue-400",
+                    tagBg: "bg-blue-950/60 border-blue-900/40",
+                    featured: true,
+                  },
+                  {
+                    step: "02",
+                    title: "Buy directly on Base",
+                    body: "Use Coinbase, Uniswap, or any DEX on Base to swap ETH → USDC. You'll need a small amount of ETH on Base for gas first.",
+                    tag: "Quick",
+                    tagColor: "text-green-400",
+                    tagBg: "bg-green-950/30 border-green-900/30",
+                    featured: false,
+                  },
+                  {
+                    step: "03",
+                    title: "Withdraw from Coinbase",
+                    body: "If you have USDC on Coinbase, go to Send → select USDC → choose Base network → paste your wallet address.",
+                    tag: "Easiest for beginners",
+                    tagColor: "text-amber-400",
+                    tagBg: "bg-amber-950/20 border-amber-900/20",
+                    featured: false,
+                  },
+                ].map(({ step, title, body, tag, tagColor, tagBg, featured }) => (
+                  <div
+                    key={step}
+                    className={`relative rounded-2xl border p-6 space-y-4 overflow-hidden ${featured ? "border-blue-800/40 bg-blue-950/15" : "border-white/[0.05] bg-white/[0.01]"}`}
+                  >
+                    {featured && (
+                      <div className="absolute inset-0 bg-gradient-to-br from-blue-950/30 via-transparent to-transparent pointer-events-none" />
+                    )}
+                    <div className="flex items-center justify-between relative">
+                      <span className="font-mono text-zinc-700 text-[11px]">{step}</span>
+                      <span className={`text-[10px] font-bold uppercase tracking-[0.1em] px-2.5 py-1 rounded-full border ${tagBg} ${tagColor}`}>{tag}</span>
+                    </div>
+                    <div className="relative">
+                      <p className="text-white font-semibold text-sm mb-1.5">{title}</p>
+                      <p className="text-zinc-500 text-xs leading-relaxed">{body}</p>
+                    </div>
                   </div>
-                  <p className="text-white font-semibold text-sm">{title}</p>
-                  <p className="text-zinc-500 text-xs leading-relaxed">{body}</p>
-                </SpotlightCard>
-              ))}
-            </div>
-          </FadeIn>
+                ))}
 
-          <FadeIn>
-            <div className="rounded-xl border border-white/[0.05] p-5 flex items-start gap-3 max-w-xl">
-              <span className="w-1 h-1 rounded-full bg-blue-500 mt-1.5 flex-shrink-0" />
-              <p className="text-zinc-500 text-xs leading-relaxed">
-                <span className="text-white font-medium">You also need a tiny amount of ETH on Base for gas.</span>{" "}
-                Each transaction costs less than $0.01 on Base. Bridge a small amount of ETH alongside your USDC.
-              </p>
-            </div>
-          </FadeIn>
+                <div className="rounded-xl border border-white/[0.05] p-4 flex items-start gap-3 mt-2">
+                  <div className="w-5 h-5 rounded-full bg-zinc-800 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-[10px] text-zinc-400 font-bold leading-none">i</span>
+                  </div>
+                  <p className="text-zinc-500 text-xs leading-relaxed">
+                    <span className="text-zinc-300 font-medium">Gas costs less than $0.01 on Base.</span>{" "}
+                    Bridge a small amount of ETH alongside your USDC — you won't even notice it.
+                  </p>
+                </div>
+              </div>
+            </FadeIn>
+          </div>
         </div>
       </section>
 
       {/* ── FAQ ──────────────────────────────────────────────────── */}
       <section id="faq" className="py-24 border-t border-white/[0.05] relative">
-        <div className="max-w-7xl mx-auto px-6 space-y-10">
-          <FadeIn>
-            <div className="space-y-3 max-w-xl">
-              <p className="text-zinc-600 text-[11px] uppercase tracking-[0.2em]">FAQ</p>
-              <h2 style={D} className="text-4xl font-bold tracking-tight">
-                Common questions
-              </h2>
-            </div>
-          </FadeIn>
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_2fr] gap-16 items-start">
 
-          <FadeIn>
-            <div className="max-w-2xl divide-y divide-white/[0.05] rounded-2xl border border-white/[0.05] overflow-hidden">
-              {[
-                {
-                  q: "Can I mint more than one ID?",
-                  a: "Yes. There's no limit per wallet. Each ID earns $BASED separately in both snapshots — your lowest-numbered ID earns the most.",
-                },
-                {
-                  q: "What happens if I sell my ID before the snapshot?",
-                  a: "Whoever holds the ID at snapshot time earns the allocation. If you sell before Sep 30, the buyer gets the Snapshot #1 rewards.",
-                },
-                {
-                  q: "Is the $2 price permanent?",
-                  a: "Yes. The mint price is hardcoded in the contract at $2 USDC. It cannot be changed — not even by us.",
-                },
-                {
-                  q: "What is $BASED? Is it tradeable?",
-                  a: "$BASED is a community governance token distributed to Based ID holders. It will be claimable in January 2027. No guaranteed value.",
-                },
-                {
-                  q: "How does the airdrop weight work?",
-                  a: "Weight = 1 / sqrt(your ID number). So #1 has weight 1.0, #4 has 0.5, #100 has 0.1. Lower ID = higher share of each snapshot pool.",
-                },
-                {
-                  q: "What are Genesis IDs (#1–#100)?",
-                  a: "They're held back from public minting and will be auctioned one-by-one before Snapshot #1 (Sep 30, 2026), starting from #100 down to #1. Winners earn $BASED at the highest weight.",
-                },
-                {
-                  q: "Is the contract verified and open source?",
-                  a: "Yes. The full contract source is verified on Basescan. You can read every line — mint price, snapshot logic, withdrawal rules.",
-                },
-                {
-                  q: "Do I need to do anything to receive the airdrop?",
-                  a: "No action needed before January 2027. Just hold your Based ID through both snapshots. A claim button will appear in your dashboard.",
-                },
-              ].map(({ q, a }) => (
-                <FaqItem key={q} q={q} a={a} />
-              ))}
-            </div>
-          </FadeIn>
+            {/* Left: sticky heading */}
+            <FadeIn className="lg:sticky lg:top-24">
+              <div className="space-y-6">
+                <div className="space-y-4">
+                  <p className="text-zinc-600 text-[11px] uppercase tracking-[0.2em]">FAQ</p>
+                  <h2 style={D} className="text-[clamp(2rem,4vw,3.5rem)] font-bold tracking-tight leading-tight">
+                    Everything<br />you need<br />to know.
+                  </h2>
+                </div>
+                <p className="text-zinc-500 text-sm leading-relaxed max-w-xs" style={{ fontFamily: "var(--font-display), system-ui, sans-serif" }}>
+                  Still have questions? Every rule is hardcoded in the contract — readable onchain, no trust required.
+                </p>
+                <a
+                  href={`${BASESCAN_URL}/address/${BASED_ID_ADDRESS}#code`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 text-xs text-zinc-500 hover:text-white transition-colors border border-white/[0.06] rounded-lg px-4 py-2.5"
+                >
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                  </svg>
+                  Read contract source ↗
+                </a>
+              </div>
+            </FadeIn>
+
+            {/* Right: accordion */}
+            <FadeIn delay={0.08}>
+              <div className="divide-y divide-white/[0.05] rounded-2xl border border-white/[0.06] overflow-hidden">
+                {[
+                  {
+                    q: "Can I mint more than one ID?",
+                    a: "Yes. There's no limit per wallet. Each ID earns $BASED separately in both snapshots — your lowest-numbered ID earns the most.",
+                  },
+                  {
+                    q: "What happens if I sell my ID before the snapshot?",
+                    a: "Whoever holds the ID at snapshot time earns the allocation. If you sell before Sep 30, the buyer gets the Snapshot #1 rewards.",
+                  },
+                  {
+                    q: "Is the $2 price permanent?",
+                    a: "Yes. The mint price is hardcoded in the contract at $2 USDC. It cannot be changed — not even by us.",
+                  },
+                  {
+                    q: "What is $BASED? Is it tradeable?",
+                    a: "$BASED is a community governance token distributed to Based ID holders. It will be claimable in January 2027. No guaranteed value.",
+                  },
+                  {
+                    q: "How does the airdrop weight work?",
+                    a: "Weight = 1 / sqrt(your ID number). So #1 has weight 1.0, #4 has 0.5, #100 has 0.1. Lower ID = higher share of each snapshot pool.",
+                  },
+                  {
+                    q: "What are Genesis IDs (#1–#100)?",
+                    a: "They're held back from public minting and will be auctioned one-by-one before Snapshot #1 (Sep 30, 2026), starting from #100 down to #1. Winners earn $BASED at the highest weight.",
+                  },
+                  {
+                    q: "Is the contract verified and open source?",
+                    a: "Yes. The full contract source is verified on Basescan. You can read every line — mint price, snapshot logic, withdrawal rules.",
+                  },
+                  {
+                    q: "Do I need to do anything to receive the airdrop?",
+                    a: "No action needed before January 2027. Just hold your Based ID through both snapshots. A claim button will appear in your dashboard.",
+                  },
+                ].map(({ q, a }) => (
+                  <FaqItem key={q} q={q} a={a} />
+                ))}
+              </div>
+            </FadeIn>
+          </div>
         </div>
       </section>
 
@@ -1499,21 +1559,23 @@ function FaqItem({ q, a }: { q: string; a: string }) {
   const [open, setOpen] = useState(false);
   return (
     <button
-      className="w-full text-left px-6 py-5 focus:outline-none group"
+      className="w-full text-left px-6 py-6 focus:outline-none group hover:bg-white/[0.015] transition-colors"
       onClick={() => setOpen((o) => !o)}
     >
-      <div className="flex items-center justify-between gap-4">
-        <p className="text-white font-semibold text-sm leading-snug">{q}</p>
-        <svg
-          width="14" height="14" viewBox="0 0 14 14" fill="none"
-          stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"
-          className={`text-zinc-600 flex-shrink-0 transition-transform duration-200 group-hover:text-zinc-400 ${open ? "rotate-180" : ""}`}
-        >
-          <path d="M2 5l5 5 5-5"/>
-        </svg>
+      <div className="flex items-start justify-between gap-6">
+        <p className="text-white font-medium text-[15px] leading-snug flex-1">{q}</p>
+        <div className={`w-6 h-6 rounded-full border border-white/[0.1] flex items-center justify-center flex-shrink-0 mt-0.5 transition-all duration-200 group-hover:border-white/20 ${open ? "bg-white/[0.05]" : ""}`}>
+          <svg
+            width="10" height="6" viewBox="0 0 10 6" fill="none"
+            stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"
+            className={`text-zinc-500 transition-transform duration-200 group-hover:text-zinc-300 ${open ? "rotate-180 text-zinc-300" : ""}`}
+          >
+            <path d="M1 1l4 4 4-4"/>
+          </svg>
+        </div>
       </div>
       {open && (
-        <p className="text-zinc-500 text-xs leading-relaxed mt-3">{a}</p>
+        <p className="text-zinc-400 text-sm leading-relaxed mt-4 pr-10">{a}</p>
       )}
     </button>
   );
