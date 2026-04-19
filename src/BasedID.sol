@@ -2,6 +2,7 @@
 pragma solidity ^0.8.24;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/token/common/ERC2981.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/utils/Base64.sol";
@@ -14,7 +15,7 @@ import "@openzeppelin/contracts/utils/Strings.sol";
 ///   1. Deploy (minting starts paused automatically)
 ///   2. Call ownerMint(auctionWallet) — mints #1–#100 free to your wallet
 ///   3. Call setPaused(false) — opens public mint at #101
-contract BasedID is ERC721, Ownable {
+contract BasedID is ERC721, ERC2981, Ownable {
     using Strings for uint256;
 
     // ─── Constants ───────────────────────────────────────────────────────────
@@ -57,6 +58,21 @@ contract BasedID is ERC721, Ownable {
         usdc = IERC20(usdcAddress);
         _nextTokenId = 1;
         mintingPaused = true; // stays paused until ownerMint() + setPaused(false)
+        // 7.5% royalty on secondary sales — 750 basis points out of 10,000
+        _setDefaultRoyalty(initialOwner, 750);
+    }
+
+    /// @notice Update royalty recipient and/or percentage. Owner only.
+    function setRoyalty(address receiver, uint96 feeBps) external onlyOwner {
+        _setDefaultRoyalty(receiver, feeBps);
+    }
+
+    /// @inheritdoc IERC165
+    function supportsInterface(bytes4 interfaceId)
+        public view override(ERC721, ERC2981)
+        returns (bool)
+    {
+        return super.supportsInterface(interfaceId);
     }
 
     // ─── Owner: Reserve Mint ─────────────────────────────────────────────────
