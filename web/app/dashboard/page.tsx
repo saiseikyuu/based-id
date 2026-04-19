@@ -1801,32 +1801,43 @@ function DropsTab() {
         className="bg-background rounded-2xl border border-white/[0.05] p-8"
         spotlightColor="rgba(37,99,235,0.04)"
       >
-        <div className="text-center space-y-4">
-          <div className="w-14 h-14 rounded-2xl bg-white/[0.03] border border-white/[0.06] flex items-center justify-center mx-auto">
-            <span className="text-2xl">📦</span>
+        <div className="text-center space-y-6">
+          <div className="w-12 h-12 rounded-2xl bg-white/[0.03] border border-white/[0.06] flex items-center justify-center mx-auto">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-zinc-500">
+              <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+              <polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/>
+            </svg>
           </div>
-          <div className="space-y-1.5">
-            <p className="text-white font-semibold text-sm">No drops yet</p>
+          <div className="space-y-2">
+            <p className="text-white font-semibold text-sm tracking-tight">Partner drops coming</p>
             <p className="text-zinc-500 text-xs leading-relaxed max-w-xs mx-auto">
-              We&apos;re onboarding our first partner projects. Only vetted, non-rug projects get approved.
-              Your Based ID will auto-qualify you when drops go live.
+              We&apos;re onboarding vetted projects to the Based ID ecosystem. Every approved project drops directly to your dashboard — no forms, no hunting.
             </p>
           </div>
-          <div className="pt-2 space-y-2">
-            <p className="text-zinc-700 text-[10px] uppercase tracking-[0.15em]">What you can expect</p>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-left">
-              {[
-                { icon: "🎁", label: "Free NFT airdrops", sub: "Auto-delivered to your wallet" },
-                { icon: "✅", label: "Vetted projects only", sub: "No spam, no rugs" },
-                { icon: "🔵", label: "Base ecosystem", sub: "Legit projects on Base" },
-              ].map(({ icon, label, sub }) => (
-                <div key={label} className="rounded-xl border border-white/[0.04] p-3 space-y-0.5">
-                  <p className="text-base">{icon}</p>
-                  <p className="text-white text-xs font-medium">{label}</p>
-                  <p className="text-zinc-600 text-[10px]">{sub}</p>
-                </div>
-              ))}
-            </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-left pt-2">
+            {[
+              {
+                icon: <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>,
+                label: "NFT airdrops",
+                sub: "Auto-delivered to your wallet",
+              },
+              {
+                icon: <><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></>,
+                label: "Vetted only",
+                sub: "No rug pulls, no spam",
+              },
+              {
+                icon: <><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></>,
+                label: "Base ecosystem",
+                sub: "Legitimate projects on Base",
+              },
+            ].map(({ icon, label, sub }) => (
+              <div key={label} className="rounded-xl border border-white/[0.05] bg-white/[0.01] p-4 space-y-2">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-blue-500/60">{icon}</svg>
+                <p className="text-white text-xs font-medium">{label}</p>
+                <p className="text-zinc-600 text-[10px] leading-relaxed">{sub}</p>
+              </div>
+            ))}
           </div>
         </div>
       </SpotlightCard>
@@ -1885,32 +1896,42 @@ function WhitelistTab() {
         className="bg-background rounded-2xl border border-white/[0.05] p-8"
         spotlightColor="rgba(37,99,235,0.04)"
       >
-        <div className="text-center space-y-4">
-          <div className="w-14 h-14 rounded-2xl bg-white/[0.03] border border-white/[0.06] flex items-center justify-center mx-auto">
-            <span className="text-2xl">🎫</span>
+        <div className="text-center space-y-6">
+          <div className="w-12 h-12 rounded-2xl bg-white/[0.03] border border-white/[0.06] flex items-center justify-center mx-auto">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-zinc-500">
+              <path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+            </svg>
           </div>
-          <div className="space-y-1.5">
-            <p className="text-white font-semibold text-sm">No whitelist spots yet</p>
+          <div className="space-y-2">
+            <p className="text-white font-semibold text-sm tracking-tight">Whitelist access coming</p>
             <p className="text-zinc-500 text-xs leading-relaxed max-w-xs mx-auto">
-              Partner projects are being vetted. When a project is approved, your Based ID automatically
-              secures your spot — no manual claim needed.
+              Partner projects are being vetted. When approved, your Based ID automatically secures your spot — no manual claim, no form needed.
             </p>
           </div>
-          <div className="pt-2 space-y-2">
-            <p className="text-zinc-700 text-[10px] uppercase tracking-[0.15em]">What to expect</p>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-left">
-              {[
-                { icon: "🔐", label: "Auto-whitelisted", sub: "No forms. Just hold your ID." },
-                { icon: "⏰", label: "Deadline alerts", sub: "See mint windows before they close" },
-                { icon: "🛡️", label: "Vetted only", sub: "No rug pulls. No spam projects." },
-              ].map(({ icon, label, sub }) => (
-                <div key={label} className="rounded-xl border border-white/[0.04] p-3 space-y-0.5">
-                  <p className="text-base">{icon}</p>
-                  <p className="text-white text-xs font-medium">{label}</p>
-                  <p className="text-zinc-600 text-[10px]">{sub}</p>
-                </div>
-              ))}
-            </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-left pt-2">
+            {[
+              {
+                icon: <><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></>,
+                label: "Auto-whitelisted",
+                sub: "No forms. Just hold your ID.",
+              },
+              {
+                icon: <><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></>,
+                label: "Mint windows",
+                sub: "See deadlines before they close",
+              },
+              {
+                icon: <><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></>,
+                label: "Vetted only",
+                sub: "No rug pulls, no spam projects",
+              },
+            ].map(({ icon, label, sub }) => (
+              <div key={label} className="rounded-xl border border-white/[0.05] bg-white/[0.01] p-4 space-y-2">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-blue-500/60">{icon}</svg>
+                <p className="text-white text-xs font-medium">{label}</p>
+                <p className="text-zinc-600 text-[10px] leading-relaxed">{sub}</p>
+              </div>
+            ))}
           </div>
         </div>
       </SpotlightCard>
