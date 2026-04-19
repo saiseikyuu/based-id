@@ -353,50 +353,65 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── TRUST STRIP ─────────────────────────────────────────── */}
-      <section className="border-t border-white/[0.05] bg-white/[0.01]">
-        <div className="max-w-7xl mx-auto px-6 py-5 flex flex-wrap items-center justify-between gap-4">
-          {/* Built on */}
-          <div className="flex items-center gap-6">
-            <span className="text-zinc-700 text-[10px] uppercase tracking-[0.18em] flex-shrink-0">Built on</span>
-            {/* Base */}
-            <div className="flex items-center gap-1.5 opacity-40 hover:opacity-70 transition-opacity">
-              <svg width="16" height="16" viewBox="0 0 111 111" fill="none" xmlns="http://www.w3.org/2000/svg">
+      {/* ── BUILT ON BASE + PARTNERS ─────────────────────────────── */}
+      <section className="border-t border-white/[0.05]">
+        <div className="max-w-7xl mx-auto px-6 py-20 space-y-16">
+
+          {/* Built on Base badge */}
+          <FadeIn className="flex justify-center">
+            <div className="flex items-center gap-3 px-5 py-3 rounded-2xl border border-white/[0.07] bg-white/[0.02]">
+              <svg width="20" height="20" viewBox="0 0 111 111" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M54.921 110.034C85.359 110.034 110.034 85.402 110.034 55.017C110.034 24.6 85.359 0 54.921 0C26.0 0 2.0 22.0 0 50.354H72.943V59.68H0C2.0 88.0 26.0 110.034 54.921 110.034Z" fill="#0052FF"/>
               </svg>
-              <span className="text-white text-xs font-medium">Base</span>
+              <span className="text-white/80 text-sm font-medium tracking-wide">Built on Base</span>
             </div>
-            {/* USDC */}
-            <div className="flex items-center gap-1.5 opacity-40 hover:opacity-70 transition-opacity">
-              <svg width="16" height="16" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="16" cy="16" r="16" fill="#2775CA"/>
-                <path d="M16 5C10.48 5 6 9.48 6 15s4.48 10 10 10 10-4.48 10-10S21.52 5 16 5zm1.2 14.9v1.4h-2.4v-1.4c-2.1-.4-3.6-1.7-3.7-3.5h2c.1 1 1 1.7 2.1 1.7 1.2 0 2-.6 2-1.5 0-.8-.5-1.3-1.8-1.6l-1.5-.4c-1.9-.5-3-1.6-3-3.1 0-1.7 1.3-3 3.3-3.4V6.7h2.4v1.4c1.9.4 3.2 1.7 3.3 3.4h-2c-.1-1-.9-1.6-2-1.6-1.1 0-1.9.5-1.9 1.4 0 .7.5 1.2 1.7 1.5l1.5.4c2 .5 3.1 1.6 3.1 3.2 0 1.8-1.4 3.1-3.6 3.5z" fill="white"/>
-              </svg>
-              <span className="text-white text-xs font-medium">USDC</span>
+          </FadeIn>
+
+          {/* Partners */}
+          <FadeIn>
+            <div className="space-y-8">
+              <div className="text-center space-y-2">
+                <p className="text-zinc-600 text-[11px] uppercase tracking-[0.2em]">Partner Projects</p>
+                <h3 style={D} className="text-2xl font-bold text-white tracking-tight">Ecosystem partners coming soon</h3>
+                <p className="text-zinc-500 text-sm max-w-sm mx-auto">
+                  Vetted projects will drop NFTs, whitelist spots, and exclusive access directly to every Based ID holder.
+                </p>
+              </div>
+
+              {/* Blurred placeholder partner slots */}
+              <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="aspect-square rounded-2xl border border-white/[0.05] bg-white/[0.02] flex items-center justify-center"
+                  >
+                    <div className="w-8 h-8 rounded-xl bg-white/[0.04] blur-sm" />
+                  </div>
+                ))}
+              </div>
+
+              {/* Partner CTA */}
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-5 rounded-2xl border border-white/[0.06] bg-white/[0.01]">
+                <div>
+                  <p className="text-white font-semibold text-sm">Building on Base?</p>
+                  <p className="text-zinc-500 text-xs mt-0.5">
+                    Drop to 10,000+ verified Base wallets. No bots. Every holder is real.
+                  </p>
+                </div>
+                <a
+                  href="https://x.com/basedidofficial"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex-shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold transition-colors"
+                >
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.737-8.835L1.254 2.25H8.08l4.259 5.631 5.905-5.631zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                  </svg>
+                  DM us on X
+                </a>
+              </div>
             </div>
-            {/* OpenSea compatible */}
-            <div className="flex items-center gap-1.5 opacity-40 hover:opacity-70 transition-opacity">
-              <svg width="16" height="16" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="16" cy="16" r="16" fill="#2081E2"/>
-                <path d="M8 16.5l.1-.2 4.3-6.7c.1-.1.2-.1.2 0 .7 1.3 1.4 2.9 1.1 3.9-.1.4-.4.9-.8 1.4 0 .1-.1.1-.1.1H8.1c-.1 0-.2-.1-.1-.2v-.3zm16 1.8c0 .1-.1.2-.2.2h-1c-.1 0-.1 0-.1-.1-.3-.5-1-1.5-1.4-1.9-1-1-2.1-1.5-3.5-1.5-.3 0-.5 0-.8.1v5.6c0 .1.1.2.2.2H22c.6 0 1.2-.2 1.6-.6.4-.4.6-1 .6-1.6v-1.9c0-.1.1-.2.2-.2h.4c.1 0 .2.1.2.2v1.5z" fill="white"/>
-              </svg>
-              <span className="text-white text-xs font-medium">OpenSea</span>
-            </div>
-          </div>
-          {/* Security badges */}
-          <div className="flex items-center gap-3 flex-wrap">
-            {[
-              "ERC-721 Standard",
-              "Contract Verified",
-              "Open Source",
-              "7.5% Royalty Disclosed",
-              "No Admin Keys",
-            ].map((b) => (
-              <span key={b} className="text-[10px] text-zinc-600 px-2.5 py-1 rounded-full border border-white/[0.06] tracking-wide">
-                {b}
-              </span>
-            ))}
-          </div>
+          </FadeIn>
         </div>
       </section>
 
