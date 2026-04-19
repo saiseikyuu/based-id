@@ -780,46 +780,60 @@ export default function Home() {
           <FadeIn>
             <div className="space-y-3 max-w-xl">
               <p className="text-zinc-600 text-[11px] uppercase tracking-[0.2em]">Why Based ID</p>
-              <h2 style={D} className="text-4xl font-bold tracking-tight">
-                Different from everything else
+              <h2 style={D} className="text-4xl font-bold tracking-tight leading-tight">
+                Built different.<br />By design.
               </h2>
               <p className="text-zinc-500 text-sm leading-relaxed">
-                Alphabot and Premint are tools for <span className="text-white">project owners</span> to manage raffles.
-                Based ID is a passport for <span className="text-white">you</span> — hold one ID, auto-qualify everywhere.
+                One ID. Every partner drop, whitelist, and airdrop — auto-qualified.
+                No forms. No bots. No expiry.
               </p>
             </div>
           </FadeIn>
 
-          <FadeIn>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm border-collapse min-w-[520px]">
-                <thead>
-                  <tr>
-                    <th className="text-left text-[10px] text-zinc-600 uppercase tracking-[0.15em] pb-4 pr-6 font-medium w-1/4"></th>
-                    <th className="text-left text-[10px] text-zinc-600 uppercase tracking-[0.15em] pb-4 pr-6 font-medium">Alphabot / Premint</th>
-                    <th className="text-left text-[10px] text-blue-500 uppercase tracking-[0.15em] pb-4 font-medium">Based ID</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {[
-                    ["Who it's for",    "Project owners managing lists",          "You — one ID gets you in everywhere"],
-                    ["Anti-bot",        "Requires manual configuration per drop", "Onchain by default. Can't fake it."],
-                    ["Cost to users",   "Free to enter, but gas + forms each time","$2 once. Permanent."],
-                    ["NFT drops",       "Enter one raffle at a time",             "Every approved project, auto-delivered"],
-                    ["Whitelist spots", "Fill a new form per project",            "Auto-whitelisted as a holder"],
-                    ["Identity",        "Temporary wallet connection",            "Permanent sequential onchain ID"],
-                    ["Airdrop",         "None",                                   "1B $BASED distributed to holders"],
-                  ].map(([feature, them, us], i) => (
-                    <tr key={i} className="border-t border-white/[0.04]">
-                      <td className="py-3.5 pr-6 text-zinc-500 text-xs align-top">{feature}</td>
-                      <td className="py-3.5 pr-6 text-zinc-600 text-xs align-top leading-relaxed">{them}</td>
-                      <td className="py-3.5 text-zinc-300 text-xs align-top leading-relaxed font-medium">{us}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </FadeIn>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-px bg-white/[0.04] rounded-2xl overflow-hidden">
+            {[
+              {
+                label: "Permanent",
+                body: "Your ID is minted onchain and lives forever. No server can take it down. No company can revoke it.",
+                accent: false,
+              },
+              {
+                label: "Bot-proof",
+                body: "Onchain by default. Wallet-verified. You can't fake a Based ID — every mint is a real wallet.",
+                accent: false,
+              },
+              {
+                label: "$2. Once.",
+                body: "Flat price. No phases, no presale, no price hike. Every holder paid the same. Always.",
+                accent: true,
+              },
+              {
+                label: "Auto-qualify",
+                body: "Hold your ID and you're in — every partner drop and whitelist lands in your dashboard automatically.",
+                accent: false,
+              },
+              {
+                label: "1B $BASED airdrop",
+                body: "Lower number = more weight = larger share. Two snapshots. Claim January 2027.",
+                accent: false,
+              },
+              {
+                label: "Open source",
+                body: "Every line of code is public on Basescan. No hidden permissions, no admin backdoor, no upgrade proxy.",
+                accent: false,
+              },
+            ].map(({ label, body, accent }) => (
+              <FadeIn key={label}>
+                <div className={`bg-background p-7 h-full space-y-3 ${accent ? "bg-blue-950/20" : ""}`}>
+                  <div className="flex items-center gap-2">
+                    <span className={`w-1 h-1 rounded-full flex-shrink-0 ${accent ? "bg-blue-400" : "bg-zinc-600"}`} />
+                    <p className={`text-xs font-semibold uppercase tracking-[0.15em] ${accent ? "text-blue-400" : "text-zinc-400"}`}>{label}</p>
+                  </div>
+                  <p className="text-zinc-500 text-sm leading-relaxed">{body}</p>
+                </div>
+              </FadeIn>
+            ))}
+          </div>
         </div>
       </section>
 
