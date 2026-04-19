@@ -1834,7 +1834,7 @@ function DropsTab() {
           <p className="text-zinc-600 text-xs mt-0.5">Apply to drop to our community of Based ID holders.</p>
         </div>
         <a
-          href="https://x.com/webasedid"
+          href="https://x.com/basedidofficial"
           target="_blank"
           rel="noopener noreferrer"
           className="flex-shrink-0 px-4 py-2 rounded-lg border border-white/[0.08] text-zinc-400 hover:text-white hover:border-white/[0.15] text-xs font-medium transition-colors"
@@ -1927,7 +1927,7 @@ function WhitelistTab() {
           <p className="text-zinc-600 text-xs mt-0.5">Apply to offer whitelist access to our community.</p>
         </div>
         <a
-          href="https://x.com/webasedid"
+          href="https://x.com/basedidofficial"
           target="_blank"
           rel="noopener noreferrer"
           className="flex-shrink-0 px-4 py-2 rounded-lg border border-white/[0.08] text-zinc-400 hover:text-white hover:border-white/[0.15] text-xs font-medium transition-colors"
