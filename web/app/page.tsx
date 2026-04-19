@@ -383,9 +383,10 @@ export default function Home() {
                 {Array.from({ length: 6 }).map((_, i) => (
                   <div
                     key={i}
-                    className="aspect-square rounded-2xl border border-white/[0.05] bg-white/[0.02] flex items-center justify-center"
+                    className="aspect-square rounded-2xl border border-white/[0.05] bg-white/[0.02] flex flex-col items-center justify-center gap-1.5"
                   >
-                    <div className="w-8 h-8 rounded-xl bg-white/[0.04] blur-sm" />
+                    <div className="w-7 h-7 rounded-lg bg-white/[0.04] blur-sm" />
+                    <span className="text-zinc-800 text-[8px] uppercase tracking-[0.15em]">Soon</span>
                   </div>
                 ))}
               </div>
@@ -811,40 +812,48 @@ export default function Home() {
                 label: "Permanent",
                 body: "Your ID is minted onchain and lives forever. No server can take it down. No company can revoke it.",
                 accent: false,
+                icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>,
               },
               {
                 label: "Bot-proof",
                 body: "Onchain by default. Wallet-verified. You can't fake a Based ID — every mint is a real wallet.",
                 accent: false,
+                icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>,
               },
               {
                 label: "$2. Once.",
                 body: "Flat price. No phases, no presale, no price hike. Every holder paid the same. Always.",
                 accent: true,
+                icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>,
               },
               {
                 label: "Auto-qualify",
                 body: "Hold your ID and you're in — every partner drop and whitelist lands in your dashboard automatically.",
                 accent: false,
+                icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>,
               },
               {
                 label: "1B $BASED airdrop",
                 body: "Lower number = more weight = larger share. Two snapshots. Claim January 2027.",
                 accent: false,
+                icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>,
               },
               {
                 label: "Open source",
                 body: "Every line of code is public on Basescan. No hidden permissions, no admin backdoor, no upgrade proxy.",
                 accent: false,
+                icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>,
               },
-            ].map(({ label, body, accent }) => (
+            ].map(({ label, body, accent, icon }) => (
               <FadeIn key={label}>
-                <div className={`bg-background p-7 h-full space-y-3 ${accent ? "bg-blue-950/20" : ""}`}>
-                  <div className="flex items-center gap-2">
-                    <span className={`w-1 h-1 rounded-full flex-shrink-0 ${accent ? "bg-blue-400" : "bg-zinc-600"}`} />
-                    <p className={`text-xs font-semibold uppercase tracking-[0.15em] ${accent ? "text-blue-400" : "text-zinc-400"}`}>{label}</p>
+                <div className={`bg-background p-7 h-full space-y-4 ${accent ? "bg-blue-950/20" : ""}`}>
+                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${accent ? "bg-blue-500/10 text-blue-400" : "bg-white/[0.04] text-zinc-500"}`}>
+                    {icon}
                   </div>
-                  <p className="text-zinc-500 text-sm leading-relaxed">{body}</p>
+                  <div className="space-y-2">
+                    <p className={`text-sm font-semibold ${accent ? "text-blue-400" : "text-white"}`}>{label}</p>
+                    <p className="text-zinc-500 text-sm leading-relaxed">{body}</p>
+                  </div>
                 </div>
               </FadeIn>
             ))}
@@ -933,7 +942,7 @@ export default function Home() {
           </FadeIn>
 
           <FadeIn>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-white/[0.04] rounded-2xl overflow-hidden max-w-4xl">
+            <div className="max-w-2xl divide-y divide-white/[0.05] rounded-2xl border border-white/[0.05] overflow-hidden">
               {[
                 {
                   q: "Can I mint more than one ID?",
@@ -968,12 +977,42 @@ export default function Home() {
                   a: "No action needed before January 2027. Just hold your Based ID through both snapshots. A claim button will appear in your dashboard.",
                 },
               ].map(({ q, a }) => (
-                <div key={q} className="bg-background p-6 space-y-2">
-                  <p className="text-white font-semibold text-sm leading-snug">{q}</p>
-                  <p className="text-zinc-500 text-xs leading-relaxed">{a}</p>
-                </div>
+                <FaqItem key={q} q={q} a={a} />
               ))}
             </div>
+          </FadeIn>
+        </div>
+      </section>
+
+      {/* ── FINAL CTA ───────────────────────────────────────────── */}
+      <section className="border-t border-white/[0.05] py-32">
+        <div className="max-w-7xl mx-auto px-6 text-center space-y-8">
+          <FadeIn>
+            <p className="text-zinc-600 text-[11px] uppercase tracking-[0.2em]">Get started</p>
+            <h2 style={D} className="text-[clamp(2.5rem,6vw,5rem)] font-bold tracking-tight leading-tight mt-4">
+              Your number<br />is waiting.
+            </h2>
+            <p className="text-zinc-500 text-sm mt-6 max-w-sm mx-auto leading-relaxed">
+              Mint once for $2. Keep it forever. Every benefit activates automatically.
+            </p>
+          </FadeIn>
+          <FadeIn delay={0.1}>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
+              <a
+                href="#mint"
+                onClick={(e) => {
+                  e.preventDefault();
+                  document.getElementById("mint-card")?.scrollIntoView({ behavior: "smooth" });
+                }}
+                className="px-8 py-4 rounded-xl bg-white text-black font-bold text-sm hover:bg-zinc-100 transition-colors"
+              >
+                Mint Now — $2 USDC
+              </a>
+              <Link href="/dashboard" className="px-8 py-4 rounded-xl border border-white/[0.08] text-zinc-400 font-medium text-sm hover:text-white hover:border-white/[0.15] transition-colors">
+                View Dashboard →
+              </Link>
+            </div>
+            <p className="text-zinc-700 text-xs mt-6">Permanent · Onchain · No gas surprises</p>
           </FadeIn>
         </div>
       </section>
@@ -1099,6 +1138,30 @@ function SuccessCard({ id, onMintAnother }: { id: bigint; onMintAnother: () => v
   );
 }
 
+
+function FaqItem({ q, a }: { q: string; a: string }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <button
+      className="w-full text-left px-6 py-5 focus:outline-none group"
+      onClick={() => setOpen((o) => !o)}
+    >
+      <div className="flex items-center justify-between gap-4">
+        <p className="text-white font-semibold text-sm leading-snug">{q}</p>
+        <svg
+          width="14" height="14" viewBox="0 0 14 14" fill="none"
+          stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"
+          className={`text-zinc-600 flex-shrink-0 transition-transform duration-200 group-hover:text-zinc-400 ${open ? "rotate-180" : ""}`}
+        >
+          <path d="M2 5l5 5 5-5"/>
+        </svg>
+      </div>
+      {open && (
+        <p className="text-zinc-500 text-xs leading-relaxed mt-3">{a}</p>
+      )}
+    </button>
+  );
+}
 
 function RoadmapItem({ date, title, status }: {
   date: string; title: string; status: "now" | "upcoming" | "future";
