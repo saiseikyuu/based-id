@@ -30,7 +30,7 @@ import { motion } from "motion/react";
 
 type MintState = "idle" | "approving" | "approved" | "minting" | "success";
 
-const MINT_CLOSE_DATE = new Date("2026-12-31T23:59:59Z");
+const SNAPSHOT_2_DATE = new Date("2026-12-31T23:59:59Z");
 
 // Space Grotesk applied via CSS variable — used on all display headings
 const D: React.CSSProperties = {
@@ -143,7 +143,7 @@ export default function Home() {
 
   const isLoading           = isPending || isConfirming;
   const insufficientBalance = usdcBalance !== undefined && usdcBalance < MINT_PRICE;
-  const mintClose           = useCountdown(MINT_CLOSE_DATE);
+  const mintClose           = useCountdown(SNAPSHOT_2_DATE);
 
   // If nextId is in the auction reserve range (1–100), public mint hasn't opened yet.
   // Show #101 as the first public ID in that case.
@@ -303,7 +303,7 @@ export default function Home() {
                 Minting open
               </div>
               <span className="tabular-nums normal-case tracking-normal">
-                Closes {pad(mintClose.d)}d {pad(mintClose.h)}h {pad(mintClose.m)}m {pad(mintClose.s)}s
+                Snapshot #1 — Sep 30, 2026
               </span>
             </div>
 
@@ -725,7 +725,7 @@ export default function Home() {
               { date: "Peak momentum",      title: "First Genesis auction — ID #100",                    status: "upcoming" as const },
               { date: "Sep 30, 2026 UTC",    title: "Snapshot #1 — 400M $BASED distributed",             status: "upcoming" as const },
               { date: "Ongoing",            title: "Genesis auctions continue — #99 down to #1",         status: "upcoming" as const },
-              { date: "Dec 31, 2026 UTC",    title: "Snapshot #2 + public mint closes",                  status: "upcoming" as const },
+              { date: "Dec 31, 2026 UTC",    title: "Snapshot #2 — 400M $BASED distributed",             status: "upcoming" as const },
               { date: "January 2027",       title: "Claim $BASED — all holders",                        status: "upcoming" as const },
               { date: "2027",               title: "DAO voting launches. Community governs partners.",   status: "future"   as const },
               { date: "2027+",              title: "Genesis ID #1 — the final auction.",                 status: "future"   as const },
@@ -1013,7 +1013,7 @@ export default function Home() {
                 {BASED_ID_ADDRESS.slice(0, 6)}…{BASED_ID_ADDRESS.slice(-4)}
               </a>
             </div>
-            <p className="text-zinc-700 text-[11px]">Mint closes Dec 31, 2026 (UTC)</p>
+            <p className="text-zinc-700 text-[11px]">Minting open · No close date</p>
           </div>
 
           {/* Risk disclaimer */}

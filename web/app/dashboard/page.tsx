@@ -20,7 +20,7 @@ import SpotlightCard from "../components/SpotlightCard";
 import AnimatedBackground from "../components/AnimatedBackground";
 
 const SNAPSHOT_DATE   = new Date("2026-09-30T00:00:00Z");
-const MINT_CLOSE_DATE = new Date("2026-12-31T23:59:59Z");
+const SNAPSHOT_2_DATE = new Date("2026-12-31T23:59:59Z");
 const SCAN_BATCH = 30;
 
 const D: React.CSSProperties = {
@@ -176,7 +176,7 @@ export default function Dashboard() {
   const PAGE_SIZE = 12;
 
   const snapshot  = useCountdown(SNAPSHOT_DATE);
-  const mintClose = useCountdown(MINT_CLOSE_DATE);
+  const mintClose = useCountdown(SNAPSHOT_2_DATE);
 
   useEffect(() => {
     if (!isConnected || !address || !publicClient) {
