@@ -353,6 +353,53 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ── TRUST STRIP ─────────────────────────────────────────── */}
+      <section className="border-t border-white/[0.05] bg-white/[0.01]">
+        <div className="max-w-7xl mx-auto px-6 py-5 flex flex-wrap items-center justify-between gap-4">
+          {/* Built on */}
+          <div className="flex items-center gap-6">
+            <span className="text-zinc-700 text-[10px] uppercase tracking-[0.18em] flex-shrink-0">Built on</span>
+            {/* Base */}
+            <div className="flex items-center gap-1.5 opacity-40 hover:opacity-70 transition-opacity">
+              <svg width="16" height="16" viewBox="0 0 111 111" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M54.921 110.034C85.359 110.034 110.034 85.402 110.034 55.017C110.034 24.6 85.359 0 54.921 0C26.0 0 2.0 22.0 0 50.354H72.943V59.68H0C2.0 88.0 26.0 110.034 54.921 110.034Z" fill="#0052FF"/>
+              </svg>
+              <span className="text-white text-xs font-medium">Base</span>
+            </div>
+            {/* USDC */}
+            <div className="flex items-center gap-1.5 opacity-40 hover:opacity-70 transition-opacity">
+              <svg width="16" height="16" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="16" cy="16" r="16" fill="#2775CA"/>
+                <path d="M16 5C10.48 5 6 9.48 6 15s4.48 10 10 10 10-4.48 10-10S21.52 5 16 5zm1.2 14.9v1.4h-2.4v-1.4c-2.1-.4-3.6-1.7-3.7-3.5h2c.1 1 1 1.7 2.1 1.7 1.2 0 2-.6 2-1.5 0-.8-.5-1.3-1.8-1.6l-1.5-.4c-1.9-.5-3-1.6-3-3.1 0-1.7 1.3-3 3.3-3.4V6.7h2.4v1.4c1.9.4 3.2 1.7 3.3 3.4h-2c-.1-1-.9-1.6-2-1.6-1.1 0-1.9.5-1.9 1.4 0 .7.5 1.2 1.7 1.5l1.5.4c2 .5 3.1 1.6 3.1 3.2 0 1.8-1.4 3.1-3.6 3.5z" fill="white"/>
+              </svg>
+              <span className="text-white text-xs font-medium">USDC</span>
+            </div>
+            {/* OpenSea compatible */}
+            <div className="flex items-center gap-1.5 opacity-40 hover:opacity-70 transition-opacity">
+              <svg width="16" height="16" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="16" cy="16" r="16" fill="#2081E2"/>
+                <path d="M8 16.5l.1-.2 4.3-6.7c.1-.1.2-.1.2 0 .7 1.3 1.4 2.9 1.1 3.9-.1.4-.4.9-.8 1.4 0 .1-.1.1-.1.1H8.1c-.1 0-.2-.1-.1-.2v-.3zm16 1.8c0 .1-.1.2-.2.2h-1c-.1 0-.1 0-.1-.1-.3-.5-1-1.5-1.4-1.9-1-1-2.1-1.5-3.5-1.5-.3 0-.5 0-.8.1v5.6c0 .1.1.2.2.2H22c.6 0 1.2-.2 1.6-.6.4-.4.6-1 .6-1.6v-1.9c0-.1.1-.2.2-.2h.4c.1 0 .2.1.2.2v1.5z" fill="white"/>
+              </svg>
+              <span className="text-white text-xs font-medium">OpenSea</span>
+            </div>
+          </div>
+          {/* Security badges */}
+          <div className="flex items-center gap-3 flex-wrap">
+            {[
+              "ERC-721 Standard",
+              "Contract Verified",
+              "Open Source",
+              "7.5% Royalty Disclosed",
+              "No Admin Keys",
+            ].map((b) => (
+              <span key={b} className="text-[10px] text-zinc-600 px-2.5 py-1 rounded-full border border-white/[0.06] tracking-wide">
+                {b}
+              </span>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ── PROBLEM / WHY WE EXIST ──────────────────────────────── */}
       <section className="border-t border-white/[0.05]">
         <div className="max-w-7xl mx-auto px-6 py-24">
@@ -370,36 +417,32 @@ export default function Home() {
             {[
               {
                 pain: "Got rugged before?",
-                icon: "⚠",
                 fix: "Every partner project is community-vetted. No anonymous teams, no unlocked allocations. The community decides who's legitimate.",
                 accent: false,
               },
               {
                 pain: "Worried about scams?",
-                icon: "🔒",
                 fix: "Fully onchain, open-source contract. No admin wallet, no upgrades, no hidden permissions. Read every line yourself on Basescan.",
                 accent: false,
               },
               {
                 pain: "Always miss the good projects?",
-                icon: "⚡",
                 fix: "Your ID auto-qualifies you for every partner drop and whitelist. No more hunting. No more missing out. It just shows up in your dashboard.",
                 accent: false,
               },
               {
                 pain: "Too complex or risky?",
-                icon: "✓",
                 fix: "$2 flat on Base. If you have USDC, you're in. No gas surprises, no phases, no price changes. Under 60 seconds from connect to mint.",
                 accent: true,
               },
-            ].map(({ pain, icon, fix, accent }) => (
+            ].map(({ pain, fix, accent }) => (
               <SpotlightCard
                 key={pain}
                 className="bg-background p-7 space-y-3"
                 spotlightColor="rgba(37, 99, 235, 0.06)"
               >
                 <div className="flex items-center gap-2.5">
-                  <span className="text-base">{icon}</span>
+                  <span className="w-1 h-1 rounded-full bg-blue-500/60 flex-shrink-0" />
                   <p className="text-zinc-500 text-[11px] uppercase tracking-[0.18em]">{pain}</p>
                 </div>
                 <p className={`text-sm leading-relaxed ${accent ? "text-zinc-300" : "text-zinc-400"}`}>{fix}</p>
@@ -471,10 +514,9 @@ export default function Home() {
             {/* Soon: Partner NFT Drops */}
             <FadeIn delay={0.12}>
               <div className="bg-background rounded-2xl border border-white/[0.04] p-7 space-y-4 h-full relative overflow-hidden">
-                <div className="absolute inset-0 bg-zinc-950/60 backdrop-blur-[1px] flex flex-col items-center justify-center z-10 rounded-2xl">
-                  <span className="text-2xl mb-2">🔒</span>
-                  <p className="text-zinc-500 text-xs uppercase tracking-[0.2em]">Coming soon</p>
-                  <p className="text-zinc-600 text-[11px] mt-1">Activates with partner launch</p>
+                <div className="absolute inset-0 bg-zinc-950/70 backdrop-blur-[2px] flex flex-col items-center justify-center z-10 rounded-2xl gap-2">
+                  <span className="px-3 py-1 rounded-full border border-white/10 text-zinc-500 text-[10px] uppercase tracking-[0.2em]">Coming Soon</span>
+                  <p className="text-zinc-700 text-[11px]">Activates with partner launch</p>
                 </div>
                 <span className="text-[10px] text-zinc-600 font-medium uppercase tracking-[0.2em]">Partner NFT Drops</span>
                 <p style={D} className="text-white font-bold text-xl leading-tight">Drops land in your dashboard.</p>
@@ -488,10 +530,9 @@ export default function Home() {
             {/* Soon: Whitelist + DAO */}
             <FadeIn delay={0.16}>
               <div className="bg-background rounded-2xl border border-white/[0.04] p-7 space-y-4 h-full relative overflow-hidden">
-                <div className="absolute inset-0 bg-zinc-950/60 backdrop-blur-[1px] flex flex-col items-center justify-center z-10 rounded-2xl">
-                  <span className="text-2xl mb-2">🔒</span>
-                  <p className="text-zinc-500 text-xs uppercase tracking-[0.2em]">Coming soon</p>
-                  <p className="text-zinc-600 text-[11px] mt-1">Activates with DAO launch</p>
+                <div className="absolute inset-0 bg-zinc-950/70 backdrop-blur-[2px] flex flex-col items-center justify-center z-10 rounded-2xl gap-2">
+                  <span className="px-3 py-1 rounded-full border border-white/10 text-zinc-500 text-[10px] uppercase tracking-[0.2em]">Coming Soon</span>
+                  <p className="text-zinc-700 text-[11px]">Activates with DAO launch</p>
                 </div>
                 <span className="text-[10px] text-zinc-600 font-medium uppercase tracking-[0.2em]">Whitelist Access + DAO</span>
                 <p style={D} className="text-white font-bold text-xl leading-tight">One ID. Many doors.</p>
