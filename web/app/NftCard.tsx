@@ -22,14 +22,19 @@ export function NftCard({ id, holder = "—", fontSize }: Props) {
   const parsed = parseInt(numStr, 10);
   const auction = !isNaN(parsed) && isAuctionId(parsed);
 
-  // Color tokens — blue (public) or gold (auction)
+  // Tier badge — matches contract and dashboard labels exactly
+  const badgeText = parsed <= 100 ? "GENESIS"
+    : parsed <= 1000  ? "FOUNDING"
+    : parsed <= 10000 ? "PIONEER"
+    : "BUILDER";
+
+  // Color tokens — gold for Genesis, blue for all others
   const numGradStop0  = auction ? "#fde68a" : "#93c5fd";
   const numGradStop1  = auction ? "#d97706" : "#1d4ed8";
   const borderColor   = auction ? "#d97706" : "#2563eb";
   const accentColor   = auction ? "#f59e0b" : "#3b82f6";
   const dotColor      = auction ? "#f59e0b" : "#3b82f6";
   const squareColor   = auction ? "#d97706" : "#2563eb";
-  const badgeText     = auction ? "AUCTION" : "BASE";
   const badgeFill     = auction ? "#2d1a00" : "#0f1f4a";
   const badgeStroke   = auction ? "#d97706" : "#3b82f6";
   const badgeTextColor = auction ? "#fde68a" : "#93c5fd";
@@ -97,9 +102,9 @@ export function NftCard({ id, holder = "—", fontSize }: Props) {
       </text>
 
       {/* Top-right: badge */}
-      <rect x="396" y="21" width="58" height="22" rx="11" fill={badgeFill} fillOpacity="0.9" />
-      <rect x="396" y="21" width="58" height="22" rx="11" fill="none" stroke={badgeStroke} strokeWidth="0.75" strokeOpacity="0.55" />
-      <text x="425" y="36" fontFamily="monospace, Courier New" fontSize="9.5" fontWeight="700" fill={badgeTextColor} textAnchor="middle" letterSpacing="0.1em">
+      <rect x="384" y="21" width="72" height="22" rx="11" fill={badgeFill} fillOpacity="0.9" />
+      <rect x="384" y="21" width="72" height="22" rx="11" fill="none" stroke={badgeStroke} strokeWidth="0.75" strokeOpacity="0.55" />
+      <text x="420" y="36" fontFamily="monospace, Courier New" fontSize="9.5" fontWeight="700" fill={badgeTextColor} textAnchor="middle" letterSpacing="0.1em">
         {badgeText}
       </text>
 
