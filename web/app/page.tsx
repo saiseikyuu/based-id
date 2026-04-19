@@ -442,39 +442,46 @@ export default function Home() {
 
             {/* Right — redacted partner cards */}
             <FadeIn delay={0.08}>
-              <p className="text-zinc-700 text-[10px] uppercase tracking-[0.2em] mb-5">6 partner slots · Launching with ecosystem</p>
+              <p className="text-zinc-700 text-[10px] uppercase tracking-[0.2em] mb-5">Partner Projects · Growing over time</p>
               <div className="grid grid-cols-2 gap-3">
                 {[
-                  { num: "01", barW: 62, reserved: true },
-                  { num: "02", barW: 48, reserved: true },
-                  { num: "03", barW: 70, reserved: false },
-                  { num: "04", barW: 55, reserved: false },
-                  { num: "05", barW: 66, reserved: false },
-                  { num: "06", barW: 52, reserved: false },
-                ].map(({ num, barW, reserved }) => (
+                  { barW: 62, soon: true },
+                  { barW: 48, soon: true },
+                  { barW: 70, soon: false },
+                  { barW: 55, soon: false },
+                  { barW: 66, soon: false },
+                ].map(({ barW, soon }, i) => (
                   <div
-                    key={num}
-                    className={`rounded-2xl border p-5 space-y-5 ${reserved ? "border-blue-900/25 bg-blue-950/[0.07]" : "border-white/[0.05] bg-white/[0.01]"}`}
+                    key={i}
+                    className={`rounded-2xl border p-5 space-y-5 ${soon ? "border-blue-900/25 bg-blue-950/[0.07]" : "border-white/[0.05] bg-white/[0.01]"}`}
                   >
                     <div className="flex items-center justify-between">
-                      <span className="font-mono text-zinc-700 text-[10px]">{num}</span>
-                      <span className={`text-[9px] px-2 py-0.5 rounded-full border uppercase tracking-[0.1em] ${reserved ? "border-blue-900/35 text-blue-600/60" : "border-white/[0.06] text-zinc-700"}`}>
-                        {reserved ? "Slot reserved" : "Open"}
+                      <span className="font-mono text-zinc-700 text-[10px]">Project</span>
+                      <span className={`text-[9px] px-2 py-0.5 rounded-full border uppercase tracking-[0.1em] ${soon ? "border-blue-900/35 text-blue-600/60" : "border-white/[0.06] text-zinc-700"}`}>
+                        {soon ? "Coming soon" : "Unannounced"}
                       </span>
                     </div>
-
-                    {/* Blurred logo placeholder */}
                     <div className="w-10 h-10 rounded-xl bg-white/[0.05] blur-[4px]" />
-
-                    {/* Redacted name bars */}
                     <div className="space-y-2">
                       <div className="h-2.5 rounded-full bg-white/[0.06]" style={{ width: `${barW}%` }} />
                       <div className="h-1.5 rounded-full bg-white/[0.03]" style={{ width: `${Math.round(barW * 0.65)}%` }} />
                     </div>
-
-                    <p className="text-zinc-700 text-[9px] uppercase tracking-[0.15em]">Unannounced</p>
+                    <p className="text-zinc-700 text-[9px] uppercase tracking-[0.15em]">TBA</p>
                   </div>
                 ))}
+
+                {/* Open-ended "more" card */}
+                <div className="rounded-2xl border border-white/[0.05] bg-white/[0.01] p-5 flex flex-col items-center justify-center gap-3 text-center">
+                  <div className="w-10 h-10 rounded-xl border border-white/[0.07] flex items-center justify-center">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+                      <path d="M12 5v14M5 12h14"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="text-zinc-400 text-xs font-medium">Your project</p>
+                    <p className="text-zinc-700 text-[10px] mt-0.5">Unlimited · No cap</p>
+                  </div>
+                </div>
               </div>
             </FadeIn>
           </div>
