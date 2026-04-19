@@ -589,141 +589,169 @@ export default function Home() {
 
       {/* ── FOR PROJECTS ────────────────────────────────────────── */}
       <section className="border-t border-white/[0.05]">
-        <div className="max-w-7xl mx-auto px-6 py-28 space-y-16">
+        <div className="max-w-7xl mx-auto px-6 py-28 space-y-14">
 
-          {/* Heading */}
-          <FadeIn className="max-w-2xl">
-            <p className="text-zinc-600 text-[11px] uppercase tracking-[0.2em] mb-4">For Projects</p>
-            <h2 style={D} className="text-[clamp(2.5rem,5vw,4rem)] font-bold tracking-tight leading-tight">
-              Drop to real wallets.<br />Not bots.
-            </h2>
-            <p className="text-zinc-500 text-sm mt-5 leading-relaxed max-w-md">
-              Every Based ID holder paid $2 and signed onchain. No wallet farms, no airdrop hunters running 50 addresses.
-              A small audience of committed people beats a massive one full of noise.
-            </p>
-          </FadeIn>
+          {/* Top — heading + comparison panel */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
 
-          {/* Stats row */}
-          <FadeIn>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-px bg-white/[0.05] rounded-2xl overflow-hidden">
-              {[
-                { value: "$2",     label: "Paid per holder",         sub: "Every wallet committed real money to be here"   },
-                { value: "100%",   label: "Wallet-verified onchain", sub: "No forms, no sign-ups — just real Base wallets" },
-                { value: "0",      label: "Forms to fill out",       sub: "Partners reach holders automatically at snapshot" },
-              ].map(({ value, label, sub }) => (
-                <div key={label} className="bg-background px-7 py-8">
-                  <p className="text-[3rem] font-black leading-none mb-3" style={GRAD}>{value}</p>
-                  <p className="text-white font-semibold text-sm mb-1">{label}</p>
-                  <p className="text-zinc-600 text-xs leading-relaxed">{sub}</p>
-                </div>
-              ))}
-            </div>
-          </FadeIn>
-
-          {/* Feature cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            {[
-              {
-                icon: (
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/>
-                  </svg>
-                ),
-                label: "Verified audience",
-                body: "Every holder paid $2 USDC and minted onchain. You can't fake a Based ID — no bots, no farmers, no multi-wallets.",
-                delay: 0,
-              },
-              {
-                icon: (
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                    <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
-                  </svg>
-                ),
-                label: "Reach by tier",
-                body: "Target Genesis holders, Founding tier, or the full community. Every holder's ID number, tier, and wallet is public onchain.",
-                delay: 0.06,
-              },
-              {
-                icon: (
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
-                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-                  </svg>
-                ),
-                label: "Community-governed",
-                body: "The DAO votes to approve partners before any drop. Your project is introduced to the community — not just pushed to them.",
-                delay: 0.12,
-              },
-            ].map(({ icon, label, body, delay }) => (
-              <FadeIn key={label} delay={delay}>
-                <SpotlightCard
-                  className="bg-background rounded-2xl border border-white/[0.05] p-6 h-full space-y-4"
-                  spotlightColor="rgba(37,99,235,0.06)"
+            {/* Left: heading */}
+            <FadeIn className="space-y-6">
+              <p className="text-zinc-600 text-[11px] uppercase tracking-[0.2em]">For Projects</p>
+              <h2 style={D} className="text-[clamp(2.5rem,5vw,4rem)] font-bold tracking-tight leading-[0.95]">
+                Drop to real<br />wallets.<br />
+                <span style={GRAD}>Not bots.</span>
+              </h2>
+              <p style={{ fontFamily: "var(--font-display), system-ui, sans-serif" }} className="text-zinc-400 text-base leading-relaxed max-w-sm">
+                Every Based ID holder paid $2 and signed onchain. A small committed audience beats a massive noisy one every time.
+              </p>
+              <div className="flex items-center gap-4 pt-2">
+                <a
+                  href="https://x.com/basedidofficial"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white text-black text-sm font-bold hover:bg-zinc-100 transition-colors"
                 >
-                  <div className="w-9 h-9 rounded-xl bg-blue-500/10 border border-blue-500/10 flex items-center justify-center text-blue-400">
-                    {icon}
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.737-8.835L1.254 2.25H8.08l4.259 5.631 5.905-5.631zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                  </svg>
+                  Partner with us
+                </a>
+                <span className="text-zinc-700 text-xs">@basedidofficial</span>
+              </div>
+            </FadeIn>
+
+            {/* Right: comparison table */}
+            <FadeIn delay={0.1}>
+              <div className="rounded-2xl border border-white/[0.07] overflow-hidden">
+                {/* Header */}
+                <div className="grid grid-cols-[1fr_100px_100px] border-b border-white/[0.06] bg-white/[0.02]">
+                  <div className="px-5 py-3" />
+                  <div className="px-4 py-3 text-center border-l border-white/[0.05]">
+                    <p className="text-zinc-600 text-[10px] uppercase tracking-[0.15em]">Typical drop</p>
                   </div>
-                  <div className="space-y-2">
+                  <div className="px-4 py-3 text-center border-l border-blue-900/30 bg-blue-950/20">
+                    <p className="text-blue-400 text-[10px] uppercase tracking-[0.15em] font-semibold">Based ID</p>
+                  </div>
+                </div>
+                {[
+                  { label: "Wallet verification",  typical: "None",   based: "Onchain"  },
+                  { label: "Entry cost per holder", typical: "$0",     based: "$2 USDC"  },
+                  { label: "Bot exposure",          typical: "High",   based: "Zero"     },
+                  { label: "Multi-wallet farmers",  typical: "Common", based: "Blocked"  },
+                  { label: "Forms required",        typical: "Yes",    based: "None"     },
+                  { label: "Holder commitment",     typical: "None",   based: "Paid in"  },
+                ].map(({ label, typical, based }, i) => (
+                  <div key={label} className={`grid grid-cols-[1fr_100px_100px] border-b border-white/[0.04] last:border-0 ${i % 2 === 0 ? "" : "bg-white/[0.01]"}`}>
+                    <div className="px-5 py-3.5">
+                      <p className="text-zinc-400 text-xs">{label}</p>
+                    </div>
+                    <div className="px-4 py-3.5 text-center border-l border-white/[0.05]">
+                      <p className="text-zinc-600 text-xs tabular-nums">{typical}</p>
+                    </div>
+                    <div className="px-4 py-3.5 text-center border-l border-blue-900/20 bg-blue-950/10">
+                      <p className="text-blue-300 text-xs font-semibold tabular-nums">{based}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </FadeIn>
+          </div>
+
+          {/* Stats + features combined row */}
+          <FadeIn>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {[
+                {
+                  icon: (
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/>
+                    </svg>
+                  ),
+                  value: "$2",
+                  label: "Verified entry",
+                  body: "Every holder paid $2 USDC and signed onchain. You can't fake a Based ID — wallets are real, committed, and on Base.",
+                },
+                {
+                  icon: (
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                      <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+                    </svg>
+                  ),
+                  value: "4 tiers",
+                  label: "Targeted reach",
+                  body: "Reach Genesis, Founding, Pioneer, or Builder holders — or all of them. Every wallet and tier is verifiable onchain.",
+                },
+                {
+                  icon: (
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+                      <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                    </svg>
+                  ),
+                  value: "DAO",
+                  label: "Community-governed",
+                  body: "The DAO votes to approve partners before any drop. Your project earns community trust — it's not just pushed to them.",
+                },
+              ].map(({ icon, value, label, body }) => (
+                <SpotlightCard
+                  key={label}
+                  className="bg-background rounded-2xl border border-white/[0.06] p-6 space-y-5 h-full"
+                  spotlightColor="rgba(37,99,235,0.07)"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/10 flex items-center justify-center text-blue-400 flex-shrink-0">
+                      {icon}
+                    </div>
+                    <p className="text-[2rem] font-black leading-none" style={GRAD}>{value}</p>
+                  </div>
+                  <div className="space-y-1.5">
                     <p className="text-white font-semibold text-sm">{label}</p>
                     <p className="text-zinc-500 text-xs leading-relaxed">{body}</p>
                   </div>
                 </SpotlightCard>
-              </FadeIn>
-            ))}
-          </div>
+              ))}
+            </div>
+          </FadeIn>
 
-          {/* Partner CTA */}
+          {/* Partner CTA bar */}
           <FadeIn>
-            <div className="rounded-2xl border border-white/[0.06] bg-white/[0.01] overflow-hidden">
-              <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-0">
-
-                {/* Left — requirements */}
-                <div className="p-8 space-y-6 border-b lg:border-b-0 lg:border-r border-white/[0.05]">
+            <div className="relative rounded-2xl overflow-hidden border border-blue-900/20">
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-950/40 via-background to-background" />
+              <div className="relative grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-6 items-center p-8">
+                <div className="space-y-4">
                   <div>
-                    <p style={D} className="text-white font-bold text-xl mb-2">Interested in partnering?</p>
-                    <p className="text-zinc-500 text-sm leading-relaxed max-w-md">
-                      We work with projects building real things on Base — not launching and leaving.
-                      Reach out and we'll introduce you to the community the right way.
+                    <p style={D} className="text-white font-bold text-xl mb-1.5">Ready to partner?</p>
+                    <p className="text-zinc-500 text-sm leading-relaxed max-w-lg">
+                      We work with projects building real things on Base. DM us on X — we'll review your project and set up the drop if it's a fit.
                     </p>
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="flex flex-wrap gap-x-6 gap-y-2">
                     {[
-                      { icon: "✓", text: "Open-source or verifiable contracts" },
-                      { icon: "✓", text: "Publicly accountable team"           },
-                      { icon: "✓", text: "Real utility for Base users"          },
-                      { icon: "✓", text: "Long-term, community-first mindset"  },
-                    ].map(({ icon, text }) => (
-                      <div key={text} className="flex items-center gap-2.5">
-                        <span className="w-4 h-4 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[10px] font-bold flex items-center justify-center flex-shrink-0">
-                          {icon}
-                        </span>
-                        <span className="text-zinc-400 text-xs">{text}</span>
+                      "Verifiable contracts",
+                      "Accountable team",
+                      "Real utility",
+                      "Long-term mindset",
+                    ].map((req) => (
+                      <div key={req} className="flex items-center gap-1.5">
+                        <svg width="11" height="11" viewBox="0 0 12 12" fill="none" className="text-blue-500 flex-shrink-0">
+                          <path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                        <span className="text-zinc-500 text-xs">{req}</span>
                       </div>
                     ))}
                   </div>
                 </div>
-
-                {/* Right — CTA */}
-                <div className="p-8 flex flex-col justify-center items-start lg:items-center gap-5 min-w-[240px]">
-                  <div className="text-center space-y-1">
-                    <p className="text-white font-semibold text-sm">Ready to partner?</p>
-                    <p className="text-zinc-600 text-xs">Reach out on X — we respond fast</p>
-                  </div>
-                  <a
-                    href="https://x.com/basedidofficial"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2.5 px-6 py-3 rounded-xl bg-white text-black text-sm font-bold hover:bg-zinc-100 transition-colors w-full lg:w-auto justify-center"
-                  >
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.737-8.835L1.254 2.25H8.08l4.259 5.631 5.905-5.631zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-                    </svg>
-                    DM us on X
-                  </a>
-                  <p className="text-zinc-700 text-[10px] text-center">
-                    @basedidofficial
-                  </p>
-                </div>
+                <a
+                  href="https://x.com/basedidofficial"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex-shrink-0 flex items-center gap-2.5 px-7 py-4 rounded-xl bg-white text-black text-sm font-bold hover:bg-zinc-100 transition-colors justify-center"
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.737-8.835L1.254 2.25H8.08l4.259 5.631 5.905-5.631zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                  </svg>
+                  DM us on X
+                </a>
               </div>
             </div>
           </FadeIn>
