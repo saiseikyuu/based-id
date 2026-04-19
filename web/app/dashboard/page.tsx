@@ -1670,9 +1670,10 @@ function AuctionTab({ address, isOwner }: { address: string; isOwner: boolean })
                 </div>
 
                 <p className="text-zinc-500 text-sm leading-relaxed">
-                  The 100 lowest IDs are held back deliberately. When the project reaches peak momentum,
+                  The 100 lowest IDs are held back deliberately. Around the 1,000 mint mark,
                   they will be auctioned one-by-one — starting at <span className="text-white font-semibold">#100</span> and
                   ending with the grand finale: <span className="text-white font-semibold">#1</span>.
+                  Winners earn $BASED at the highest weight in both snapshots.
                 </p>
 
                 <div className="grid grid-cols-10 gap-1">

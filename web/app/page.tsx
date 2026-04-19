@@ -544,8 +544,8 @@ export default function Home() {
                 </h2>
                 <p className="text-zinc-500 text-sm mt-6 leading-relaxed max-w-sm">
                   IDs #1–#100 are permanently reserved. They will never be available for $2 mint.
-                  Auctions open when the time is right — starting from #100 and working down to #1.
-                  The lower the number, the rarer it gets.
+                  Auctions begin around the 1,000 mint mark — starting from #100 and working down to #1.
+                  Winners earn $BASED at the highest weight in both snapshots. The lower the number, the rarer it gets.
                 </p>
                 <div className="mt-8 space-y-3">
                   <div className="flex items-start gap-3">
@@ -563,7 +563,7 @@ export default function Home() {
                 </div>
                 <div className="mt-8 inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-amber-900/30 bg-amber-500/[0.04]">
                   <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse flex-shrink-0" />
-                  <span className="text-amber-500/80 text-[11px] uppercase tracking-[0.18em]">Auctions begin after 10,000 IDs minted</span>
+                  <span className="text-amber-500/80 text-[11px] uppercase tracking-[0.18em]">First auction before Snapshot #1 · Sep 30, 2026</span>
                 </div>
               </FadeIn>
             </div>
@@ -581,7 +581,7 @@ export default function Home() {
                   </div>
                 ))}
               </div>
-              <p className="text-zinc-700 text-[10px] mt-4 uppercase tracking-[0.15em]">100 of 100 slots locked · Auctions begin at peak</p>
+              <p className="text-zinc-700 text-[10px] mt-4 uppercase tracking-[0.15em]">100 of 100 slots locked · First auction before Sep 30, 2026</p>
             </FadeIn>
           </div>
         </div>
@@ -722,13 +722,13 @@ export default function Home() {
           <div className="max-w-xl space-y-0">
             {[
               { date: "Now",                title: "Based ID launches. Public mint open.",               status: "now"      as const },
-              { date: "Peak momentum",      title: "First Genesis auction — ID #100",                    status: "upcoming" as const },
-              { date: "Sep 30, 2026 UTC",    title: "Snapshot #1 — 400M $BASED distributed",             status: "upcoming" as const },
-              { date: "Ongoing",            title: "Genesis auctions continue — #99 down to #1",         status: "upcoming" as const },
-              { date: "Dec 31, 2026 UTC",    title: "Snapshot #2 — 400M $BASED distributed",             status: "upcoming" as const },
-              { date: "January 2027",       title: "Claim $BASED — all holders",                        status: "upcoming" as const },
-              { date: "2027",               title: "DAO voting launches. Community governs partners.",   status: "future"   as const },
-              { date: "2027+",              title: "Genesis ID #1 — the final auction.",                 status: "future"   as const },
+              { date: "~1,000 mints",        title: "First Genesis auction — ID #100",                    status: "upcoming" as const },
+              { date: "Sep 30, 2026 UTC",   title: "Snapshot #1 — 400M $BASED distributed",              status: "upcoming" as const },
+              { date: "Ongoing",            title: "Genesis auctions continue — #99 down to #2",         status: "upcoming" as const },
+              { date: "Dec 31, 2026 UTC",   title: "Snapshot #2 — 400M $BASED distributed",              status: "upcoming" as const },
+              { date: "January 2027",       title: "Claim $BASED — all holders",                         status: "upcoming" as const },
+              { date: "2027",               title: "DAO voting launches. Community governs partners.",    status: "future"   as const },
+              { date: "2027+",              title: "Genesis ID #1 — the final auction.",                  status: "future"   as const },
             ].map((item, i) => (
               <FadeIn key={i} delay={i * 0.07}>
                 <RoadmapItem {...item} />
@@ -914,7 +914,7 @@ export default function Home() {
                 },
                 {
                   q: "What are Genesis IDs (#1–#100)?",
-                  a: "They're held back from public minting and will be auctioned one-by-one starting after 10,000 IDs are minted, from #100 down to #1.",
+                  a: "They're held back from public minting and will be auctioned one-by-one before Snapshot #1 (Sep 30, 2026), starting from #100 down to #1. Winners earn $BASED at the highest weight.",
                 },
                 {
                   q: "Is the contract verified and open source?",
