@@ -1220,40 +1220,39 @@ export default function Home() {
       {/* ── GET USDC GUIDE ───────────────────────────────────────── */}
       <section className="py-24 border-t border-white/[0.05] relative">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-start">
 
-            {/* Left: heading + preflight checklist */}
+            {/* Left: heading + requirements */}
             <FadeIn className="lg:sticky lg:top-24">
-              <div className="space-y-10">
-                <div className="space-y-4">
+              <div className="space-y-12">
+                <div className="space-y-5">
                   <p className="text-zinc-600 text-[11px] uppercase tracking-[0.2em]">Before you mint</p>
-                  <h2 style={D} className="text-[clamp(2rem,4vw,3.5rem)] font-bold tracking-tight leading-tight">
-                    Ready in<br />under 60 sec.
+                  <h2 style={D} className="text-[clamp(2.2rem,4vw,3.2rem)] font-bold tracking-tight leading-[1.1]">
+                    Three things.<br />Under 60 seconds.
                   </h2>
                   <p className="text-zinc-500 text-sm leading-relaxed max-w-sm" style={{ fontFamily: "var(--font-display), system-ui, sans-serif" }}>
-                    No waitlists, no KYC, no gas surprises. You need three things and you're done.
+                    No waitlists, no KYC, no gas surprises. Get these ready and you're good to go.
                   </p>
                 </div>
 
-                <div className="space-y-2">
-                  <p className="text-zinc-600 text-[10px] uppercase tracking-[0.2em] mb-4">Preflight checklist</p>
-                  {[
-                    { label: "Base-compatible wallet", sub: "Coinbase Wallet, MetaMask, Rainbow", accent: "bg-blue-500" },
-                    { label: "$2 USDC on Base", sub: "Exactly $2 — methods on the right", accent: "bg-green-500" },
-                    { label: "ETH for gas (~$0.01)", sub: "Near-zero — Base gas is negligible", accent: "bg-amber-500" },
-                  ].map(({ label, sub, accent }) => (
-                    <div key={label} className="flex items-start gap-4 p-4 rounded-xl border border-white/[0.05] bg-white/[0.01]">
-                      <div className={`w-5 h-5 rounded-full ${accent} flex items-center justify-center flex-shrink-0 mt-0.5`}>
-                        <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
-                          <path d="M1 4l2.5 2.5L9 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                        </svg>
+                {/* Clean numbered requirement list */}
+                <div>
+                  <p className="text-zinc-700 text-[10px] uppercase tracking-[0.2em] mb-5">What you need</p>
+                  <div className="divide-y divide-white/[0.04]">
+                    {[
+                      { n: "01", label: "A Base-compatible wallet", sub: "Coinbase Wallet, MetaMask, or Rainbow" },
+                      { n: "02", label: "$2 USDC on Base", sub: "Exactly $2 — see methods on the right" },
+                      { n: "03", label: "ETH for gas (~$0.01)", sub: "Base gas is near-zero — any small amount works" },
+                    ].map(({ n, label, sub }) => (
+                      <div key={n} className="flex items-start gap-6 py-5">
+                        <span className="font-mono text-zinc-700 text-[11px] flex-shrink-0 mt-0.5 w-5">{n}</span>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-white text-[15px] font-medium leading-snug">{label}</p>
+                          <p className="text-zinc-600 text-xs mt-1">{sub}</p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="text-white text-sm font-medium">{label}</p>
-                        <p className="text-zinc-600 text-xs mt-0.5">{sub}</p>
-                      </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
               </div>
             </FadeIn>
@@ -1261,15 +1260,13 @@ export default function Home() {
             {/* Right: method cards */}
             <FadeIn delay={0.08}>
               <div className="space-y-3">
-                <p className="text-zinc-600 text-[10px] uppercase tracking-[0.2em] mb-5">How to get USDC on Base</p>
+                <p className="text-zinc-700 text-[10px] uppercase tracking-[0.2em] mb-5">How to get USDC on Base</p>
                 {[
                   {
                     step: "01",
                     title: "Bridge from Ethereum",
                     body: "Go to bridge.base.org, connect your wallet, and bridge USDC from Ethereum mainnet to Base. Takes ~1 minute.",
                     tag: "Recommended",
-                    tagColor: "text-blue-400",
-                    tagBg: "bg-blue-950/60 border-blue-900/40",
                     featured: true,
                   },
                   {
@@ -1277,8 +1274,6 @@ export default function Home() {
                     title: "Buy directly on Base",
                     body: "Use Coinbase, Uniswap, or any DEX on Base to swap ETH → USDC. You'll need a small amount of ETH on Base for gas first.",
                     tag: "Quick",
-                    tagColor: "text-green-400",
-                    tagBg: "bg-green-950/30 border-green-900/30",
                     featured: false,
                   },
                   {
@@ -1286,38 +1281,36 @@ export default function Home() {
                     title: "Withdraw from Coinbase",
                     body: "If you have USDC on Coinbase, go to Send → select USDC → choose Base network → paste your wallet address.",
                     tag: "Easiest for beginners",
-                    tagColor: "text-amber-400",
-                    tagBg: "bg-amber-950/20 border-amber-900/20",
                     featured: false,
                   },
-                ].map(({ step, title, body, tag, tagColor, tagBg, featured }) => (
+                ].map(({ step, title, body, tag, featured }) => (
                   <div
                     key={step}
-                    className={`relative rounded-2xl border p-6 space-y-4 overflow-hidden ${featured ? "border-blue-800/40 bg-blue-950/15" : "border-white/[0.05] bg-white/[0.01]"}`}
+                    className="relative rounded-2xl border border-white/[0.06] p-6 overflow-hidden"
+                    style={featured ? { background: "rgba(255,255,255,0.02)" } : {}}
                   >
+                    {/* Subtle left accent stripe on featured */}
                     {featured && (
-                      <div className="absolute inset-0 bg-gradient-to-br from-blue-950/30 via-transparent to-transparent pointer-events-none" />
+                      <div className="absolute left-0 top-4 bottom-4 w-[2px] bg-blue-600/60 rounded-full" />
                     )}
-                    <div className="flex items-center justify-between relative">
-                      <span className="font-mono text-zinc-700 text-[11px]">{step}</span>
-                      <span className={`text-[10px] font-bold uppercase tracking-[0.1em] px-2.5 py-1 rounded-full border ${tagBg} ${tagColor}`}>{tag}</span>
+                    <div className="flex items-start justify-between gap-4 mb-4">
+                      <span className="font-mono text-zinc-700 text-[11px] mt-0.5">{step}</span>
+                      <span className={`text-[10px] font-semibold uppercase tracking-[0.1em] px-2.5 py-1 rounded-md ${
+                        featured
+                          ? "text-blue-400 bg-blue-950/70 border border-blue-900/50"
+                          : "text-zinc-500 bg-zinc-900/60 border border-white/[0.05]"
+                      }`}>{tag}</span>
                     </div>
-                    <div className="relative">
-                      <p className="text-white font-semibold text-sm mb-1.5">{title}</p>
-                      <p className="text-zinc-500 text-xs leading-relaxed">{body}</p>
-                    </div>
+                    <p className="text-white font-semibold text-[15px] mb-2">{title}</p>
+                    <p className="text-zinc-500 text-sm leading-relaxed">{body}</p>
                   </div>
                 ))}
 
-                <div className="rounded-xl border border-white/[0.05] p-4 flex items-start gap-3 mt-2">
-                  <div className="w-5 h-5 rounded-full bg-zinc-800 flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <span className="text-[10px] text-zinc-400 font-bold leading-none">i</span>
-                  </div>
-                  <p className="text-zinc-500 text-xs leading-relaxed">
-                    <span className="text-zinc-300 font-medium">Gas costs less than $0.01 on Base.</span>{" "}
-                    Bridge a small amount of ETH alongside your USDC — you won't even notice it.
-                  </p>
-                </div>
+                {/* Gas note — inline, minimal */}
+                <p className="text-zinc-600 text-xs leading-relaxed pt-1 pl-1">
+                  <span className="text-zinc-400">Gas is less than $0.01 on Base.</span>{" "}
+                  Bridge a small amount of ETH alongside your USDC.
+                </p>
               </div>
             </FadeIn>
           </div>
