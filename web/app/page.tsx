@@ -712,28 +712,106 @@ export default function Home() {
       {/* ── ROADMAP ─────────────────────────────────────────────── */}
       <section id="roadmap" className="border-t border-white/[0.05]">
         <div className="max-w-7xl mx-auto px-6 py-28">
-          <FadeIn className="mb-16">
-            <p className="text-zinc-600 text-[11px] uppercase tracking-[0.2em] mb-4">Timeline</p>
-            <h2 style={D} className="text-[clamp(2.5rem,5vw,4rem)] font-bold tracking-tight">The roadmap.</h2>
-            <p className="text-zinc-500 text-sm mt-3 max-w-sm leading-relaxed">
-              Transparent and milestone-driven. No vague "Q3 2025" promises — just what's built, what's next, and what's coming.
-            </p>
-          </FadeIn>
-          <div className="max-w-xl space-y-0">
-            {[
-              { date: "Now",                title: "Based ID launches. Public mint open.",               status: "now"      as const },
-              { date: "~1,000 mints",        title: "First Genesis auction — ID #100",                    status: "upcoming" as const },
-              { date: "Sep 30, 2026 UTC",   title: "Snapshot #1 — 400M $BASED distributed",              status: "upcoming" as const },
-              { date: "Ongoing",            title: "Genesis auctions continue — #99 down to #2",         status: "upcoming" as const },
-              { date: "Dec 31, 2026 UTC",   title: "Snapshot #2 — 400M $BASED distributed",              status: "upcoming" as const },
-              { date: "January 2027",       title: "Claim $BASED — all holders",                         status: "upcoming" as const },
-              { date: "2027",               title: "DAO voting launches. Community governs partners.",    status: "future"   as const },
-              { date: "2027+",              title: "Genesis ID #1 — the final auction.",                  status: "future"   as const },
-            ].map((item, i) => (
-              <FadeIn key={i} delay={i * 0.07}>
-                <RoadmapItem {...item} />
-              </FadeIn>
-            ))}
+          <div className="grid grid-cols-1 lg:grid-cols-[340px_1fr] gap-16 items-start">
+
+            {/* Left — sticky heading */}
+            <FadeIn className="lg:sticky lg:top-24 space-y-8">
+              <div>
+                <p className="text-zinc-600 text-[11px] uppercase tracking-[0.2em] mb-4">Timeline</p>
+                <h2 style={D} className="text-[clamp(2.5rem,5vw,4rem)] font-bold tracking-tight leading-tight">
+                  The roadmap.
+                </h2>
+                <p className="text-zinc-500 text-sm mt-4 leading-relaxed">
+                  Milestone-driven. No vague quarters — just what's built, what's next, and what's coming.
+                </p>
+              </div>
+
+              {/* Progress bar */}
+              <div className="space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-zinc-700 text-[10px] uppercase tracking-[0.15em]">Progress</span>
+                  <span className="text-green-500 text-[10px] uppercase tracking-[0.15em]">Phase 1 of 4</span>
+                </div>
+                <div className="h-1 bg-white/[0.04] rounded-full overflow-hidden">
+                  <div className="h-full w-[12%] bg-gradient-to-r from-green-600 to-green-400 rounded-full" />
+                </div>
+              </div>
+
+              {/* Phase legend */}
+              <div className="space-y-2">
+                {[
+                  { dot: "bg-green-500",     label: "Live now"   },
+                  { dot: "bg-blue-500/60",   label: "Upcoming"   },
+                  { dot: "bg-zinc-700",      label: "Future"     },
+                ].map(({ dot, label }) => (
+                  <div key={label} className="flex items-center gap-2.5">
+                    <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${dot}`} />
+                    <span className="text-zinc-600 text-xs">{label}</span>
+                  </div>
+                ))}
+              </div>
+            </FadeIn>
+
+            {/* Right — timeline cards */}
+            <div className="relative">
+              <div className="absolute left-[18px] top-3 bottom-3 w-px bg-white/[0.05]" />
+              <div className="space-y-3">
+                {[
+                  {
+                    date: "Now",
+                    title: "Based ID launches",
+                    body: "Public mint is open. $2 USDC flat. Permanent sequential IDs on Base — no expiry, no servers.",
+                    status: "now" as const,
+                  },
+                  {
+                    date: "~1,000 mints",
+                    title: "First Genesis auction — ID #100",
+                    body: "The rarest publicly-available slot goes to auction. Winner earns $BASED at the highest weight in both snapshots.",
+                    status: "upcoming" as const,
+                  },
+                  {
+                    date: "Sep 30, 2026 UTC",
+                    title: "Snapshot #1",
+                    body: "400M $BASED allocated proportionally by ID number. Lower number = higher weight = larger share.",
+                    status: "upcoming" as const,
+                  },
+                  {
+                    date: "Ongoing",
+                    title: "Genesis auctions continue",
+                    body: "IDs #99 down to #2 released one-by-one. Each number rarer than the last. Community events around each drop.",
+                    status: "upcoming" as const,
+                  },
+                  {
+                    date: "Dec 31, 2026 UTC",
+                    title: "Snapshot #2",
+                    body: "400M $BASED allocated. Every holder who made it through both snapshots earns from the full 800M pool.",
+                    status: "upcoming" as const,
+                  },
+                  {
+                    date: "January 2027",
+                    title: "Claim $BASED",
+                    body: "Claim button goes live in your dashboard. Every Based ID holder from both snapshots can claim their allocation.",
+                    status: "upcoming" as const,
+                  },
+                  {
+                    date: "2027",
+                    title: "DAO voting launches",
+                    body: "Community governs which projects join the ecosystem. Your $BASED weight = your governance power.",
+                    status: "future" as const,
+                  },
+                  {
+                    date: "2027+",
+                    title: "Genesis ID #1 — the final auction",
+                    body: "The rarest Based ID. One wallet wins it forever. The grand finale of the Genesis auction series.",
+                    status: "future" as const,
+                  },
+                ].map((item, i) => (
+                  <FadeIn key={i} delay={i * 0.06}>
+                    <RoadmapCard {...item} />
+                  </FadeIn>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -1111,27 +1189,54 @@ function FaqItem({ q, a }: { q: string; a: string }) {
   );
 }
 
-function RoadmapItem({ date, title, status }: {
-  date: string; title: string; status: "now" | "upcoming" | "future";
+function RoadmapCard({ date, title, body, status }: {
+  date: string; title: string; body: string; status: "now" | "upcoming" | "future";
 }) {
   const isNow    = status === "now";
   const isFuture = status === "future";
   return (
-    <div className="relative flex gap-6 pb-10 last:pb-0">
-      <div className="flex flex-col items-center flex-shrink-0 w-5">
-        <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center z-10
-          ${isNow ? "border-green-500 bg-green-500/10" : isFuture ? "border-zinc-800 bg-background" : "border-blue-600 bg-blue-600/10"}`}>
-          <div className={`w-1 h-1 rounded-full
-            ${isNow ? "bg-green-500 animate-pulse" : isFuture ? "bg-zinc-700" : "bg-blue-500"}`} />
+    <div className={`relative flex gap-4 ${isFuture ? "opacity-40" : ""}`}>
+      {/* Dot */}
+      <div className="flex-shrink-0 w-9 flex justify-center pt-5 relative z-10">
+        <div className={`w-2.5 h-2.5 rounded-full flex-shrink-0 relative ${
+          isNow
+            ? "bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.6)]"
+            : isFuture
+            ? "bg-zinc-800 border border-zinc-700"
+            : "bg-blue-500/30 border border-blue-500/50"
+        }`}>
+          {isNow && (
+            <span className="absolute inset-0 rounded-full bg-green-500 animate-ping opacity-30" />
+          )}
         </div>
-        <div className="w-px flex-1 bg-white/[0.05] mt-1" />
       </div>
-      <div className="pt-0.5">
-        <p className={`text-[10px] font-medium uppercase tracking-[0.18em] mb-1
-          ${isNow ? "text-green-500" : isFuture ? "text-zinc-700" : "text-blue-500"}`}>
-          {date}
+
+      {/* Card */}
+      <div className={`flex-1 mb-3 rounded-2xl border px-5 py-4 transition-colors ${
+        isNow
+          ? "border-green-900/30 bg-green-950/[0.08]"
+          : isFuture
+          ? "border-white/[0.03] bg-transparent"
+          : "border-white/[0.05] bg-white/[0.01] hover:bg-white/[0.025]"
+      }`}>
+        <div className="flex items-start justify-between gap-4 mb-2">
+          <p className={`text-[10px] font-semibold uppercase tracking-[0.2em] ${
+            isNow ? "text-green-500" : isFuture ? "text-zinc-700" : "text-blue-400"
+          }`}>{date}</p>
+          <span className={`flex-shrink-0 text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-[0.1em] ${
+            isNow
+              ? "bg-green-900/40 text-green-400 border border-green-800/40"
+              : isFuture
+              ? "bg-white/[0.02] text-zinc-700 border border-white/[0.04]"
+              : "bg-blue-900/20 text-blue-400/80 border border-blue-900/20"
+          }`}>
+            {isNow ? "Live" : isFuture ? "Future" : "Upcoming"}
+          </span>
+        </div>
+        <p className={`font-bold text-base leading-snug mb-1.5 ${isFuture ? "text-zinc-600" : "text-white"}`}>
+          {title}
         </p>
-        <p className={`font-semibold text-lg ${isFuture ? "text-zinc-700" : "text-white"}`}>{title}</p>
+        <p className="text-zinc-600 text-xs leading-relaxed">{body}</p>
       </div>
     </div>
   );
