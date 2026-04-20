@@ -277,20 +277,6 @@ export default function Home() {
               style={{ fontFamily: "var(--font-display), system-ui, sans-serif" } as React.CSSProperties}
             />
 
-            {/* Feature chips */}
-            <motion.div
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.8 }}
-              className="flex flex-wrap gap-2"
-            >
-              {["ERC-721 NFT", "On-chain SVG art", "$2 flat — always", "No expiry"].map((tag) => (
-                <span key={tag} className="text-[11px] px-3 py-1.5 rounded-full border border-white/[0.07] bg-white/[0.02] text-zinc-500 tracking-wide">
-                  {tag}
-                </span>
-              ))}
-            </motion.div>
-
             {/* Stats — 3-column metric panel */}
             <div className="grid grid-cols-3 border border-white/[0.06] rounded-2xl overflow-hidden divide-x divide-white/[0.06]">
               <div className="px-5 py-5">
@@ -302,7 +288,9 @@ export default function Home() {
                   )}
                   <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse flex-shrink-0" />
                 </div>
-                <p className="text-zinc-600 text-[10px] uppercase tracking-[0.18em]">Minted</p>
+                <Link href="/leaderboard" className="text-zinc-600 text-[10px] uppercase tracking-[0.18em] hover:text-zinc-400 transition-colors">
+                  Minted · Leaderboard →
+                </Link>
               </div>
               <div className="px-5 py-5">
                 <p className="text-[1.6rem] font-black leading-none mb-1.5">$2</p>

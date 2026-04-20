@@ -2,6 +2,7 @@ import { createPublicClient, http } from "viem";
 import { base, baseSepolia } from "viem/chains";
 import { BASED_ID_ADDRESS, BASED_ID_ABI, isAuctionId, BASESCAN_URL } from "@/lib/contracts";
 import { NftCard } from "../../NftCard";
+import { TipButton } from "../TipButton";
 import Link from "next/link";
 import type { Metadata } from "next";
 
@@ -89,6 +90,16 @@ export default async function ProfilePage({
   const weight = (1 / Math.sqrt(tokenId)).toFixed(6);
   const auction = isAuctionId(tokenId);
 
+  // Fetch activity score for holder (non-blocking)
+  let activity: { score: number; txCount: number; ageDays: number; uniqueContracts: number; grade: string } | null = null;
+  if (holder) {
+    try {
+      const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3001";
+      const res = await fetch(`${baseUrl}/api/activity/${holder}`, { next: { revalidate: 3600 } });
+      if (res.ok) activity = await res.json();
+    } catch { /* non-critical */ }
+  }
+
   const shareText = holder
     ? `Based ID #${tokenId} — ${tier} tier · weight ${(1 / Math.sqrt(tokenId)).toFixed(4)}×\n\nMint yours for $2 → basedid.space\n\n@basedidofficial`
     : `Based ID #${tokenId} is still unclaimed.\n\nMint it for $2 → basedid.space\n\n@basedidofficial`;
@@ -112,16 +123,16 @@ export default async function ProfilePage({
 
         {/* Stats panel */}
         <div className="grid grid-cols-3 border border-white/[0.06] rounded-2xl overflow-hidden divide-x divide-white/[0.06]">
-          <div className="px-5 py-4">
-            <p className="text-white font-bold text-lg leading-none">#{tokenId}</p>
+          <div className="px-5 py-4 min-w-0">
+            <p className="text-white font-bold text-lg leading-none truncate">#{tokenId}</p>
             <p className="text-zinc-600 text-[10px] uppercase tracking-[0.15em] mt-2">ID Number</p>
           </div>
-          <div className="px-5 py-4">
-            <p className={`font-bold text-lg leading-none ${auction ? "text-amber-400" : "text-white"}`}>{tier}</p>
+          <div className="px-5 py-4 min-w-0">
+            <p className={`font-bold text-lg leading-none truncate ${auction ? "text-amber-400" : "text-white"}`}>{tier}</p>
             <p className="text-zinc-600 text-[10px] uppercase tracking-[0.15em] mt-2">Tier</p>
           </div>
-          <div className="px-5 py-4">
-            <p className="text-white font-bold text-lg leading-none">{parseFloat(weight).toFixed(4)}×</p>
+          <div className="px-5 py-4 min-w-0">
+            <p className="text-white font-bold text-lg leading-none truncate">{parseFloat(weight).toFixed(4)}×</p>
             <p className="text-zinc-600 text-[10px] uppercase tracking-[0.15em] mt-2">$BASED Weight</p>
           </div>
         </div>
@@ -136,16 +147,32 @@ export default async function ProfilePage({
 
         {/* Holder or Not Minted */}
         {holder ? (
-          <div className="rounded-2xl border border-white/[0.06] p-5 space-y-2">
-            <p className="text-zinc-600 text-[10px] uppercase tracking-[0.2em]">Current holder</p>
+          <div className="rounded-2xl border border-white/[0.06] p-5 space-y-3">
+            <div className="flex items-center justify-between">
+              <p className="text-zinc-600 text-[10px] uppercase tracking-[0.2em]">Current holder</p>
+              {activity && (
+                <div className="flex items-center gap-2">
+                  <span className="text-zinc-600 text-[10px] uppercase tracking-[0.15em]">Base Activity</span>
+                  <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full font-mono ${
+                    activity.grade === "S" ? "bg-amber-400/10 text-amber-400 border border-amber-400/20" :
+                    activity.grade === "A" ? "bg-blue-400/10 text-blue-400 border border-blue-400/20" :
+                    activity.grade === "B" ? "bg-zinc-400/10 text-zinc-400 border border-zinc-400/20" :
+                    "bg-zinc-800 text-zinc-600 border border-zinc-700"
+                  }`}>
+                    {activity.grade} · {activity.score}
+                  </span>
+                </div>
+              )}
+            </div>
             <a
               href={`${BASESCAN_URL}/address/${holder}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-blue-400 font-mono text-sm hover:text-blue-300 transition-colors break-all"
+              className="text-blue-400 font-mono text-sm hover:text-blue-300 transition-colors break-all block"
             >
               {holder}
             </a>
+            <TipButton holder={holder} />
           </div>
         ) : (
           <div className="rounded-2xl border border-white/[0.07] bg-white/[0.01] p-5 space-y-3 text-center">
