@@ -38,6 +38,7 @@ export const metadata: Metadata = {
     images: ["/api/frame/image"],
   },
   other: {
+    "base:app_id": "69e778cc1fd7bfa1056aef46",
     "fc:frame": "vNext",
     "fc:frame:image": "https://basedid.space/api/frame/image",
     "fc:frame:image:aspect_ratio": "1.91:1",
