@@ -525,162 +525,144 @@ export default function Home() {
       <section id="unlock" className="border-t border-white/[0.05]">
         <div className="max-w-7xl mx-auto px-6 py-28">
           <FadeIn className="mb-14">
-            <p className="text-zinc-600 text-[11px] uppercase tracking-[0.2em] mb-4">Benefits</p>
+            <p className="text-zinc-600 text-[11px] uppercase tracking-[0.2em] mb-4">What you get</p>
             <h2 style={D} className="text-[clamp(2.5rem,5vw,4rem)] font-bold tracking-tight leading-tight">
               One ID.<br />Everything unlocks.
             </h2>
             <p className="text-zinc-500 text-sm mt-4 max-w-md leading-relaxed">
-              Mint once. Your Based ID becomes your permanent pass — activating more benefits as the ecosystem grows.
+              Mint once. Your Based ID becomes your permanent onchain pass — benefits activate as the ecosystem grows.
             </p>
           </FadeIn>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {/* Live: $BASED Airdrop */}
-            <FadeIn delay={0}>
-              <SpotlightCard className="bg-background rounded-2xl border border-blue-900/30 p-7 space-y-4 h-full" spotlightColor="rgba(37,99,235,0.1)">
-                <div className="flex items-center justify-between">
-                  <span className="text-[10px] text-blue-400 font-medium uppercase tracking-[0.2em]">$BASED Airdrop</span>
-                  <span className="text-[9px] px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20 uppercase tracking-[0.1em]">Live</span>
-                </div>
-                <p style={D} className="text-white font-bold text-xl leading-tight">Lower number. Bigger share.</p>
-                <p className="text-zinc-500 text-sm leading-relaxed">
-                  1 billion $BASED tokens distributed across two snapshots — Sep 30 and Dec 31, 2026 (UTC).
-                  Your ID number determines your weight. #1 always earns more than #1000. Claim January 2027.
-                </p>
-                <div className="pt-2 border-t border-white/[0.05] grid grid-cols-2 gap-3">
-                  <div>
-                    <p className="text-[10px] text-zinc-600 uppercase tracking-[0.15em] mb-1">Snapshot #1</p>
-                    <p className="text-white font-semibold text-sm">Sep 30, 2026 (UTC)</p>
-                    <p className="text-zinc-600 text-xs">400M $BASED</p>
+          {/* Bento grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+
+            {/* Featured: $BASED Airdrop — spans 2 cols */}
+            <FadeIn delay={0} className="lg:col-span-2">
+              <SpotlightCard className="bg-background rounded-2xl border border-blue-500/[0.15] p-8 h-full flex flex-col gap-6" spotlightColor="rgba(59,130,246,0.08)">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="space-y-3 flex-1">
+                    <div className="flex items-center gap-2">
+                      <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" />
+                      <span className="text-[10px] text-blue-400 font-medium uppercase tracking-[0.2em]">$BASED Airdrop</span>
+                    </div>
+                    <p style={D} className="text-white font-bold text-2xl leading-tight">Lower number.<br />Bigger share.</p>
+                    <p className="text-zinc-500 text-sm leading-relaxed max-w-sm">
+                      1 billion $BASED distributed across two snapshots. Your ID number is your weight —
+                      #1 always earns more than #1000.
+                    </p>
                   </div>
-                  <div>
-                    <p className="text-[10px] text-zinc-600 uppercase tracking-[0.15em] mb-1">Snapshot #2</p>
-                    <p className="text-white font-semibold text-sm">Dec 31, 2026 (UTC)</p>
-                    <p className="text-zinc-600 text-xs">400M $BASED</p>
-                  </div>
-                </div>
-              </SpotlightCard>
-            </FadeIn>
-
-            {/* Live: Permanent Onchain Identity */}
-            <FadeIn delay={0.08}>
-              <SpotlightCard className="bg-background rounded-2xl border border-white/[0.06] p-7 space-y-4 h-full" spotlightColor="rgba(37,99,235,0.07)">
-                <div className="flex items-center justify-between">
-                  <span className="text-[10px] text-zinc-500 font-medium uppercase tracking-[0.2em]">Onchain Identity</span>
-                  <span className="text-[9px] px-2 py-0.5 rounded-full bg-green-500/10 text-green-400 border border-green-500/20 uppercase tracking-[0.1em]">Live</span>
-                </div>
-                <p style={D} className="text-white font-bold text-xl leading-tight">Your number. Forever.</p>
-                <p className="text-zinc-500 text-sm leading-relaxed">
-                  No servers. No IPFS. No expiry. Your Based ID art is generated entirely inside the contract as SVG.
-                  It exists for as long as Base exists. #101 will always be #101.
-                </p>
-                <div className="pt-2 border-t border-white/[0.05]">
-                  <p className="text-zinc-700 text-xs">Verifiable on Basescan · Fully open source · No admin control</p>
-                </div>
-              </SpotlightCard>
-            </FadeIn>
-
-            {/* Soon: Partner NFT Drops */}
-            <FadeIn delay={0.12}>
-              <div className="bg-background rounded-2xl border border-white/[0.04] p-7 space-y-4 h-full relative overflow-hidden">
-                <div className="absolute inset-0 bg-zinc-950/70 backdrop-blur-[2px] flex flex-col items-center justify-center z-10 rounded-2xl gap-2">
-                  <span className="px-3 py-1 rounded-full border border-white/10 text-zinc-500 text-[10px] uppercase tracking-[0.2em]">Coming Soon</span>
-                  <p className="text-zinc-700 text-[11px]">Activates with partner launch</p>
-                </div>
-                <span className="text-[10px] text-zinc-600 font-medium uppercase tracking-[0.2em]">Partner NFT Drops</span>
-                <p style={D} className="text-white font-bold text-xl leading-tight">Drops land in your dashboard.</p>
-                <p className="text-zinc-600 text-sm leading-relaxed">
-                  Hold a Based ID and automatically qualify for partner project airdrops.
-                  No forms. No grinding. Your dashboard shows everything ready to claim.
-                </p>
-              </div>
-            </FadeIn>
-
-            {/* Soon: Whitelist + DAO */}
-            <FadeIn delay={0.16}>
-              <div className="bg-background rounded-2xl border border-white/[0.04] p-7 space-y-4 h-full relative overflow-hidden">
-                <div className="absolute inset-0 bg-zinc-950/70 backdrop-blur-[2px] flex flex-col items-center justify-center z-10 rounded-2xl gap-2">
-                  <span className="px-3 py-1 rounded-full border border-white/10 text-zinc-500 text-[10px] uppercase tracking-[0.2em]">Coming Soon</span>
-                  <p className="text-zinc-700 text-[11px]">Activates with DAO launch</p>
-                </div>
-                <span className="text-[10px] text-zinc-600 font-medium uppercase tracking-[0.2em]">Whitelist Access + DAO</span>
-                <p style={D} className="text-white font-bold text-xl leading-tight">One ID. Many doors.</p>
-                <p className="text-zinc-600 text-sm leading-relaxed">
-                  Auto-whitelisted for partner mint launches. Plus: vote on which projects join the ecosystem.
-                  Your $BASED weight = your governance power.
-                </p>
-              </div>
-            </FadeIn>
-          </div>
-
-          {/* Base Activity Score callout */}
-          <FadeIn className="mt-4">
-            <SpotlightCard
-              className="bg-background rounded-2xl border border-white/[0.06] p-7 h-full"
-              spotlightColor="rgba(59,130,246,0.07)"
-            >
-              <div className="flex flex-col lg:flex-row lg:items-center gap-8">
-
-                {/* Left — copy */}
-                <div className="flex-1 space-y-4">
-                  <div className="flex items-center gap-3">
-                    <span className="text-[10px] text-blue-400 font-medium uppercase tracking-[0.2em]">Base Activity Score</span>
-                    <span className="text-[9px] px-2 py-0.5 rounded-full bg-green-500/10 text-green-400 border border-green-500/20 uppercase tracking-[0.1em]">Live</span>
-                  </div>
-                  <p style={D} className="text-white font-bold text-xl leading-tight">Your Base history, made visible.</p>
-                  <p className="text-zinc-500 text-sm leading-relaxed max-w-lg">
-                    Every profile automatically shows an onchain reputation score — wallet age, transactions, protocol diversity, and token activity on Base.
-                    OGs get recognized instantly. New users have a reason to stay active.
-                  </p>
-                  <div className="pt-2 border-t border-white/[0.05] flex flex-wrap gap-6">
-                    {[
-                      { label: "Transactions", sub: "on Base" },
-                      { label: "Wallet Age", sub: "since first tx" },
-                      { label: "Protocols", sub: "unique contracts" },
-                      { label: "Token Moves", sub: "ERC-20 activity" },
-                    ].map(({ label, sub }) => (
-                      <div key={label}>
-                        <p className="text-white text-xs font-semibold">{label}</p>
-                        <p className="text-zinc-600 text-[10px]">{sub}</p>
-                      </div>
-                    ))}
+                  <div className="flex-shrink-0 hidden sm:flex flex-col items-end gap-1">
+                    <p className="text-[10px] text-zinc-700 uppercase tracking-[0.15em]">Total pool</p>
+                    <p className="text-white font-black text-2xl tabular-nums">1B</p>
+                    <p className="text-blue-400 text-[11px] font-mono">$BASED</p>
                   </div>
                 </div>
-
-                {/* Right — static score ring example */}
-                <div className="flex-shrink-0 flex items-center gap-6">
+                <div className="mt-auto pt-5 border-t border-white/[0.05] grid grid-cols-2 gap-4">
                   {[
-                    { grade: "S", score: 88, color: "#f59e0b", label: "Elite", txs: "480", age: "14mo", proto: "42" },
-                    { grade: "A", score: 65, color: "#3b82f6", label: "Active", txs: "120", age: "7mo",  proto: "18" },
-                    { grade: "C", score: 12, color: "#3f3f46", label: "New",    txs: "8",   age: "3d",   proto: "3" },
-                  ].map(({ grade, score, color, label, txs, age, proto }) => {
-                    const R = 26, C2 = 2 * Math.PI * R;
+                    { label: "Snapshot #1", date: "Sep 30, 2026", amount: "400M $BASED" },
+                    { label: "Snapshot #2", date: "Dec 31, 2026", amount: "400M $BASED" },
+                  ].map(({ label, date, amount }) => (
+                    <div key={label}>
+                      <p className="text-[10px] text-zinc-600 uppercase tracking-[0.15em] mb-1.5">{label}</p>
+                      <p className="text-white font-semibold text-sm">{date}</p>
+                      <p className="text-zinc-500 text-xs mt-0.5">{amount}</p>
+                    </div>
+                  ))}
+                </div>
+              </SpotlightCard>
+            </FadeIn>
+
+            {/* Onchain Identity */}
+            <FadeIn delay={0.06}>
+              <SpotlightCard className="bg-background rounded-2xl border border-white/[0.06] p-8 h-full flex flex-col gap-5" spotlightColor="rgba(255,255,255,0.03)">
+                <div className="flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-green-400" />
+                  <span className="text-[10px] text-zinc-500 font-medium uppercase tracking-[0.2em]">Onchain Identity</span>
+                </div>
+                <div className="flex-1 space-y-3">
+                  <p style={D} className="text-white font-bold text-xl leading-tight">Your number.<br />Forever.</p>
+                  <p className="text-zinc-500 text-sm leading-relaxed">
+                    No servers. No IPFS. No expiry. Art lives inside the contract as pure SVG. #101 will always be #101.
+                  </p>
+                </div>
+                <div className="pt-4 border-t border-white/[0.05] space-y-1.5">
+                  {["Fully onchain SVG art", "No admin control", "Open source contract"].map((t) => (
+                    <div key={t} className="flex items-center gap-2">
+                      <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="#3b82f6" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                      <p className="text-zinc-500 text-xs">{t}</p>
+                    </div>
+                  ))}
+                </div>
+              </SpotlightCard>
+            </FadeIn>
+
+            {/* Base Activity Score */}
+            <FadeIn delay={0.1}>
+              <SpotlightCard className="bg-background rounded-2xl border border-white/[0.06] p-8 h-full flex flex-col gap-5" spotlightColor="rgba(59,130,246,0.06)">
+                <div className="flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-green-400" />
+                  <span className="text-[10px] text-zinc-500 font-medium uppercase tracking-[0.2em]">Reputation</span>
+                </div>
+                <div className="flex-1 space-y-3">
+                  <p style={D} className="text-white font-bold text-xl leading-tight">Your Base history,<br />made visible.</p>
+                  <p className="text-zinc-500 text-sm leading-relaxed">
+                    Every profile scores your onchain activity on Base — wallet age, transactions, protocols, and token moves. OGs get recognized.
+                  </p>
+                </div>
+                {/* Mini score rings */}
+                <div className="pt-4 border-t border-white/[0.05] flex items-center gap-4">
+                  {([["S", 88, "#f59e0b"], ["A", 65, "#3b82f6"], ["B", 42, "#a1a1aa"], ["C", 12, "#3f3f46"]] as [string, number, string][]).map(([g, s, c]) => {
+                    const r = 14, circ = 2 * Math.PI * r;
                     return (
-                      <div key={grade} className="flex flex-col items-center gap-2">
-                        <svg width="68" height="68" viewBox="0 0 68 68">
-                          <circle cx="34" cy="34" r={R} fill="none" stroke="#ffffff08" strokeWidth="4" />
-                          <circle cx="34" cy="34" r={R} fill="none"
-                            stroke={color} strokeWidth="4" strokeLinecap="round"
-                            strokeDasharray={C2}
-                            strokeDashoffset={C2 * (1 - score / 100)}
-                            transform="rotate(-90 34 34)"
-                          />
-                          <text x="34" y="31" textAnchor="middle" fill="white" fontSize="14" fontWeight="800" fontFamily="monospace">{grade}</text>
-                          <text x="34" y="44" textAnchor="middle" fill="#52525b" fontSize="8" fontFamily="monospace">{score}pts</text>
+                      <div key={g} className="flex flex-col items-center gap-1">
+                        <svg width="36" height="36" viewBox="0 0 36 36">
+                          <circle cx="18" cy="18" r={r} fill="none" stroke="#ffffff08" strokeWidth="3" />
+                          <circle cx="18" cy="18" r={r} fill="none" stroke={c} strokeWidth="3" strokeLinecap="round"
+                            strokeDasharray={circ} strokeDashoffset={circ * (1 - s / 100)} transform="rotate(-90 18 18)" />
+                          <text x="18" y="22" textAnchor="middle" fill="white" fontSize="9" fontWeight="800" fontFamily="monospace">{g}</text>
                         </svg>
-                        <p className="text-[10px] text-zinc-600">{label}</p>
-                        <div className="text-center space-y-0.5">
-                          <p className="text-zinc-700 text-[9px] font-mono">{txs} txs · {age}</p>
-                          <p className="text-zinc-700 text-[9px] font-mono">{proto} protocols</p>
-                        </div>
+                        <p className="text-zinc-700 text-[9px] font-mono">{g}</p>
                       </div>
                     );
                   })}
                 </div>
+              </SpotlightCard>
+            </FadeIn>
 
+            {/* Partner Drops — coming soon */}
+            <FadeIn delay={0.14}>
+              <div className="bg-background rounded-2xl border border-white/[0.04] p-8 h-full flex flex-col gap-5">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] text-zinc-600 font-medium uppercase tracking-[0.2em]">Partner Drops</span>
+                  <span className="text-[9px] px-2 py-0.5 rounded-full border border-white/[0.07] text-zinc-600 uppercase tracking-[0.1em]">Q3 2026</span>
+                </div>
+                <div className="flex-1 space-y-3 opacity-40">
+                  <p style={D} className="text-white font-bold text-xl leading-tight">Drops land in your dashboard.</p>
+                  <p className="text-zinc-500 text-sm leading-relaxed">
+                    Hold a Based ID and automatically qualify for partner project airdrops. No forms. No grinding.
+                  </p>
+                </div>
               </div>
-            </SpotlightCard>
-          </FadeIn>
+            </FadeIn>
+
+            {/* DAO + Whitelist — coming soon */}
+            <FadeIn delay={0.18}>
+              <div className="bg-background rounded-2xl border border-white/[0.04] p-8 h-full flex flex-col gap-5">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] text-zinc-600 font-medium uppercase tracking-[0.2em]">Governance</span>
+                  <span className="text-[9px] px-2 py-0.5 rounded-full border border-white/[0.07] text-zinc-600 uppercase tracking-[0.1em]">Q4 2026</span>
+                </div>
+                <div className="flex-1 space-y-3 opacity-40">
+                  <p style={D} className="text-white font-bold text-xl leading-tight">One ID. Many doors.</p>
+                  <p className="text-zinc-500 text-sm leading-relaxed">
+                    Auto-whitelisted for partner launches. Vote on which projects join the ecosystem. Your $BASED weight = your governance power.
+                  </p>
+                </div>
+              </div>
+            </FadeIn>
+
+          </div>
 
           {/* How to mint — 3 steps */}
           <FadeIn className="mt-16">
