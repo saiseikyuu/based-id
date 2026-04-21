@@ -40,22 +40,23 @@ const BASESCAN_API = `https://api.etherscan.io/v2/api?chainid=${CHAIN_ID}`;
 async function fetchActivity(address: string) {
   const apiKey = process.env.BASESCAN_API_KEY ?? "";
   try {
-    const res = await fetch(
-      `${BASESCAN_API}&module=account&action=txlist&address=${address}&startblock=0&endblock=99999999&sort=asc&apikey=${apiKey}`,
-      { cache: "no-store" }
-    );
-    const data = await res.json();
-    console.log("[activity]", address, "status:", data.status, "message:", data.message, "count:", Array.isArray(data.result) ? data.result.length : data.result);
-    const txList: { timeStamp: string; to: string | null }[] = data.status === "1" ? data.result : [];
+    const [txRes, tokenRes] = await Promise.all([
+      fetch(`${BASESCAN_API}&module=account&action=txlist&address=${address}&startblock=0&endblock=99999999&sort=asc&apikey=${apiKey}`, { cache: "no-store" }),
+      fetch(`${BASESCAN_API}&module=account&action=tokentx&address=${address}&startblock=0&endblock=99999999&sort=asc&apikey=${apiKey}`, { cache: "no-store" }),
+    ]);
+    const [txData, tokenData] = await Promise.all([txRes.json(), tokenRes.json()]);
+    const txList: { timeStamp: string; to: string | null }[] = txData.status === "1" ? txData.result : [];
+    const tokenMoves: number = tokenData.status === "1" ? tokenData.result.length : 0;
     const txCount = txList.length;
     const ageDays = txCount > 0 ? Math.floor((Date.now() / 1000 - parseInt(txList[0].timeStamp)) / 86400) : 0;
     const uniqueContracts = new Set(txList.map((tx) => tx.to?.toLowerCase()).filter(Boolean)).size;
-    const txScore = Math.min(100, (txCount / 500) * 100);
-    const ageScore = Math.min(100, (ageDays / 365) * 100);
+    const txScore       = Math.min(100, (txCount / 500) * 100);
+    const ageScore      = Math.min(100, (ageDays / 365) * 100);
     const contractScore = Math.min(100, (uniqueContracts / 50) * 100);
-    const score = Math.round(txScore * 0.4 + ageScore * 0.3 + contractScore * 0.3);
+    const tokenScore    = Math.min(100, (tokenMoves / 200) * 100);
+    const score = Math.round(txScore * 0.35 + ageScore * 0.25 + contractScore * 0.25 + tokenScore * 0.15);
     const grade = score >= 80 ? "S" : score >= 60 ? "A" : score >= 40 ? "B" : "C";
-    return { score, txCount, ageDays, uniqueContracts, grade };
+    return { score, txCount, ageDays, uniqueContracts, tokenMoves, grade };
   } catch {
     return null;
   }
@@ -156,7 +157,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
   const tier = getTier(tokenId);
   const weight = (1 / Math.sqrt(tokenId)).toFixed(6);
 
-  let activity: { score: number; txCount: number; ageDays: number; uniqueContracts: number; grade: string } | null = null;
+  let activity: { score: number; txCount: number; ageDays: number; uniqueContracts: number; tokenMoves: number; grade: string } | null = null;
   let ensName: string | null = null;
   let otherIds: number[] = [];
 
@@ -171,11 +172,6 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
     if (otherIdsRes.status === "fulfilled") otherIds = otherIdsRes.value ?? [];
   }
 
-  const bars = activity ? [
-    { label: "Transactions", value: activity.txCount, max: 500, display: `${activity.txCount}`, unit: "txs" },
-    { label: "Wallet Age", value: activity.ageDays, max: 365, display: `${activity.ageDays}`, unit: "days" },
-    { label: "Protocols", value: activity.uniqueContracts, max: 50, display: `${activity.uniqueContracts}`, unit: "used" },
-  ] : [];
 
   const shareText = holder
     ? `Based ID #${tokenId} — ${tier} tier · weight ${(1 / Math.sqrt(tokenId)).toFixed(4)}×\n\nMint yours for $2 → basedid.space\n\n@basedidofficial`
@@ -383,57 +379,57 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
                 </div>
 
                 {/* Activity breakdown */}
-                {activity && (
+                {activity && (() => {
+                  const R = 30, C = 2 * Math.PI * R;
+                  const gradeColor = activity.grade === "S" ? "#f59e0b" : activity.grade === "A" ? "#3b82f6" : activity.grade === "B" ? "#a1a1aa" : "#3f3f46";
+                  const gradeText  = activity.grade === "S" ? "text-amber-400" : activity.grade === "A" ? "text-blue-400" : activity.grade === "B" ? "text-zinc-300" : "text-zinc-600";
+                  const stats = [
+                    { label: "Transactions", value: activity.txCount.toLocaleString(), sub: "on Base" },
+                    { label: "Wallet Age",   value: activity.ageDays >= 365 ? `${Math.floor(activity.ageDays / 365)}y ${activity.ageDays % 365}d` : `${activity.ageDays}d`, sub: "since first tx" },
+                    { label: "Protocols",    value: activity.uniqueContracts.toLocaleString(), sub: "unique contracts" },
+                    { label: "Token Moves",  value: activity.tokenMoves.toLocaleString(), sub: "ERC-20 transfers" },
+                  ];
+                  return (
                   <div className="rounded-2xl border border-white/[0.06] overflow-hidden">
-                    {/* Header */}
-                    <div className="px-6 py-4 border-b border-white/[0.05] flex items-center justify-between">
-                      <div>
-                        <p className="text-white font-semibold text-sm">Base Activity Score</p>
-                        <p className="text-zinc-600 text-[11px] mt-0.5">Onchain reputation for this wallet</p>
-                      </div>
-                      <div className={`text-center px-4 py-2 rounded-xl border font-mono ${
-                        activity.grade === "S" ? "bg-amber-400/10 border-amber-400/20 text-amber-400" :
-                        activity.grade === "A" ? "bg-blue-400/10 border-blue-400/20 text-blue-400" :
-                        activity.grade === "B" ? "bg-zinc-400/10 border-zinc-400/20 text-zinc-300" :
-                        "bg-zinc-800/60 border-zinc-700 text-zinc-500"
-                      }`}>
-                        <p className="text-2xl font-black leading-none">{activity.grade}</p>
-                        <p className="text-[10px] mt-0.5 opacity-70">{activity.score} pts</p>
-                      </div>
-                    </div>
+                    <div className="px-6 py-5 flex items-center gap-6">
 
-                    {/* Bars */}
-                    <div className="px-6 py-5 space-y-4">
-                      {bars.map(({ label, value, max, display, unit }) => {
-                        const pct = Math.min(100, (value / max) * 100);
-                        const barColor = pct >= 80 ? "#f59e0b" : pct >= 50 ? "#3b82f6" : pct >= 20 ? "#71717a" : "#3f3f46";
-                        return (
-                          <div key={label}>
-                            <div className="flex items-center justify-between mb-2">
-                              <span className="text-zinc-400 text-xs font-medium">{label}</span>
-                              <span className="text-zinc-400 text-xs font-mono tabular-nums">
-                                <span className="text-white font-semibold">{display}</span>
-                                <span className="text-zinc-600 ml-1">/ {max} {unit}</span>
-                              </span>
-                            </div>
-                            <div className="w-full bg-white/[0.04] rounded-full h-1.5 overflow-hidden">
-                              <div
-                                className="h-1.5 rounded-full transition-all"
-                                style={{ width: `${pct}%`, background: barColor }}
-                              />
-                            </div>
+                      {/* Score ring */}
+                      <div className="flex-shrink-0 flex flex-col items-center gap-1">
+                        <svg width="80" height="80" viewBox="0 0 80 80">
+                          <circle cx="40" cy="40" r={R} fill="none" stroke="#ffffff08" strokeWidth="5" />
+                          <circle cx="40" cy="40" r={R} fill="none"
+                            stroke={gradeColor} strokeWidth="5" strokeLinecap="round"
+                            strokeDasharray={C}
+                            strokeDashoffset={C * (1 - activity.score / 100)}
+                            transform="rotate(-90 40 40)"
+                            style={{ transition: "stroke-dashoffset 0.6s ease" }}
+                          />
+                          <text x="40" y="36" textAnchor="middle" fill="white" fontSize="17" fontWeight="800" fontFamily="monospace">{activity.grade}</text>
+                          <text x="40" y="50" textAnchor="middle" fill="#52525b" fontSize="9" fontFamily="monospace">{activity.score} pts</text>
+                        </svg>
+                        <p className={`text-[10px] font-bold uppercase tracking-widest ${gradeText}`}>
+                          {activity.grade === "S" ? "Elite" : activity.grade === "A" ? "Active" : activity.grade === "B" ? "Regular" : "New"}
+                        </p>
+                      </div>
+
+                      {/* Stats grid */}
+                      <div className="grid grid-cols-2 gap-2.5 flex-1 min-w-0">
+                        {stats.map(({ label, value, sub }) => (
+                          <div key={label} className="bg-white/[0.025] rounded-xl px-3.5 py-3 border border-white/[0.04]">
+                            <p className="text-white font-bold text-base tabular-nums leading-none">{value}</p>
+                            <p className="text-zinc-400 text-[11px] font-medium mt-1">{label}</p>
+                            <p className="text-zinc-600 text-[10px]">{sub}</p>
                           </div>
-                        );
-                      })}
+                        ))}
+                      </div>
                     </div>
 
-                    <div className="px-6 pb-4">
-                      <p className="text-zinc-700 text-[10px] leading-relaxed">
-                        Weighted composite: transactions (40%) · wallet age (30%) · protocol diversity (30%)
-                      </p>
+                    <div className="px-6 pb-4 border-t border-white/[0.04] pt-3">
+                      <p className="text-zinc-700 text-[10px]">Base Activity Score · txns 35% · age 25% · protocols 25% · token activity 15%</p>
                     </div>
                   </div>
-                )}
+                  );
+                })()}
 
                 {/* Other IDs */}
                 {otherIds.length > 0 && (
