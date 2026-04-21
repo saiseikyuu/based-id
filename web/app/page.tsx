@@ -267,7 +267,7 @@ export default function Home() {
 
             {/* Subline */}
             <BlurText
-              text="Your permanent identity on Base. Rewards, drops, and whitelists land in your dashboard. Get rewarded for your contributions on Base. Never miss an opportunity."
+              text="Your permanent identity on Base. Rewards, drops, and whitelists land directly in your dashboard. Never miss an opportunity."
               delay={60}
               direction="bottom"
               className="text-zinc-400 text-[15px] leading-relaxed max-w-[22rem]"
@@ -396,7 +396,7 @@ export default function Home() {
                 ) : insufficientBalance ? (
                   <div className="rounded-xl border border-red-900/30 bg-red-950/10 p-4 text-center">
                     <p className="text-red-400 text-sm font-medium">You need $2 USDC on Base to mint.</p>
-                    <p className="text-red-800/70 text-xs mt-1">See the &ldquo;Before you mint&rdquo; guide below.</p>
+                    <p className="text-red-800/70 text-xs mt-1">Bridge USDC to Base, then try again.</p>
                   </div>
                 ) : !hasAllowance && mintState !== "approved" ? (
                   <MintAction
@@ -449,7 +449,7 @@ export default function Home() {
               {/* Value props — clean divider list */}
               <div className="divide-y divide-white/[0.04]">
                 {[
-                  { value: "10,000+", label: "Verified wallets — zero bots" },
+                  { value: "Onchain", label: "Every holder verified on Base" },
                   { value: "$2 USDC", label: "Entry barrier that filters noise" },
                   { value: "Automatic", label: "Qualify with zero action required" },
                 ].map(({ value, label }) => (
@@ -646,17 +646,17 @@ export default function Home() {
               </div>
             </FadeIn>
 
-            {/* DAO + Whitelist — coming soon */}
+            {/* Whitelist — coming soon */}
             <FadeIn delay={0.18}>
               <div className="bg-background rounded-2xl border border-white/[0.04] p-8 h-full flex flex-col gap-5">
                 <div className="flex items-center justify-between">
-                  <span className="text-[10px] text-zinc-600 font-medium uppercase tracking-[0.2em]">Governance</span>
+                  <span className="text-[10px] text-zinc-600 font-medium uppercase tracking-[0.2em]">Whitelist Access</span>
                   <span className="text-[9px] px-2 py-0.5 rounded-full border border-white/[0.07] text-zinc-600 uppercase tracking-[0.1em]">Q4 2026</span>
                 </div>
                 <div className="flex-1 space-y-3 opacity-40">
                   <p style={D} className="text-white font-bold text-xl leading-tight">One ID. Many doors.</p>
                   <p className="text-zinc-500 text-sm leading-relaxed">
-                    Auto-whitelisted for partner launches. Vote on which projects join the ecosystem. Your $BASED weight = your governance power.
+                    Auto-whitelisted for partner launches and early access drops. Hold once, qualify forever.
                   </p>
                 </div>
               </div>
@@ -907,9 +907,9 @@ export default function Home() {
                       <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
                     </svg>
                   ),
-                  value: "DAO",
-                  label: "Community-governed",
-                  body: "The DAO votes to approve partners before any drop. Your project earns community trust — it's not just pushed to them.",
+                  value: "Curated",
+                  label: "Manually reviewed",
+                  body: "Every partner is vetted before any drop — contracts reviewed, team verified, utility checked. No bots, no scams, no noise.",
                 },
               ].map(({ icon, value, label, body }) => (
                 <SpotlightCard
@@ -1089,8 +1089,8 @@ export default function Home() {
                   tokens: "50M",
                   label: "Partners",
                   date: "Ecosystem growth",
-                  desc: "Reserved for vetted partner projects approved by the DAO.",
-                  badge: "DAO-governed",
+                  desc: "Reserved for vetted partner projects — distributed as ecosystem incentives.",
+                  badge: "Reserved",
                   badgeColor: "text-zinc-500 bg-white/[0.03] border-white/[0.06]",
                   blue: false,
                   locked: false,
