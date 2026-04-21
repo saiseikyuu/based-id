@@ -11,7 +11,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { motion } from "motion/react";
 import {
   BASED_ID_ADDRESS, BASED_ID_ABI, USDC_ADDRESS, ERC20_ABI, BASESCAN_URL,
-  AUCTION_HOUSE_ADDRESS, AUCTION_HOUSE_ABI, MINT_PRICE,
+  AUCTION_HOUSE_ADDRESS, AUCTION_HOUSE_ABI,
 } from "@/lib/contracts";
 import { useCountdown, pad } from "@/lib/countdown";
 import { NftCard } from "../NftCard";
@@ -96,7 +96,7 @@ async function findAllTokens(
   return ids.sort((a, b) => (a < b ? -1 : 1));
 }
 
-type Tab = "ids" | "rewards" | "auctions" | "drops" | "whitelist" | "owner";
+type Tab = "ids" | "rewards" | "auctions" | "owner";
 
 // ─── Tier system ─────────────────────────────────────────────────────────────
 
@@ -187,9 +187,6 @@ export default function Dashboard() {
     findAllTokens(publicClient, address, total).then((ids) => {
       setTokenIds(ids); setLoading(false); setResolved(true);
     });
-  // findAllTokens is a stable module-level function — adding it to deps would
-  // cause an infinite re-render loop, so we intentionally exclude it here.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [address, isConnected, publicClient, totalMinted]);
 
   const primaryId  = tokenIds.length > 0 ? tokenIds[0] : null;
@@ -198,23 +195,142 @@ export default function Dashboard() {
 
   // ── Not connected ────────────────────────────────────────────────────────
   if (!isConnected) {
+    const nextId = totalMinted !== undefined ? Number(totalMinted) + 1 : 1;
     return (
       <Shell>
-        <motion.div
-          className="flex flex-col items-center justify-center min-h-[70vh] gap-8 text-center px-6"
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-        >
-          <div className="space-y-3 max-w-sm">
-            <p className="text-zinc-600 text-[11px] uppercase tracking-[0.2em]">Dashboard</p>
-            <h1 style={D} className="text-4xl font-bold tracking-tight">Connect your wallet</h1>
-            <p className="text-zinc-500 text-sm leading-relaxed">
-              Connect to view your Based IDs, track $BASED rewards, and access partner drops.
-            </p>
-          </div>
-          <ConnectButton label="Connect Wallet" />
-        </motion.div>
+        <div className="relative overflow-hidden">
+          {/* Ambient tier glow */}
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              background:
+                "radial-gradient(ellipse 50% 40% at 50% 0%, rgba(37,99,235,0.08), transparent 70%)",
+            }}
+          />
+
+          <motion.div
+            className="relative max-w-5xl mx-auto px-6 pt-14 pb-20"
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+          >
+            {/* Eyebrow */}
+            <div className="flex items-center gap-2.5 mb-5">
+              <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
+              <p className="text-zinc-500 text-[11px] uppercase tracking-[0.2em]">Dashboard · Locked</p>
+            </div>
+
+            {/* Two-column hero */}
+            <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_1fr] gap-12 items-center">
+              {/* Left — copy + CTA */}
+              <div className="space-y-8">
+                <h1
+                  style={D}
+                  className="text-white font-black text-5xl lg:text-6xl leading-[0.95] tracking-tight"
+                >
+                  Connect to<br />
+                  <span style={GRAD}>unlock your ID.</span>
+                </h1>
+
+                <p className="text-zinc-400 text-[15px] leading-relaxed max-w-md">
+                  Your Based ID dashboard is your permanent Base credential — airdrop weight,
+                  partner drops, whitelist access, and $BASED rewards live here.
+                </p>
+
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                  <ConnectButton label="Connect Wallet" />
+                  <Link
+                    href="/#mint-card"
+                    className="text-zinc-500 text-sm hover:text-white transition-colors"
+                  >
+                    Don&apos;t have an ID yet? Mint for $2 →
+                  </Link>
+                </div>
+
+                {/* Live stat strip */}
+                {totalMinted !== undefined && (
+                  <div className="grid grid-cols-3 border border-white/[0.06] rounded-2xl overflow-hidden divide-x divide-white/[0.06] max-w-md">
+                    <div className="px-5 py-4">
+                      <div className="flex items-center gap-1.5 mb-1">
+                        <CountUp
+                          to={Number(totalMinted)}
+                          duration={1.6}
+                          className="text-xl font-black tabular-nums leading-none"
+                        />
+                        <span className="w-1 h-1 rounded-full bg-green-500 animate-pulse" />
+                      </div>
+                      <p className="text-zinc-600 text-[10px] uppercase tracking-[0.15em]">Minted</p>
+                    </div>
+                    <div className="px-5 py-4">
+                      <p className="text-xl font-black leading-none mb-1 tabular-nums">
+                        #{nextId.toLocaleString()}
+                      </p>
+                      <p className="text-zinc-600 text-[10px] uppercase tracking-[0.15em]">Next ID</p>
+                    </div>
+                    <div className="px-5 py-4">
+                      <p className="text-xl font-black leading-none mb-1" style={GRAD}>1B</p>
+                      <p className="text-zinc-600 text-[10px] uppercase tracking-[0.15em]">$BASED</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Right — locked card preview */}
+              <div className="relative">
+                <div className="absolute -inset-10 rounded-[2rem] bg-blue-600/[0.07] blur-3xl pointer-events-none" />
+                <div className="relative rounded-3xl border border-white/[0.09] bg-white/[0.025] overflow-hidden">
+                  {/* Top bar */}
+                  <div className="flex items-center justify-between px-5 py-3.5 border-b border-white/[0.06] bg-white/[0.01]">
+                    <div className="flex items-center gap-2 text-[10px] text-zinc-500 uppercase tracking-[0.15em]">
+                      <span className="w-1.5 h-1.5 rounded-full bg-zinc-600" />
+                      Preview · Your ID
+                    </div>
+                    <span className="text-[10px] text-zinc-600 tabular-nums">
+                      {totalMinted !== undefined ? `#${nextId.toLocaleString()} next` : "—"}
+                    </span>
+                  </div>
+
+                  {/* Blurred card + lock overlay */}
+                  <div className="relative p-5 pb-4">
+                    <div className="relative">
+                      <div className="blur-[6px] opacity-40 pointer-events-none select-none">
+                        <NftCard id={`#${nextId}`} holder="connect wallet to claim" />
+                      </div>
+                      <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
+                        <div className="w-11 h-11 rounded-full border border-white/[0.1] bg-black/40 backdrop-blur-sm flex items-center justify-center">
+                          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-zinc-400">
+                            <rect x="3" y="11" width="18" height="11" rx="2"/>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                          </svg>
+                        </div>
+                        <p className="text-zinc-300 text-[11px] uppercase tracking-[0.2em] font-medium">
+                          Connect to reveal
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Unlock list */}
+                  <div className="px-5 pb-5 space-y-2.5">
+                    <p className="text-zinc-600 text-[10px] uppercase tracking-[0.18em] pb-1">
+                      What unlocks
+                    </p>
+                    {[
+                      { label: "View all your Based IDs + airdrop weight", dot: "bg-blue-400" },
+                      { label: "Track snapshot countdowns live", dot: "bg-green-500" },
+                      { label: "Bid and manage Genesis auctions", dot: "bg-amber-400" },
+                    ].map((item) => (
+                      <div key={item.label} className="flex items-center gap-2.5">
+                        <span className={`w-1 h-1 rounded-full ${item.dot} flex-shrink-0`} />
+                        <span className="text-zinc-400 text-xs">{item.label}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        </div>
       </Shell>
     );
   }
@@ -223,9 +339,101 @@ export default function Dashboard() {
   if (loading || !resolved) {
     return (
       <Shell>
-        <div className="flex items-center justify-center min-h-[70vh] gap-2.5 text-zinc-600 text-xs uppercase tracking-[0.15em]">
-          <span className="w-1 h-1 rounded-full bg-blue-500 animate-pulse" />
-          Looking up your Based IDs…
+        <div className="relative max-w-7xl mx-auto px-6 py-10 overflow-hidden">
+          {/* Ambient glow */}
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              background:
+                "radial-gradient(ellipse 60% 40% at 30% 0%, rgba(37,99,235,0.06), transparent 70%)",
+            }}
+          />
+
+          <div className="relative space-y-8">
+            {/* Header skeleton */}
+            <div className="flex items-start justify-between">
+              <div className="space-y-3">
+                <p className="text-zinc-600 text-[11px] uppercase tracking-[0.2em]">Dashboard</p>
+                <div className="flex items-center gap-3">
+                  <div className="h-8 w-56 rounded-md bg-white/[0.04] relative overflow-hidden">
+                    <motion.div
+                      className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.06] to-transparent"
+                      animate={{ x: ["-100%", "100%"] }}
+                      transition={{ duration: 1.4, repeat: Infinity, ease: "linear" }}
+                    />
+                  </div>
+                  <div className="h-5 w-16 rounded-full bg-white/[0.04]" />
+                </div>
+              </div>
+              <div className="flex items-center gap-2 text-[11px] text-blue-400 pt-1">
+                <span className="w-1 h-1 rounded-full bg-blue-500 animate-pulse" />
+                <span className="uppercase tracking-[0.15em]">Loading</span>
+              </div>
+            </div>
+
+            {/* Tab bar skeleton */}
+            <div className="flex items-center gap-5 border-b border-white/[0.05] pb-3 pt-1">
+              {["w-14","w-16","w-20","w-14"].map((w, i) => (
+                <div key={i} className={`h-3 ${w} rounded bg-white/[0.04]`} />
+              ))}
+            </div>
+
+            {/* Content skeleton — mirrors single-ID hero */}
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 pt-2">
+              {/* NFT card skeleton */}
+              <div className="lg:col-span-2">
+                <div className="relative aspect-[480/270] rounded-2xl border border-white/[0.06] bg-white/[0.015] overflow-hidden">
+                  <motion.div
+                    className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-500/[0.04] to-transparent"
+                    animate={{ x: ["-100%", "100%"] }}
+                    transition={{ duration: 1.8, repeat: Infinity, ease: "linear" }}
+                  />
+                  <div className="absolute top-4 left-4 flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-blue-500/50 animate-pulse" />
+                    <span className="text-[10px] text-zinc-600 uppercase tracking-[0.18em]">Based ID</span>
+                  </div>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <span className="text-zinc-800 text-7xl font-black leading-none tabular-nums" style={D}>#—</span>
+                  </div>
+                  <div className="absolute bottom-4 right-4 h-4 w-20 rounded-full bg-white/[0.03]" />
+                </div>
+              </div>
+
+              {/* Right column skeleton */}
+              <div className="lg:col-span-3 flex flex-col justify-center space-y-6 lg:py-4">
+                <div className="space-y-3">
+                  <div className="h-3 w-24 rounded bg-white/[0.04]" />
+                  <div className="h-16 w-48 rounded-md bg-white/[0.04] relative overflow-hidden">
+                    <motion.div
+                      className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.06] to-transparent"
+                      animate={{ x: ["-100%", "100%"] }}
+                      transition={{ duration: 1.6, repeat: Infinity, ease: "linear", delay: 0.15 }}
+                    />
+                  </div>
+                  <div className="h-5 w-28 rounded-full bg-white/[0.04]" />
+                </div>
+
+                <div className="space-y-2">
+                  <div className="h-3 w-full rounded bg-white/[0.03]" />
+                  <div className="h-3 w-3/4 rounded bg-white/[0.03]" />
+                </div>
+
+                <div className="pt-4 border-t border-white/[0.05] space-y-3">
+                  <div className="h-2.5 w-16 rounded bg-white/[0.04]" />
+                  <div className="h-3 w-64 rounded bg-white/[0.03]" />
+                </div>
+              </div>
+            </div>
+
+            {/* Status line */}
+            <div className="flex items-center justify-center gap-3 pt-6">
+              <span className="w-1 h-1 rounded-full bg-blue-500 animate-pulse" />
+              <span className="text-zinc-600 text-[11px] uppercase tracking-[0.18em]">
+                Scanning onchain for your Based IDs
+              </span>
+              <span className="w-1 h-1 rounded-full bg-blue-500 animate-pulse" style={{ animationDelay: "0.3s" }} />
+            </div>
+          </div>
         </div>
       </Shell>
     );
@@ -311,8 +519,6 @@ export default function Dashboard() {
     { key: "ids",       label: "My IDs",    badge: tokenIds.length.toString() },
     { key: "rewards",   label: "Rewards" },
     { key: "auctions",  label: "Auctions",  badge: "Live" },
-    { key: "drops",     label: "Drops",     badge: "Soon" },
-    { key: "whitelist", label: "Whitelist", badge: "Soon" },
     { key: "owner",     label: "Owner",     ownerOnly: true },
   ];
 
@@ -479,6 +685,12 @@ export default function Dashboard() {
                     >
                       View on Basescan ↗
                     </a>
+                    <Link
+                      href={`/profile/${primaryId!.toString()}`}
+                      className="inline-flex items-center gap-1 text-[11px] text-blue-500 hover:text-blue-400 transition-colors uppercase tracking-[0.12em]"
+                    >
+                      View Profile →
+                    </Link>
                   </div>
                 </div>
               </div>
@@ -530,14 +742,22 @@ export default function Dashboard() {
                                 )}
                               </div>
                             </div>
-                            <a
-                              href={`${BASESCAN_URL}/nft/${BASED_ID_ADDRESS}/${id.toString()}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-[10px] text-zinc-700 hover:text-zinc-400 transition-colors"
-                            >
-                              Basescan ↗
-                            </a>
+                            <div className="flex items-center gap-3">
+                              <a
+                                href={`${BASESCAN_URL}/nft/${BASED_ID_ADDRESS}/${id.toString()}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-[10px] text-zinc-700 hover:text-zinc-400 transition-colors"
+                              >
+                                Basescan ↗
+                              </a>
+                              <Link
+                                href={`/profile/${id.toString()}`}
+                                className="text-[10px] text-blue-600 hover:text-blue-400 transition-colors"
+                              >
+                                Profile →
+                              </Link>
+                            </div>
                           </div>
                         );
                       })()}
@@ -754,16 +974,6 @@ export default function Dashboard() {
         {/* ── Tab: Auctions ── */}
         {activeTab === "auctions" && (
           <AuctionTab address={address ?? ""} isOwner={isOwner} />
-        )}
-
-        {/* ── Tab: Drops ── */}
-        {activeTab === "drops" && (
-          <DropsTab />
-        )}
-
-        {/* ── Tab: Whitelist ── */}
-        {activeTab === "whitelist" && (
-          <WhitelistTab />
         )}
 
         {/* ── Tab: Owner ── */}
@@ -1024,13 +1234,12 @@ type AuctionSubTab = "live" | "manage";
 // ─── useAuctionTimer ─────────────────────────────────────────────────────────
 
 function useAuctionTimer(endTime: bigint) {
-  const [remaining, setRemaining] = useState(0);
+  const [now, setNow] = useState(() => Math.floor(Date.now() / 1000));
   useEffect(() => {
-    const calc = () => Math.max(0, Number(endTime) - Math.floor(Date.now() / 1000));
-    setRemaining(calc());
-    const t = setInterval(() => setRemaining(calc()), 1000);
+    const t = setInterval(() => setNow(Math.floor(Date.now() / 1000)), 1000);
     return () => clearInterval(t);
-  }, [endTime]);
+  }, []);
+  const remaining = Math.max(0, Number(endTime) - now);
   return {
     remaining,
     d: Math.floor(remaining / 86400),
@@ -1091,6 +1300,7 @@ function SettleButton({ tokenId, onSettled }: { tokenId: bigint; onSettled: () =
   const { isLoading: confirming, isSuccess: confirmed } =
     useWaitForTransactionReceipt({ hash: txHash });
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- resetting local error when external tx confirms
   useEffect(() => { if (confirmed) { setErr(""); onSettled(); } }, [confirmed, onSettled]);
 
   return (
@@ -1366,8 +1576,7 @@ function AuctionCard({
 
 function ManageAuctionRow({ auction, onAction }: { auction: AuctionData; onAction: () => void }) {
   const { remaining, d, h, m } = useAuctionTimer(auction.endTime);
-  const now    = Math.floor(Date.now() / 1000);
-  const ended  = Number(auction.endTime) <= now;
+  const ended  = remaining === 0;
   const hasBid = auction.topBidder !== ZERO_ADDR;
 
   const [err, setErr] = useState("");
@@ -1376,6 +1585,7 @@ function ManageAuctionRow({ auction, onAction }: { auction: AuctionData; onActio
     useWaitForTransactionReceipt({ hash: txHash });
   const loading = isPending || confirming;
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- resetting local error when external tx confirms
   useEffect(() => { if (confirmed) { setErr(""); onAction(); } }, [confirmed, onAction]);
 
   function cancel() {
@@ -1471,12 +1681,14 @@ function CreateAuctionForm({ onCreated }: { onCreated: () => void }) {
     useWaitForTransactionReceipt({ hash: txHash });
   const loading = isPending || confirming;
 
+  /* eslint-disable react-hooks/set-state-in-effect -- resetting form state when external tx confirms */
   useEffect(() => {
     if (confirmed && step === "creating") {
       setStep("idle"); setTokenId(""); setReserve(""); setHours("48"); setErr("");
       onCreated();
     }
   }, [confirmed, step, onCreated]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   function handleCreate() {
     setErr("");
@@ -1768,202 +1980,6 @@ function AuctionTab({ address, isOwner }: { address: string; isOwner: boolean })
   );
 }
 
-// ─── Drops Tab ───────────────────────────────────────────────────────────────
-
-function DropsTab() {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-      className="space-y-6 max-w-2xl"
-    >
-      {/* Header */}
-      <div className="space-y-1">
-        <h2 style={D} className="text-2xl font-bold tracking-tight">Partner NFT Drops</h2>
-        <p className="text-zinc-500 text-sm leading-relaxed">
-          Hold a Based ID and you qualify automatically — no forms, no raffles, no bots.
-          Partner drops appear here when they go live.
-        </p>
-      </div>
-
-      {/* How it works */}
-      <div className="rounded-xl border border-white/[0.05] bg-white/[0.01] p-4 flex items-start gap-3">
-        <span className="w-1 h-1 rounded-full bg-blue-500 animate-pulse mt-1.5 flex-shrink-0" />
-        <p className="text-zinc-500 text-xs leading-relaxed">
-          <span className="text-white font-medium">How it works: </span>
-          Based ID vets partner projects before approving them. Once approved, every Based ID holder
-          at snapshot time receives the airdrop automatically — no wallet signatures required.
-        </p>
-      </div>
-
-      {/* Empty state — no fake projects */}
-      <SpotlightCard
-        className="bg-background rounded-2xl border border-white/[0.05] p-8"
-        spotlightColor="rgba(37,99,235,0.04)"
-      >
-        <div className="text-center space-y-6">
-          <div className="w-12 h-12 rounded-2xl bg-white/[0.03] border border-white/[0.06] flex items-center justify-center mx-auto">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-zinc-500">
-              <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
-              <polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/>
-            </svg>
-          </div>
-          <div className="space-y-2">
-            <p className="text-white font-semibold text-sm tracking-tight">Partner drops coming</p>
-            <p className="text-zinc-500 text-xs leading-relaxed max-w-xs mx-auto">
-              We&apos;re onboarding vetted projects to the Based ID ecosystem. Every approved project drops directly to your dashboard — no forms, no hunting.
-            </p>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-left pt-2">
-            {[
-              {
-                icon: <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>,
-                label: "NFT airdrops",
-                sub: "Auto-delivered to your wallet",
-              },
-              {
-                icon: <><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></>,
-                label: "Vetted only",
-                sub: "No rug pulls, no spam",
-              },
-              {
-                icon: <><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></>,
-                label: "Base ecosystem",
-                sub: "Legitimate projects on Base",
-              },
-            ].map(({ icon, label, sub }) => (
-              <div key={label} className="rounded-xl border border-white/[0.05] bg-white/[0.01] p-4 space-y-2">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-blue-500/60">{icon}</svg>
-                <p className="text-white text-xs font-medium">{label}</p>
-                <p className="text-zinc-600 text-[10px] leading-relaxed">{sub}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </SpotlightCard>
-
-      {/* Are you a project? */}
-      <div className="rounded-xl border border-white/[0.05] p-5 flex items-center justify-between gap-4">
-        <div>
-          <p className="text-white font-medium text-sm">Building on Base?</p>
-          <p className="text-zinc-600 text-xs mt-0.5">Apply to drop to our community of Based ID holders.</p>
-        </div>
-        <a
-          href="https://x.com/basedidofficial"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex-shrink-0 px-4 py-2 rounded-lg border border-white/[0.08] text-zinc-400 hover:text-white hover:border-white/[0.15] text-xs font-medium transition-colors"
-        >
-          DM us on X ↗
-        </a>
-      </div>
-    </motion.div>
-  );
-}
-
-// ─── Whitelist Tab ────────────────────────────────────────────────────────────
-
-function WhitelistTab() {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-      className="space-y-6 max-w-2xl"
-    >
-      {/* Header */}
-      <div className="space-y-1">
-        <h2 style={D} className="text-2xl font-bold tracking-tight">Whitelist Access</h2>
-        <p className="text-zinc-500 text-sm leading-relaxed">
-          Your Based ID auto-whitelists you for partner mints and launches —
-          no forms, no sign-ups, no bots.
-        </p>
-      </div>
-
-      {/* How it works */}
-      <div className="rounded-xl border border-white/[0.05] bg-white/[0.01] p-4 flex items-start gap-3">
-        <span className="w-1 h-1 rounded-full bg-blue-500 animate-pulse mt-1.5 flex-shrink-0" />
-        <p className="text-zinc-500 text-xs leading-relaxed">
-          <span className="text-white font-medium">How it works: </span>
-          Partner projects apply to the Based ID platform. Once approved, all Based ID holders
-          are automatically added to the whitelist — your wallet address is registered on-chain,
-          no separate form or signature needed.
-        </p>
-      </div>
-
-      {/* Empty state */}
-      <SpotlightCard
-        className="bg-background rounded-2xl border border-white/[0.05] p-8"
-        spotlightColor="rgba(37,99,235,0.04)"
-      >
-        <div className="text-center space-y-6">
-          <div className="w-12 h-12 rounded-2xl bg-white/[0.03] border border-white/[0.06] flex items-center justify-center mx-auto">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-zinc-500">
-              <path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
-            </svg>
-          </div>
-          <div className="space-y-2">
-            <p className="text-white font-semibold text-sm tracking-tight">Whitelist access coming</p>
-            <p className="text-zinc-500 text-xs leading-relaxed max-w-xs mx-auto">
-              Partner projects are being vetted. When approved, your Based ID automatically secures your spot — no manual claim, no form needed.
-            </p>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-left pt-2">
-            {[
-              {
-                icon: <><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></>,
-                label: "Auto-whitelisted",
-                sub: "No forms. Just hold your ID.",
-              },
-              {
-                icon: <><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></>,
-                label: "Mint windows",
-                sub: "See deadlines before they close",
-              },
-              {
-                icon: <><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></>,
-                label: "Vetted only",
-                sub: "No rug pulls, no spam projects",
-              },
-            ].map(({ icon, label, sub }) => (
-              <div key={label} className="rounded-xl border border-white/[0.05] bg-white/[0.01] p-4 space-y-2">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-blue-500/60">{icon}</svg>
-                <p className="text-white text-xs font-medium">{label}</p>
-                <p className="text-zinc-600 text-[10px] leading-relaxed">{sub}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </SpotlightCard>
-
-      {/* Tier advantage callout */}
-      <div className="rounded-xl border border-white/[0.05] p-5 space-y-2">
-        <p className="text-white font-medium text-sm">Genesis & Founding tier advantage</p>
-        <p className="text-zinc-600 text-xs leading-relaxed">
-          When partner supply is limited, IDs <span className="text-white">#1–#1,000</span> (Genesis + Founding) get priority access.
-          Lower number = earlier in the queue.
-        </p>
-      </div>
-
-      {/* Project CTA */}
-      <div className="rounded-xl border border-white/[0.05] p-5 flex items-center justify-between gap-4">
-        <div>
-          <p className="text-white font-medium text-sm">Launching a project on Base?</p>
-          <p className="text-zinc-600 text-xs mt-0.5">Apply to offer whitelist access to our community.</p>
-        </div>
-        <a
-          href="https://x.com/basedidofficial"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex-shrink-0 px-4 py-2 rounded-lg border border-white/[0.08] text-zinc-400 hover:text-white hover:border-white/[0.15] text-xs font-medium transition-colors"
-        >
-          DM us on X ↗
-        </a>
-      </div>
-    </motion.div>
-  );
-}
 
 // ─── ApproveAuctionHouseCard ──────────────────────────────────────────────────
 
@@ -2039,6 +2055,7 @@ function Shell({ children }: { children: React.ReactNode }) {
       <header className="sticky top-0 z-50 border-b border-white/[0.05] bg-background/90 backdrop-blur-sm">
         <div className="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2 hover:opacity-70 transition-opacity">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/logo.svg" alt="Based ID" className="w-8 h-8 rounded-xl" />
             <div className="flex items-center gap-1">
               <span style={DISPLAY} className="font-bold text-sm text-white tracking-tight">Based</span>
@@ -2066,21 +2083,3 @@ function Shell({ children }: { children: React.ReactNode }) {
   );
 }
 
-// ─── ComingSoon ───────────────────────────────────────────────────────────────
-
-function ComingSoon({ title, body }: { title: string; body: string }) {
-  return (
-    <motion.div
-      className="py-16 max-w-md"
-      initial={{ opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-    >
-      <span className="inline-block mb-5 px-3 py-1 rounded-full border border-white/[0.08] text-zinc-600 text-[10px] uppercase tracking-[0.2em]">Coming Soon</span>
-      <h2 style={D} className="text-3xl font-bold text-white mb-4 tracking-tight leading-tight">
-        {title}
-      </h2>
-      <p className="text-zinc-500 text-sm leading-relaxed">{body}</p>
-    </motion.div>
-  );
-}

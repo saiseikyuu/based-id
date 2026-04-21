@@ -13,7 +13,9 @@ function idFontSize(digits: number) {
   if (digits <= 6) return 58;
   if (digits <= 7) return 48;
   if (digits <= 8) return 40;
-  return 34;
+  if (digits <= 10) return 34;
+  if (digits <= 13) return 28;
+  return 24;
 }
 
 export function NftCard({ id, holder = "—", fontSize }: Props) {
@@ -118,6 +120,7 @@ export function NftCard({ id, holder = "—", fontSize }: Props) {
         fontWeight="900"
         fill={`url(#ng_${uid})`}
         letterSpacing="-0.02em"
+        clipPath={`url(#c_${uid})`}
       >
         {id}
       </text>

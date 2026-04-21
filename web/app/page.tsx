@@ -18,7 +18,6 @@ import {
   ERC20_ABI,
   BASESCAN_URL,
 } from "@/lib/contracts";
-import { useCountdown, pad } from "@/lib/countdown";
 import { NftCard } from "./NftCard";
 import BlurText from "./components/BlurText";
 import CountUp from "./components/CountUp";
@@ -29,8 +28,6 @@ import AnimatedBackground from "./components/AnimatedBackground";
 import { motion } from "motion/react";
 
 type MintState = "idle" | "approving" | "approved" | "minting" | "success";
-
-const SNAPSHOT_2_DATE = new Date("2026-12-31T23:59:59Z");
 
 // Space Grotesk applied via CSS variable — used on all display headings
 const D: React.CSSProperties = {
@@ -143,7 +140,6 @@ export default function Home() {
 
   const isLoading           = isPending || isConfirming;
   const insufficientBalance = usdcBalance !== undefined && usdcBalance < MINT_PRICE;
-  const mintClose           = useCountdown(SNAPSHOT_2_DATE);
 
   // If nextId is in the auction reserve range (1–100), public mint hasn't opened yet.
   // Show #101 as the first public ID in that case.
@@ -170,6 +166,7 @@ export default function Home() {
 
           {/* Logo + wordmark */}
           <div className="flex items-center gap-2">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/logo.svg" alt="Based ID" className="w-8 h-8 rounded-xl" />
             <div className="flex items-center gap-1">
               <span style={D} className="font-bold text-sm text-white tracking-tight">Based</span>
@@ -182,6 +179,8 @@ export default function Home() {
             <a href="#unlock"   className="hover:text-white transition-colors">What you unlock</a>
             <a href="#genesis"  className="hover:text-white transition-colors">Genesis IDs</a>
             <a href="#roadmap"  className="hover:text-white transition-colors">Roadmap</a>
+            <Link href="/leaderboard" className="text-zinc-400 hover:text-white transition-colors">Leaderboard</Link>
+            <Link href="/activity" className="text-zinc-400 hover:text-white transition-colors">Activity</Link>
             <Link href="/dashboard" className="text-zinc-400 hover:text-white transition-colors">Dashboard</Link>
           </nav>
 
@@ -211,6 +210,8 @@ export default function Home() {
               <a href="#unlock"  onClick={() => setMenuOpen(false)} className="hover:text-white transition-colors">What you unlock</a>
               <a href="#genesis" onClick={() => setMenuOpen(false)} className="hover:text-white transition-colors">Genesis IDs</a>
               <a href="#roadmap" onClick={() => setMenuOpen(false)} className="hover:text-white transition-colors">Roadmap</a>
+              <Link href="/leaderboard" onClick={() => setMenuOpen(false)} className="text-zinc-400 hover:text-white transition-colors">Leaderboard</Link>
+              <Link href="/activity" onClick={() => setMenuOpen(false)} className="text-zinc-400 hover:text-white transition-colors">Activity</Link>
               <Link href="/dashboard" onClick={() => setMenuOpen(false)} className="text-zinc-400 hover:text-white transition-colors">Dashboard</Link>
             </nav>
           </div>
@@ -339,19 +340,67 @@ export default function Home() {
                 {mintState === "success" && mintedId !== null ? (
                   <SuccessCard id={mintedId} onMintAnother={handleReset} />
                 ) : !isConnected ? (
-                  <div className="rounded-2xl border border-white/[0.07] bg-white/[0.02] p-5 text-center space-y-4">
-                    <div>
-                      <p className="text-white font-semibold text-sm">Ready to claim your number?</p>
-                      <p className="text-zinc-500 text-xs mt-1">Connect your wallet to see the next available ID.</p>
+                  <motion.div
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                    className="relative rounded-2xl border border-blue-900/30 bg-gradient-to-b from-blue-950/[0.15] to-white/[0.01] overflow-hidden"
+                  >
+                    {/* Subtle inner glow */}
+                    <div className="absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-blue-500/[0.05] to-transparent pointer-events-none" />
+
+                    <div className="relative p-5 space-y-4">
+                      {/* Next ID reveal */}
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" />
+                          <span className="text-blue-400 text-[10px] font-bold uppercase tracking-[0.18em]">
+                            Your ID is waiting
+                          </span>
+                        </div>
+                        <span className="text-zinc-600 text-[10px] uppercase tracking-[0.15em] tabular-nums">
+                          #{resolvedNextId.toString()} next
+                        </span>
+                      </div>
+
+                      {/* Connect CTA */}
+                      <div className="flex justify-center pt-1">
+                        <ConnectButton label="Connect Wallet" />
+                      </div>
+
+                      {/* Value props — 3-step mini flow */}
+                      <div className="grid grid-cols-3 gap-2 pt-2">
+                        {[
+                          { n: "1", label: "Connect" },
+                          { n: "2", label: "Approve $2" },
+                          { n: "3", label: "Mint ID" },
+                        ].map((step, i) => (
+                          <div
+                            key={step.n}
+                            className={`flex items-center gap-2 rounded-lg border border-white/[0.05] bg-white/[0.015] px-2.5 py-2 ${
+                              i === 0 ? "" : "opacity-50"
+                            }`}
+                          >
+                            <span className="w-4 h-4 rounded-full border border-white/[0.1] flex items-center justify-center text-[9px] font-bold tabular-nums text-zinc-400">
+                              {step.n}
+                            </span>
+                            <span className="text-zinc-500 text-[10px] uppercase tracking-[0.1em] font-medium">
+                              {step.label}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Footer reassurance */}
+                      <p className="text-zinc-600 text-[10px] text-center leading-relaxed pt-1">
+                        Permanent · Non-custodial · $2 one-time
+                      </p>
                     </div>
-                    <div className="flex justify-center">
-                      <ConnectButton label="Connect Wallet" />
-                    </div>
-                  </div>
+                  </motion.div>
                 ) : insufficientBalance ? (
                   <div className="rounded-xl border border-red-900/30 bg-red-950/10 p-4 text-center">
                     <p className="text-red-400 text-sm font-medium">You need $2 USDC on Base to mint.</p>
-                    <p className="text-red-800/70 text-xs mt-1">See the "Before you mint" guide below.</p>
+                    <p className="text-red-800/70 text-xs mt-1">See the &ldquo;Before you mint&rdquo; guide below.</p>
                   </div>
                 ) : !hasAllowance && mintState !== "approved" ? (
                   <MintAction
@@ -576,7 +625,7 @@ export default function Home() {
                 { n: "01", title: "Connect wallet", body: "Any Base wallet — Coinbase, MetaMask, Rainbow." },
                 { n: "02", title: "Approve $2 USDC", body: "One-time. Exactly $2. Nothing hidden." },
                 { n: "03", title: "Mint your ID", body: "Your permanent number is onchain. Forever." },
-              ].map(({ n, title, body }, i) => (
+              ].map(({ n, title, body }) => (
                 <div key={n} className="flex-1 bg-background p-6 flex gap-4 items-start border-b sm:border-b-0 sm:border-r border-white/[0.05] last:border-0">
                   <span className="text-[2rem] font-black text-white/[0.06] leading-none tabular-nums flex-shrink-0">{n}</span>
                   <div>
@@ -845,7 +894,7 @@ export default function Home() {
                   <div>
                     <p style={D} className="text-white font-bold text-xl mb-1.5">Ready to partner?</p>
                     <p className="text-zinc-500 text-sm leading-relaxed max-w-lg">
-                      We work with projects building real things on Base. DM us on X — we'll review your project and set up the drop if it's a fit.
+                      We work with projects building real things on Base. DM us on X — we&apos;ll review your project and set up the drop if it&apos;s a fit.
                     </p>
                   </div>
                   <div className="flex flex-wrap gap-x-6 gap-y-2">
@@ -1094,7 +1143,7 @@ export default function Home() {
                   The roadmap.
                 </h2>
                 <p className="text-zinc-500 text-sm mt-4 leading-relaxed">
-                  Milestone-driven. No vague quarters — just what's built, what's next, and what's coming.
+                  Milestone-driven. No vague quarters — just what&apos;s built, what&apos;s next, and what&apos;s coming.
                 </p>
               </div>
 
@@ -1263,7 +1312,7 @@ export default function Home() {
                 </div>
                 <div className="flex-1 space-y-2">
                   <p style={D} className="text-white font-bold text-lg">Bot-proof</p>
-                  <p className="text-zinc-500 text-sm leading-relaxed">Onchain by default. Wallet-verified. You can't fake a Based ID — every mint is a real person paying real money.</p>
+                  <p className="text-zinc-500 text-sm leading-relaxed">Onchain by default. Wallet-verified. You can&apos;t fake a Based ID — every mint is a real person paying real money.</p>
                 </div>
                 <div className="pt-4 border-t border-white/[0.05]">
                   <p className="text-zinc-700 text-[10px] uppercase tracking-[0.15em]">ERC-721 · $2 entry barrier</p>
@@ -1281,7 +1330,7 @@ export default function Home() {
                 </div>
                 <div className="flex-1 space-y-2">
                   <p style={D} className="text-white font-bold text-lg">Auto-qualify</p>
-                  <p className="text-zinc-500 text-sm leading-relaxed">Hold your ID and you're in — every partner drop and whitelist appears in your dashboard. No forms, no grinding.</p>
+                  <p className="text-zinc-500 text-sm leading-relaxed">Hold your ID and you&apos;re in — every partner drop and whitelist appears in your dashboard. No forms, no grinding.</p>
                 </div>
                 <div className="pt-4 border-t border-white/[0.05]">
                   <p className="text-zinc-700 text-[10px] uppercase tracking-[0.15em]">Dashboard · Zero friction</p>
@@ -1354,7 +1403,7 @@ export default function Home() {
                     Three things.<br />Under 60 seconds.
                   </h2>
                   <p className="text-zinc-500 text-sm leading-relaxed max-w-sm" style={{ fontFamily: "var(--font-display), system-ui, sans-serif" }}>
-                    No waitlists, no KYC, no gas surprises. Get these ready and you're good to go.
+                    No waitlists, no KYC, no gas surprises. Get these ready and you&apos;re good to go.
                   </p>
                 </div>
 
@@ -1569,6 +1618,8 @@ export default function Home() {
               <a href="#unlock"   className="hover:text-white transition-colors">What you unlock</a>
               <a href="#genesis"  className="hover:text-white transition-colors">Genesis IDs</a>
               <a href="#roadmap"  className="hover:text-white transition-colors">Roadmap</a>
+              <Link href="/leaderboard" className="text-zinc-400 hover:text-white transition-colors">Leaderboard</Link>
+              <Link href="/activity" className="text-zinc-400 hover:text-white transition-colors">Activity</Link>
               <Link href="/dashboard" className="text-zinc-400 hover:text-white transition-colors">Dashboard</Link>
             </div>
 

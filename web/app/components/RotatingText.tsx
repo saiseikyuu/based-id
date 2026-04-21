@@ -106,7 +106,6 @@ const RotatingText = forwardRef<RotatingTextRef, RotatingTextProps>((props, ref)
       characters: [part],
       needsSpace: i !== arr.length - 1,
     }));
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [texts, currentTextIndex, splitBy]);
 
   const getStaggerDelay = useCallback(
