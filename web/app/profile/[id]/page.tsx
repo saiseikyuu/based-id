@@ -34,6 +34,33 @@ function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T | null> {
   ]);
 }
 
+const BASESCAN_API = process.env.NEXT_PUBLIC_CHAIN_ID === "8453"
+  ? "https://api.basescan.org/api"
+  : "https://api-sepolia.basescan.org/api";
+
+async function fetchActivity(address: string) {
+  const apiKey = process.env.BASESCAN_API_KEY ?? "";
+  try {
+    const res = await fetch(
+      `${BASESCAN_API}?module=account&action=txlist&address=${address}&startblock=0&endblock=99999999&sort=asc&apikey=${apiKey}`,
+      { next: { revalidate: 3600 } }
+    );
+    const data = await res.json();
+    const txList: { timeStamp: string; to: string | null }[] = data.status === "1" ? data.result : [];
+    const txCount = txList.length;
+    const ageDays = txCount > 0 ? Math.floor((Date.now() / 1000 - parseInt(txList[0].timeStamp)) / 86400) : 0;
+    const uniqueContracts = new Set(txList.map((tx) => tx.to?.toLowerCase()).filter(Boolean)).size;
+    const txScore = Math.min(100, (txCount / 500) * 100);
+    const ageScore = Math.min(100, (ageDays / 365) * 100);
+    const contractScore = Math.min(100, (uniqueContracts / 50) * 100);
+    const score = Math.round(txScore * 0.4 + ageScore * 0.3 + contractScore * 0.3);
+    const grade = score >= 80 ? "S" : score >= 60 ? "A" : score >= 40 ? "B" : "C";
+    return { score, txCount, ageDays, uniqueContracts, grade };
+  } catch {
+    return null;
+  }
+}
+
 async function resolveEns(address: string): Promise<string | null> {
   try {
     const ensClient = createPublicClient({ chain: mainnet, transport: http() });
@@ -134,13 +161,8 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
   let otherIds: number[] = [];
 
   if (holder) {
-    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL
-      ?? (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3001");
     const [activityRes, ensRes, otherIdsRes] = await Promise.allSettled([
-      withTimeout(
-        fetch(`${baseUrl}/api/activity/${holder}`, { next: { revalidate: 3600 } }).then((r) => r.ok ? r.json() : null),
-        4000
-      ),
+      withTimeout(fetchActivity(holder), 5000),
       resolveEns(holder),
       withTimeout(fetchOtherIds(client, holder, tokenId), 4000),
     ]);
