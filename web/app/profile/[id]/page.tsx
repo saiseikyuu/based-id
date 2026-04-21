@@ -134,7 +134,8 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
   let otherIds: number[] = [];
 
   if (holder) {
-    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3001";
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL
+      ?? (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3001");
     const [activityRes, ensRes, otherIdsRes] = await Promise.allSettled([
       withTimeout(
         fetch(`${baseUrl}/api/activity/${holder}`, { next: { revalidate: 3600 } }).then((r) => r.ok ? r.json() : null),
