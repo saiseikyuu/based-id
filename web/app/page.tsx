@@ -267,7 +267,7 @@ export default function Home() {
 
             {/* Subline */}
             <BlurText
-              text="Your permanent identity on Base. Rewards, drops, and whitelists land in your dashboard — not scattered across Discord and Twitter."
+              text="Your permanent identity on Base. Rewards, drops, and whitelists land in your dashboard. Get rewarded for your contributions on Base. Never miss an opportunity."
               delay={60}
               direction="bottom"
               className="text-zinc-400 text-[15px] leading-relaxed max-w-[22rem]"
