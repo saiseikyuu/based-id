@@ -43,9 +43,10 @@ async function fetchActivity(address: string) {
   try {
     const res = await fetch(
       `${BASESCAN_API}?module=account&action=txlist&address=${address}&startblock=0&endblock=99999999&sort=asc&apikey=${apiKey}`,
-      { next: { revalidate: 3600 } }
+      { cache: "no-store" }
     );
     const data = await res.json();
+    console.log("[activity]", address, "status:", data.status, "message:", data.message, "count:", Array.isArray(data.result) ? data.result.length : data.result);
     const txList: { timeStamp: string; to: string | null }[] = data.status === "1" ? data.result : [];
     const txCount = txList.length;
     const ageDays = txCount > 0 ? Math.floor((Date.now() / 1000 - parseInt(txList[0].timeStamp)) / 86400) : 0;
