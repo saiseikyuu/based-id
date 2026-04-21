@@ -2,10 +2,8 @@ import { isAddress } from "viem";
 
 export const runtime = "nodejs";
 
-const BASESCAN_API =
-  process.env.NEXT_PUBLIC_CHAIN_ID === "8453"
-    ? "https://api.basescan.org/api"
-    : "https://api-sepolia.basescan.org/api";
+const CHAIN_ID = process.env.NEXT_PUBLIC_CHAIN_ID === "8453" ? "8453" : "84532";
+const BASESCAN_API = `https://api.etherscan.io/v2/api?chainid=${CHAIN_ID}`;
 
 const API_KEY = process.env.BASESCAN_API_KEY ?? "";
 
@@ -29,7 +27,7 @@ export async function GET(
   try {
     // Fetch normal transactions
     const txRes = await fetch(
-      `${BASESCAN_API}?module=account&action=txlist&address=${address}&startblock=0&endblock=99999999&sort=asc&apikey=${API_KEY}`
+      `${BASESCAN_API}&module=account&action=txlist&address=${address}&startblock=0&endblock=99999999&sort=asc&apikey=${API_KEY}`
     );
     const txData = await txRes.json();
     const txList: { timeStamp: string; to: string | null }[] =

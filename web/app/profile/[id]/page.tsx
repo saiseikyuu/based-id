@@ -34,15 +34,14 @@ function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T | null> {
   ]);
 }
 
-const BASESCAN_API = process.env.NEXT_PUBLIC_CHAIN_ID === "8453"
-  ? "https://api.basescan.org/api"
-  : "https://api-sepolia.basescan.org/api";
+const CHAIN_ID = process.env.NEXT_PUBLIC_CHAIN_ID === "8453" ? "8453" : "84532";
+const BASESCAN_API = `https://api.etherscan.io/v2/api?chainid=${CHAIN_ID}`;
 
 async function fetchActivity(address: string) {
   const apiKey = process.env.BASESCAN_API_KEY ?? "";
   try {
     const res = await fetch(
-      `${BASESCAN_API}?module=account&action=txlist&address=${address}&startblock=0&endblock=99999999&sort=asc&apikey=${apiKey}`,
+      `${BASESCAN_API}&module=account&action=txlist&address=${address}&startblock=0&endblock=99999999&sort=asc&apikey=${apiKey}`,
       { cache: "no-store" }
     );
     const data = await res.json();
