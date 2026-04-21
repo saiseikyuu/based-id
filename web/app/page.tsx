@@ -1644,12 +1644,6 @@ export default function Home() {
             <p className="text-zinc-700 text-[11px]">Minting open · No close date</p>
           </div>
 
-          {/* Risk disclaimer */}
-          <p className="text-zinc-800 text-[11px] leading-relaxed">
-            Minting requires USDC on Base. All transactions are final and onchain.
-            Based ID is not a financial product — $BASED token has no guaranteed value.
-            Only spend what you can afford to lose.
-          </p>
         </div>
       </footer>
 
