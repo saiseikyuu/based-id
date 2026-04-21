@@ -613,6 +613,75 @@ export default function Home() {
             </FadeIn>
           </div>
 
+          {/* Base Activity Score callout */}
+          <FadeIn className="mt-4">
+            <SpotlightCard
+              className="bg-background rounded-2xl border border-white/[0.06] p-7 h-full"
+              spotlightColor="rgba(59,130,246,0.07)"
+            >
+              <div className="flex flex-col lg:flex-row lg:items-center gap-8">
+
+                {/* Left — copy */}
+                <div className="flex-1 space-y-4">
+                  <div className="flex items-center gap-3">
+                    <span className="text-[10px] text-blue-400 font-medium uppercase tracking-[0.2em]">Base Activity Score</span>
+                    <span className="text-[9px] px-2 py-0.5 rounded-full bg-green-500/10 text-green-400 border border-green-500/20 uppercase tracking-[0.1em]">Live</span>
+                  </div>
+                  <p style={D} className="text-white font-bold text-xl leading-tight">Your Base history, made visible.</p>
+                  <p className="text-zinc-500 text-sm leading-relaxed max-w-lg">
+                    Every profile automatically shows an onchain reputation score — wallet age, transactions, protocol diversity, and token activity on Base.
+                    OGs get recognized instantly. New users have a reason to stay active.
+                  </p>
+                  <div className="pt-2 border-t border-white/[0.05] flex flex-wrap gap-6">
+                    {[
+                      { label: "Transactions", sub: "on Base" },
+                      { label: "Wallet Age", sub: "since first tx" },
+                      { label: "Protocols", sub: "unique contracts" },
+                      { label: "Token Moves", sub: "ERC-20 activity" },
+                    ].map(({ label, sub }) => (
+                      <div key={label}>
+                        <p className="text-white text-xs font-semibold">{label}</p>
+                        <p className="text-zinc-600 text-[10px]">{sub}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Right — static score ring example */}
+                <div className="flex-shrink-0 flex items-center gap-6">
+                  {[
+                    { grade: "S", score: 88, color: "#f59e0b", label: "Elite", txs: "480", age: "14mo", proto: "42" },
+                    { grade: "A", score: 65, color: "#3b82f6", label: "Active", txs: "120", age: "7mo",  proto: "18" },
+                    { grade: "C", score: 12, color: "#3f3f46", label: "New",    txs: "8",   age: "3d",   proto: "3" },
+                  ].map(({ grade, score, color, label, txs, age, proto }) => {
+                    const R = 26, C2 = 2 * Math.PI * R;
+                    return (
+                      <div key={grade} className="flex flex-col items-center gap-2">
+                        <svg width="68" height="68" viewBox="0 0 68 68">
+                          <circle cx="34" cy="34" r={R} fill="none" stroke="#ffffff08" strokeWidth="4" />
+                          <circle cx="34" cy="34" r={R} fill="none"
+                            stroke={color} strokeWidth="4" strokeLinecap="round"
+                            strokeDasharray={C2}
+                            strokeDashoffset={C2 * (1 - score / 100)}
+                            transform="rotate(-90 34 34)"
+                          />
+                          <text x="34" y="31" textAnchor="middle" fill="white" fontSize="14" fontWeight="800" fontFamily="monospace">{grade}</text>
+                          <text x="34" y="44" textAnchor="middle" fill="#52525b" fontSize="8" fontFamily="monospace">{score}pts</text>
+                        </svg>
+                        <p className="text-[10px] text-zinc-600">{label}</p>
+                        <div className="text-center space-y-0.5">
+                          <p className="text-zinc-700 text-[9px] font-mono">{txs} txs · {age}</p>
+                          <p className="text-zinc-700 text-[9px] font-mono">{proto} protocols</p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+              </div>
+            </SpotlightCard>
+          </FadeIn>
+
           {/* How to mint — 3 steps */}
           <FadeIn className="mt-16">
             <p className="text-zinc-700 text-[10px] uppercase tracking-[0.2em] mb-6">How to mint — under 60 seconds</p>
