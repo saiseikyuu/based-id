@@ -244,7 +244,7 @@ export default function Home() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
               >
-                One ID.<br />Your entire
+                One ID.<br />Every opportunity
               </motion.div>
               <motion.div
                 initial={{ opacity: 0 }}
@@ -252,7 +252,7 @@ export default function Home() {
                 transition={{ duration: 0.3, delay: 0.5 }}
               >
                 <RotatingText
-                  texts={["Base journey.", "airdrop.", "community."]}
+                  texts={["on Base.", "delivered.", "never missed."]}
                   splitBy="words"
                   elementLevelClassName="grad-text"
                   rotationInterval={3000}
@@ -267,7 +267,7 @@ export default function Home() {
 
             {/* Subline */}
             <BlurText
-              text="NFTs, airdrops, whitelists, and DAO — all for $2. Safe, permanent, and onchain. The easiest way to start on Base."
+              text="Your permanent identity on Base. Rewards, drops, and whitelists land in your dashboard — not scattered across Discord and Twitter."
               delay={60}
               direction="bottom"
               className="text-zinc-400 text-[15px] leading-relaxed max-w-[22rem]"
