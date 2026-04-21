@@ -190,21 +190,20 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
     <div className="min-h-screen bg-background">
 
       {/* Nav */}
-      <div className="border-b border-white/[0.05] px-6 py-4">
-        <div className="max-w-5xl mx-auto flex items-center justify-between">
-          <Link href="/" className="text-zinc-500 text-[11px] uppercase tracking-[0.2em] hover:text-white transition-colors">
-            ← Based ID
+      <header className="sticky top-0 z-50 border-b border-white/[0.04] bg-black/70 backdrop-blur-xl">
+        <div className="max-w-5xl mx-auto px-6 h-14 flex items-center justify-between gap-6">
+          <Link href="/" className="flex items-center gap-2 flex-shrink-0 hover:opacity-80 transition-opacity">
+            <span className="font-bold text-sm text-white tracking-tight">Based</span>
+            <span className="font-mono text-[11px] text-zinc-500 tracking-widest">ID</span>
           </Link>
-          <div className="flex items-center gap-6">
-            <Link href="/leaderboard" className="text-zinc-600 text-[11px] uppercase tracking-[0.15em] hover:text-white transition-colors">
-              Leaderboard
-            </Link>
-            <Link href="/dashboard" className="text-zinc-600 text-[11px] uppercase tracking-[0.15em] hover:text-white transition-colors">
-              Dashboard
-            </Link>
-          </div>
+          <nav className="hidden md:flex items-center gap-1 bg-white/[0.04] border border-white/[0.06] rounded-full px-2 py-1.5">
+            <Link href="/leaderboard" className="px-3.5 py-1 rounded-full text-[11px] text-zinc-400 hover:text-white hover:bg-white/[0.06] transition-all duration-150 tracking-wide">Leaderboard</Link>
+            <Link href="/activity"    className="px-3.5 py-1 rounded-full text-[11px] text-zinc-400 hover:text-white hover:bg-white/[0.06] transition-all duration-150 tracking-wide">Activity</Link>
+            <Link href="/dashboard"   className="px-3.5 py-1 rounded-full text-[11px] text-zinc-400 hover:text-white hover:bg-white/[0.06] transition-all duration-150 tracking-wide">Dashboard</Link>
+          </nav>
+          <div className="flex-shrink-0 w-24" />
         </div>
-      </div>
+      </header>
 
       {/* Hero */}
       <div className="relative overflow-hidden border-b border-white/[0.04]">

@@ -161,30 +161,28 @@ export default function Home() {
       <AnimatedBackground />
 
       {/* ── HEADER ─────────────────────────────────────────────── */}
-      <header className="fixed top-0 inset-x-0 z-50 border-b border-white/[0.05] bg-background/90 backdrop-blur-sm">
-        <div className="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between">
+      <header className="fixed top-0 inset-x-0 z-50 border-b border-white/[0.04] bg-black/70 backdrop-blur-xl">
+        <div className="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between gap-6">
 
           {/* Logo + wordmark */}
-          <div className="flex items-center gap-2">
+          <Link href="/" className="flex items-center gap-2 flex-shrink-0 hover:opacity-80 transition-opacity">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo.svg" alt="Based ID" className="w-8 h-8 rounded-xl" />
+            <img src="/logo.svg" alt="Based ID" className="w-7 h-7 rounded-lg" />
             <div className="flex items-center gap-1">
               <span style={D} className="font-bold text-sm text-white tracking-tight">Based</span>
-              <span className="text-white/20 text-xs mx-0.5">·</span>
-              <span className="font-mono text-xs text-zinc-500 tracking-widest">ID</span>
+              <span className="font-mono text-[11px] text-zinc-500 tracking-widest ml-0.5">ID</span>
             </div>
-          </div>
+          </Link>
 
-          <nav className="hidden md:flex items-center gap-8 text-[11px] text-zinc-600 uppercase tracking-[0.15em]">
-            <a href="#unlock"   className="hover:text-white transition-colors">What you unlock</a>
-            <a href="#genesis"  className="hover:text-white transition-colors">Genesis IDs</a>
-            <a href="#roadmap"  className="hover:text-white transition-colors">Roadmap</a>
-            <Link href="/leaderboard" className="text-zinc-400 hover:text-white transition-colors">Leaderboard</Link>
-            <Link href="/activity" className="text-zinc-400 hover:text-white transition-colors">Activity</Link>
-            <Link href="/dashboard" className="text-zinc-400 hover:text-white transition-colors">Dashboard</Link>
+          {/* Center nav — pill style */}
+          <nav className="hidden md:flex items-center gap-1 bg-white/[0.04] border border-white/[0.06] rounded-full px-2 py-1.5">
+            <Link href="/leaderboard" className="px-3.5 py-1 rounded-full text-[11px] text-zinc-400 hover:text-white hover:bg-white/[0.06] transition-all duration-150 tracking-wide">Leaderboard</Link>
+            <Link href="/activity"    className="px-3.5 py-1 rounded-full text-[11px] text-zinc-400 hover:text-white hover:bg-white/[0.06] transition-all duration-150 tracking-wide">Activity</Link>
+            <Link href="/dashboard"   className="px-3.5 py-1 rounded-full text-[11px] text-zinc-400 hover:text-white hover:bg-white/[0.06] transition-all duration-150 tracking-wide">Dashboard</Link>
           </nav>
 
-          <div className="flex items-center gap-3">
+          {/* Right: wallet + mobile menu */}
+          <div className="flex items-center gap-3 flex-shrink-0">
             <ConnectButton showBalance={false} chainStatus="icon" />
             <button
               className="md:hidden p-1.5 text-zinc-500 hover:text-white transition-colors"
@@ -204,15 +202,13 @@ export default function Home() {
           </div>
         </div>
 
+        {/* Mobile menu */}
         {menuOpen && (
-          <div className="md:hidden border-t border-white/[0.05] bg-background">
-            <nav className="max-w-7xl mx-auto px-6 py-6 flex flex-col gap-5 text-[11px] text-zinc-500 uppercase tracking-[0.15em]">
-              <a href="#unlock"  onClick={() => setMenuOpen(false)} className="hover:text-white transition-colors">What you unlock</a>
-              <a href="#genesis" onClick={() => setMenuOpen(false)} className="hover:text-white transition-colors">Genesis IDs</a>
-              <a href="#roadmap" onClick={() => setMenuOpen(false)} className="hover:text-white transition-colors">Roadmap</a>
-              <Link href="/leaderboard" onClick={() => setMenuOpen(false)} className="text-zinc-400 hover:text-white transition-colors">Leaderboard</Link>
-              <Link href="/activity" onClick={() => setMenuOpen(false)} className="text-zinc-400 hover:text-white transition-colors">Activity</Link>
-              <Link href="/dashboard" onClick={() => setMenuOpen(false)} className="text-zinc-400 hover:text-white transition-colors">Dashboard</Link>
+          <div className="md:hidden border-t border-white/[0.05] bg-black/95 backdrop-blur-xl">
+            <nav className="max-w-7xl mx-auto px-6 py-5 flex flex-col gap-1">
+              <Link href="/leaderboard" onClick={() => setMenuOpen(false)} className="px-3 py-2.5 rounded-lg text-sm text-zinc-400 hover:text-white hover:bg-white/[0.04] transition-all">Leaderboard</Link>
+              <Link href="/activity"    onClick={() => setMenuOpen(false)} className="px-3 py-2.5 rounded-lg text-sm text-zinc-400 hover:text-white hover:bg-white/[0.04] transition-all">Activity</Link>
+              <Link href="/dashboard"   onClick={() => setMenuOpen(false)} className="px-3 py-2.5 rounded-lg text-sm text-zinc-400 hover:text-white hover:bg-white/[0.04] transition-all">Dashboard</Link>
             </nav>
           </div>
         )}
@@ -1614,13 +1610,10 @@ export default function Home() {
             </div>
 
             {/* Nav */}
-            <div className="flex items-center gap-8 text-[11px] text-zinc-600">
-              <a href="#unlock"   className="hover:text-white transition-colors">What you unlock</a>
-              <a href="#genesis"  className="hover:text-white transition-colors">Genesis IDs</a>
-              <a href="#roadmap"  className="hover:text-white transition-colors">Roadmap</a>
-              <Link href="/leaderboard" className="text-zinc-400 hover:text-white transition-colors">Leaderboard</Link>
-              <Link href="/activity" className="text-zinc-400 hover:text-white transition-colors">Activity</Link>
-              <Link href="/dashboard" className="text-zinc-400 hover:text-white transition-colors">Dashboard</Link>
+            <div className="flex items-center gap-6 text-[11px] text-zinc-600">
+              <Link href="/leaderboard" className="hover:text-zinc-300 transition-colors">Leaderboard</Link>
+              <Link href="/activity"    className="hover:text-zinc-300 transition-colors">Activity</Link>
+              <Link href="/dashboard"   className="hover:text-zinc-300 transition-colors">Dashboard</Link>
             </div>
 
             {/* Social */}
