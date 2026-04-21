@@ -200,10 +200,10 @@ export default async function LeaderboardPage() {
             <span className="font-bold text-sm text-white tracking-tight">Based</span>
             <span className="font-mono text-[11px] text-zinc-500 tracking-widest">ID</span>
           </Link>
-          <nav className="hidden md:flex items-center gap-1 bg-white/[0.04] border border-white/[0.06] rounded-full px-2 py-1.5">
-            <Link href="/leaderboard" className="px-3.5 py-1 rounded-full text-[11px] text-white bg-white/[0.07] transition-all duration-150 tracking-wide">Leaderboard</Link>
-            <Link href="/activity"    className="px-3.5 py-1 rounded-full text-[11px] text-zinc-400 hover:text-white hover:bg-white/[0.06] transition-all duration-150 tracking-wide">Activity</Link>
-            <Link href="/dashboard"   className="px-3.5 py-1 rounded-full text-[11px] text-zinc-400 hover:text-white hover:bg-white/[0.06] transition-all duration-150 tracking-wide">Dashboard</Link>
+          <nav className="hidden md:flex items-center gap-7">
+            <Link href="/leaderboard" className="text-[13px] text-white transition-colors">Leaderboard</Link>
+            <Link href="/activity"    className="text-[13px] text-zinc-400 hover:text-white transition-colors">Activity</Link>
+            <Link href="/dashboard"   className="text-[13px] text-zinc-400 hover:text-white transition-colors">Dashboard</Link>
           </nav>
           <div className="flex items-center gap-4 flex-shrink-0">
             <IdSearch />
