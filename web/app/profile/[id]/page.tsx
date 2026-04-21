@@ -210,17 +210,26 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
 
       {/* Nav */}
       <header className="sticky top-0 z-50 border-b border-white/[0.04] bg-black/70 backdrop-blur-xl">
-        <div className="max-w-5xl mx-auto px-6 h-14 flex items-center justify-between gap-6">
+        <div className="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between gap-6">
           <Link href="/" className="flex items-center gap-2 flex-shrink-0 hover:opacity-80 transition-opacity">
-            <span className="font-bold text-sm text-white tracking-tight">Based</span>
-            <span className="font-mono text-[11px] text-zinc-500 tracking-widest">ID</span>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logo.svg" alt="Based ID" className="w-7 h-7 rounded-lg" />
+            <div className="flex items-center gap-1">
+              <span style={{ fontFamily: "var(--font-display), system-ui, sans-serif" }} className="font-bold text-sm text-white tracking-tight">Based</span>
+              <span className="font-mono text-[11px] text-zinc-500 tracking-widest ml-0.5">ID</span>
+            </div>
           </Link>
           <nav className="hidden md:flex items-center gap-7">
             <Link href="/leaderboard" className="text-[13px] text-zinc-400 hover:text-white transition-colors">Leaderboard</Link>
             <Link href="/activity"    className="text-[13px] text-zinc-400 hover:text-white transition-colors">Activity</Link>
             <Link href="/dashboard"   className="text-[13px] text-zinc-400 hover:text-white transition-colors">Dashboard</Link>
           </nav>
-          <div className="flex-shrink-0 w-24" />
+          <Link
+            href="/"
+            className="flex-shrink-0 text-[12px] text-zinc-400 hover:text-white transition-colors px-3 py-1.5 rounded-lg border border-white/[0.08] hover:border-white/[0.15]"
+          >
+            Mint →
+          </Link>
         </div>
       </header>
 
@@ -538,6 +547,23 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
           </div>
         </div>
       </div>
+
+      <footer className="border-t border-white/[0.04] mt-12 px-6 py-5">
+        <div className="max-w-5xl mx-auto flex items-center justify-between gap-4 flex-wrap">
+          <div className="flex items-center gap-3">
+            <svg width="16" height="16" viewBox="0 0 111 111" fill="none" className="opacity-40">
+              <path d="M54.921 110.034C85.359 110.034 110.034 85.402 110.034 55.017C110.034 24.6 85.359 0 54.921 0C26.0 0 2.0 22.0 0 50.354H72.943V59.68H0C2.0 88.0 26.0 110.034 54.921 110.034Z" fill="#0052FF"/>
+            </svg>
+            <span className="text-zinc-700 text-[11px]">Built on Base · 2026</span>
+          </div>
+          <div className="flex items-center gap-5 text-[11px] text-zinc-700">
+            <Link href="/" className="hover:text-zinc-400 transition-colors">Home</Link>
+            <Link href="/leaderboard" className="hover:text-zinc-400 transition-colors">Leaderboard</Link>
+            <Link href="/dashboard" className="hover:text-zinc-400 transition-colors">Dashboard</Link>
+            <a href="https://x.com/basedidofficial" target="_blank" rel="noopener noreferrer" className="hover:text-zinc-400 transition-colors">@basedidofficial</a>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

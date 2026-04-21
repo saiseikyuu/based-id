@@ -10,10 +10,13 @@ export default function NotFound() {
       {/* Header */}
       <header className="border-b border-white/[0.05]">
         <div className="max-w-7xl mx-auto px-6 h-14 flex items-center">
-          <Link href="/" className="flex items-center gap-1 hover:opacity-70 transition-opacity">
-            <span style={D} className="font-bold text-sm text-white tracking-tight">Based</span>
-            <span className="text-white/20 text-xs mx-1">·</span>
-            <span className="font-mono text-xs text-zinc-500 tracking-widest">ID</span>
+          <Link href="/" className="flex items-center gap-2 flex-shrink-0 hover:opacity-80 transition-opacity">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logo.svg" alt="Based ID" className="w-7 h-7 rounded-lg" />
+            <div className="flex items-center gap-1">
+              <span style={D} className="font-bold text-sm text-white tracking-tight">Based</span>
+              <span className="font-mono text-[11px] text-zinc-500 tracking-widest ml-0.5">ID</span>
+            </div>
           </Link>
         </div>
       </header>

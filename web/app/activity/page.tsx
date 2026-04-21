@@ -24,25 +24,7 @@ function getTier(id: number) {
 
 const ZERO = "0x0000000000000000000000000000000000000000";
 
-function mockEvents(): ActivityEvent[] {
-  const now = Math.floor(Date.now() / 1000);
-  return [
-    { type: "mint",     tokenId: 1,   tier: "GENESIS",  from: ZERO, to: "0x1a2b3c4d5e6f7890abcdef1234567890abcdef12", blockNumber: "1000", timestamp: now - 45,    txHash: "0x01a2b3c4d5e6f" },
-    { type: "mint",     tokenId: 2,   tier: "GENESIS",  from: ZERO, to: "0x2b3c4d5e6f7890abcdef1234567890abcdef1234", blockNumber: "999",  timestamp: now - 180,   txHash: "0x02b3c4d5e6f78" },
-    { type: "transfer", tokenId: 1,   tier: "GENESIS",  from: "0x1a2b3c4d5e6f7890abcdef1234567890abcdef12", to: "0x3c4d5e6f7890abcdef1234567890abcdef123456", blockNumber: "998", timestamp: now - 240,   txHash: "0x03c4d5e6f7890" },
-    { type: "mint",     tokenId: 3,   tier: "GENESIS",  from: ZERO, to: "0x4d5e6f7890abcdef1234567890abcdef12345678", blockNumber: "997",  timestamp: now - 420,   txHash: "0x04d5e6f789012" },
-    { type: "mint",     tokenId: 15,  tier: "GENESIS",  from: ZERO, to: "0x5e6f7890abcdef1234567890abcdef1234567890", blockNumber: "990",  timestamp: now - 1800,  txHash: "0x05e6f7890abcd" },
-    { type: "mint",     tokenId: 42,  tier: "GENESIS",  from: ZERO, to: "0x6f7890abcdef1234567890abcdef123456789012", blockNumber: "980",  timestamp: now - 3000,  txHash: "0x06f7890abcdef" },
-    { type: "transfer", tokenId: 15,  tier: "GENESIS",  from: "0x5e6f7890abcdef1234567890abcdef1234567890", to: "0x7890abcdef1234567890abcdef12345678901234", blockNumber: "975", timestamp: now - 7200, txHash: "0x07890abcdef12" },
-    { type: "mint",     tokenId: 99,  tier: "GENESIS",  from: ZERO, to: "0x890abcdef1234567890abcdef123456789012345", blockNumber: "960",  timestamp: now - 14400, txHash: "0x0890abcdef123" },
-    { type: "mint",     tokenId: 150, tier: "FOUNDING", from: ZERO, to: "0x90abcdef1234567890abcdef12345678901234ab", blockNumber: "950",  timestamp: now - 28800, txHash: "0x090abcdef1234" },
-    { type: "mint",     tokenId: 300, tier: "FOUNDING", from: ZERO, to: "0xabcdef1234567890abcdef12345678901234abcd", blockNumber: "940",  timestamp: now - 43200, txHash: "0x0abcdef123456" },
-    { type: "transfer", tokenId: 42,  tier: "GENESIS",  from: "0x6f7890abcdef1234567890abcdef123456789012", to: "0xbcdef1234567890abcdef1234567890abcdef123", blockNumber: "935", timestamp: now - 54000, txHash: "0x0bcdef1234567" },
-    { type: "mint",     tokenId: 500, tier: "FOUNDING", from: ZERO, to: "0xcdef1234567890abcdef1234567890abcdef1234", blockNumber: "930",  timestamp: now - 72000, txHash: "0x0cdef12345678" },
-  ];
-}
-
-async function getActivity(): Promise<{ events: ActivityEvent[]; isPreview: boolean }> {
+async function getActivity(): Promise<ActivityEvent[]> {
   try {
     const client = createPublicClient({ chain, transport: http() });
     const logs = await client.getLogs({
@@ -51,7 +33,7 @@ async function getActivity(): Promise<{ events: ActivityEvent[]; isPreview: bool
       fromBlock: BigInt(0),
       toBlock: "latest",
     });
-    if (logs.length === 0) return { events: mockEvents(), isPreview: true };
+    if (logs.length === 0) return [];
 
     const recent = [...logs]
       .sort((a, b) => (a.blockNumber > b.blockNumber ? -1 : 1))
@@ -67,7 +49,7 @@ async function getActivity(): Promise<{ events: ActivityEvent[]; isPreview: bool
       if (r.status === "fulfilled") tsMap.set(bn, Number(r.value.timestamp));
     });
 
-    const events: ActivityEvent[] = recent.map((l) => {
+    return recent.map((l) => {
       const tokenId = Number(l.args.tokenId ?? 0);
       const from = (l.args.from ?? ZERO).toLowerCase();
       const to = (l.args.to ?? ZERO).toLowerCase();
@@ -82,14 +64,14 @@ async function getActivity(): Promise<{ events: ActivityEvent[]; isPreview: bool
         txHash: l.transactionHash ?? "",
       };
     });
-    return { events, isPreview: false };
   } catch {
-    return { events: mockEvents(), isPreview: true };
+    return [];
   }
 }
 
 export default async function ActivityPage() {
-  const { events, isPreview } = await getActivity();
+  const events = await getActivity();
+  const isEmpty = events.length === 0;
 
   const mintCount = events.filter((e) => e.type === "mint").length;
   const transferCount = events.filter((e) => e.type === "transfer").length;
@@ -100,10 +82,14 @@ export default async function ActivityPage() {
 
       {/* Nav */}
       <header className="sticky top-0 z-50 border-b border-white/[0.04] bg-black/70 backdrop-blur-xl">
-        <div className="max-w-3xl mx-auto px-6 h-14 flex items-center justify-between gap-6">
+        <div className="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between gap-6">
           <Link href="/" className="flex items-center gap-2 flex-shrink-0 hover:opacity-80 transition-opacity">
-            <span className="font-bold text-sm text-white tracking-tight">Based</span>
-            <span className="font-mono text-[11px] text-zinc-500 tracking-widest">ID</span>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logo.svg" alt="Based ID" className="w-7 h-7 rounded-lg" />
+            <div className="flex items-center gap-1">
+              <span style={{ fontFamily: "var(--font-display), system-ui, sans-serif" }} className="font-bold text-sm text-white tracking-tight">Based</span>
+              <span className="font-mono text-[11px] text-zinc-500 tracking-widest ml-0.5">ID</span>
+            </div>
           </Link>
           <nav className="hidden md:flex items-center gap-7">
             <Link href="/leaderboard" className="text-[13px] text-zinc-400 hover:text-white transition-colors">Leaderboard</Link>
@@ -144,51 +130,87 @@ export default async function ActivityPage() {
             <LivePulse />
           </div>
 
-          {/* Preview banner */}
-          {isPreview && (
-            <div className="flex items-center gap-3 px-4 py-3 rounded-xl border border-amber-400/20 bg-amber-400/5 text-amber-400 text-xs">
-              <span className="w-1.5 h-1.5 rounded-full bg-amber-400 flex-shrink-0 animate-pulse" />
-              <span>Preview mode — no activity on testnet yet. This is how it looks once minting begins.</span>
-            </div>
-          )}
-
-          {/* Stats row */}
-          <div className="grid grid-cols-3 gap-3">
-            {[
-              { value: mintCount, label: "Recent Mints", color: "text-green-500" },
-              { value: transferCount, label: "Transfers", color: "text-blue-400" },
-              { value: uniqueHolders, label: "Unique Wallets", color: "text-white" },
-            ].map((stat) => (
-              <div
-                key={stat.label}
-                className="rounded-xl border border-white/[0.06] bg-white/[0.01] px-4 py-3.5"
-              >
-                <p className={`${stat.color} font-bold text-2xl tabular-nums leading-none`}>
-                  {stat.value}
-                </p>
-                <p className="text-zinc-600 text-[10px] uppercase tracking-[0.15em] mt-2">
-                  {stat.label}
+          {isEmpty ? (
+            /* Empty state — waiting for first mint */
+            <div className="rounded-2xl border border-white/[0.06] bg-white/[0.01] px-8 py-20 text-center space-y-6">
+              <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl border border-white/[0.08] bg-white/[0.02]">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-zinc-500">
+                  <circle cx="12" cy="12" r="10"/>
+                  <polyline points="12 6 12 12 16 14"/>
+                </svg>
+              </div>
+              <div className="space-y-2 max-w-sm mx-auto">
+                <h2 className="text-white font-bold text-xl" style={{ fontFamily: "var(--font-display), system-ui, sans-serif" }}>
+                  Waiting for the first mint
+                </h2>
+                <p className="text-zinc-500 text-sm leading-relaxed">
+                  Every mint and transfer will appear here in real time. Be the first — you&apos;ll own Based ID #101 forever.
                 </p>
               </div>
-            ))}
-          </div>
+              <Link
+                href="/"
+                className="inline-block px-6 py-3 rounded-xl bg-white text-black font-bold text-sm hover:bg-zinc-100 transition-colors"
+              >
+                Mint your Based ID →
+              </Link>
+            </div>
+          ) : (
+            <>
+              {/* Stats row */}
+              <div className="grid grid-cols-3 gap-3">
+                {[
+                  { value: mintCount, label: "Recent Mints", color: "text-green-500" },
+                  { value: transferCount, label: "Transfers", color: "text-blue-400" },
+                  { value: uniqueHolders, label: "Unique Wallets", color: "text-white" },
+                ].map((stat) => (
+                  <div
+                    key={stat.label}
+                    className="rounded-xl border border-white/[0.06] bg-white/[0.01] px-4 py-3.5"
+                  >
+                    <p className={`${stat.color} font-bold text-2xl tabular-nums leading-none`}>
+                      {stat.value}
+                    </p>
+                    <p className="text-zinc-600 text-[10px] uppercase tracking-[0.15em] mt-2">
+                      {stat.label}
+                    </p>
+                  </div>
+                ))}
+              </div>
 
-          {/* Feed */}
-          <ActivityFeed events={events} />
+              {/* Feed */}
+              <ActivityFeed events={events} />
 
-          {/* Footer CTA */}
-          <div className="flex items-center justify-between pt-6 border-t border-white/[0.05]">
-            <p className="text-zinc-700 text-xs">Last {events.length} events on Base</p>
-            <Link
-              href="/"
-              className="px-5 py-2.5 rounded-xl bg-white text-black font-bold text-xs hover:bg-zinc-100 transition-colors"
-            >
-              Mint your Based ID →
-            </Link>
-          </div>
+              {/* Footer CTA */}
+              <div className="flex items-center justify-between pt-6 border-t border-white/[0.05]">
+                <p className="text-zinc-700 text-xs">Last {events.length} events on Base</p>
+                <Link
+                  href="/"
+                  className="px-5 py-2.5 rounded-xl bg-white text-black font-bold text-xs hover:bg-zinc-100 transition-colors"
+                >
+                  Mint your Based ID →
+                </Link>
+              </div>
+            </>
+          )}
 
         </div>
       </div>
+
+      <footer className="border-t border-white/[0.04] mt-8 px-6 py-5">
+        <div className="max-w-3xl mx-auto flex items-center justify-between gap-4 flex-wrap">
+          <div className="flex items-center gap-3">
+            <svg width="16" height="16" viewBox="0 0 111 111" fill="none" className="opacity-40">
+              <path d="M54.921 110.034C85.359 110.034 110.034 85.402 110.034 55.017C110.034 24.6 85.359 0 54.921 0C26.0 0 2.0 22.0 0 50.354H72.943V59.68H0C2.0 88.0 26.0 110.034 54.921 110.034Z" fill="#0052FF"/>
+            </svg>
+            <span className="text-zinc-700 text-[11px]">Built on Base · 2026</span>
+          </div>
+          <div className="flex items-center gap-5 text-[11px] text-zinc-700">
+            <Link href="/" className="hover:text-zinc-400 transition-colors">Home</Link>
+            <Link href="/dashboard" className="hover:text-zinc-400 transition-colors">Dashboard</Link>
+            <a href="https://x.com/basedidofficial" target="_blank" rel="noopener noreferrer" className="hover:text-zinc-400 transition-colors">@basedidofficial</a>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

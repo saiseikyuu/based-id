@@ -22,42 +22,6 @@ export const metadata: Metadata = {
   description: "The 100 lowest Based IDs ranked by $BASED weight.",
 };
 
-const MOCK_ADDRESSES = [
-  "0x1a2b3c4d5e6f7890abcdef1234567890abcdef12",
-  "0x2b3c4d5e6f7890abcdef1234567890abcdef1234",
-  "0x3c4d5e6f7890abcdef1234567890abcdef123456",
-  "0x4d5e6f7890abcdef1234567890abcdef12345678",
-  "0x5e6f7890abcdef1234567890abcdef1234567890",
-  "0x6f7890abcdef1234567890abcdef123456789012",
-  "0x7890abcdef1234567890abcdef12345678901234",
-  "0x890abcdef1234567890abcdef123456789012345",
-  "0x90abcdef1234567890abcdef12345678901234ab",
-  "0xabcdef1234567890abcdef12345678901234abcd",
-];
-
-function getMockRows(): HolderRow[] {
-  const ids = [
-    1,2,3,4,5,6,7,8,9,10,12,14,16,18,20,23,26,30,35,40,
-    45,50,55,60,65,70,75,80,85,90,95,99,100,
-    105,115,130,150,175,200,250,300,350,400,450,500,
-    550,600,650,700,750,800,850,900,950,1000,
-    1100,1300,1500,1800,2000,2500,3000,3500,4000,4500,
-    5000,5500,6000,6500,7000,7500,8000,8500,9000,9500,10000,
-    11000,13000,15000,18000,20000,25000,30000,40000,50000,
-    60000,70000,80000,90000,100000,
-    120000,150000,200000,250000,300000,
-    400000,500000,600000,700000,800000,900000,1000000,
-  ].slice(0, 100);
-
-  return ids.map((id, i) => ({
-    tokenId: id,
-    tier: getTier(id),
-    weight: 1 / Math.sqrt(id),
-    holder: MOCK_ADDRESSES[i % MOCK_ADDRESSES.length],
-    isAuction: isAuctionId(id),
-  }));
-}
-
 async function getLeaderboard(): Promise<HolderRow[]> {
   const client = createPublicClient({ chain, transport: http() });
   try {
@@ -183,9 +147,8 @@ function WeightChart({ rows }: { rows: HolderRow[] }) {
 }
 
 export default async function LeaderboardPage() {
-  const liveRows = await getLeaderboard();
-  const isPreview = liveRows.length === 0;
-  const rows = isPreview ? getMockRows() : liveRows;
+  const rows = await getLeaderboard();
+  const isEmpty = rows.length === 0;
 
   const genesisCount = rows.filter(r => r.isAuction).length;
   const totalWeight = rows.reduce((s, r) => s + r.weight, 0);
@@ -195,10 +158,14 @@ export default async function LeaderboardPage() {
 
       {/* Nav */}
       <header className="sticky top-0 z-50 border-b border-white/[0.04] bg-black/70 backdrop-blur-xl">
-        <div className="max-w-4xl mx-auto px-6 h-14 flex items-center justify-between gap-6">
+        <div className="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between gap-6">
           <Link href="/" className="flex items-center gap-2 flex-shrink-0 hover:opacity-80 transition-opacity">
-            <span className="font-bold text-sm text-white tracking-tight">Based</span>
-            <span className="font-mono text-[11px] text-zinc-500 tracking-widest">ID</span>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logo.svg" alt="Based ID" className="w-7 h-7 rounded-lg" />
+            <div className="flex items-center gap-1">
+              <span style={{ fontFamily: "var(--font-display), system-ui, sans-serif" }} className="font-bold text-sm text-white tracking-tight">Based</span>
+              <span className="font-mono text-[11px] text-zinc-500 tracking-widest ml-0.5">ID</span>
+            </div>
           </Link>
           <nav className="hidden md:flex items-center gap-7">
             <Link href="/leaderboard" className="text-[13px] text-white transition-colors">Leaderboard</Link>
@@ -230,75 +197,113 @@ export default async function LeaderboardPage() {
           </p>
         </div>
 
-        {/* Stats + chart card */}
-        <div className="border border-white/[0.06] rounded-2xl overflow-hidden">
-          {/* Stat row */}
-          <div className="grid grid-cols-3 divide-x divide-white/[0.05] border-b border-white/[0.05]">
-            <div className="px-6 py-5">
-              <p className="text-[11px] text-zinc-600 uppercase tracking-[0.18em] mb-2">IDs Ranked</p>
-              <p className="text-white font-black text-xl tabular-nums" style={{ fontFamily: "var(--font-display), system-ui, sans-serif" }}>
-                {isPreview ? "—" : rows.length}
+        {isEmpty ? (
+          /* Empty state — no holders yet */
+          <div className="rounded-2xl border border-white/[0.06] bg-white/[0.01] px-8 py-20 text-center space-y-6">
+            <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl border border-amber-400/20 bg-amber-400/[0.04]">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-amber-400/70">
+                <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/>
+                <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/>
+                <path d="M4 22h16"/>
+                <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/>
+                <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/>
+                <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>
+              </svg>
+            </div>
+            <div className="space-y-2 max-w-sm mx-auto">
+              <h2 className="text-white font-bold text-xl" style={{ fontFamily: "var(--font-display), system-ui, sans-serif" }}>
+                The leaderboard opens with the first mint
+              </h2>
+              <p className="text-zinc-500 text-sm leading-relaxed">
+                No Based IDs minted yet. Mint yours for $2 USDC and you&apos;ll take #101 — the first public ID on Base.
               </p>
             </div>
-            <div className="px-6 py-5">
-              <p className="text-[11px] text-zinc-600 uppercase tracking-[0.18em] mb-2">Genesis Holders</p>
-              <p className="text-amber-400 font-black text-xl tabular-nums" style={{ fontFamily: "var(--font-display), system-ui, sans-serif" }}>
-                {isPreview ? "—" : genesisCount}
-                <span className="text-zinc-700 font-normal text-sm ml-1">/ 100</span>
+            <Link
+              href="/"
+              className="inline-block px-6 py-3 rounded-xl bg-white text-black font-bold text-sm hover:bg-zinc-100 transition-colors"
+            >
+              Mint Based ID #101 →
+            </Link>
+          </div>
+        ) : (
+          <>
+            {/* Stats + chart card */}
+            <div className="border border-white/[0.06] rounded-2xl overflow-hidden">
+              {/* Stat row */}
+              <div className="grid grid-cols-3 divide-x divide-white/[0.05] border-b border-white/[0.05]">
+                <div className="px-6 py-5">
+                  <p className="text-[11px] text-zinc-600 uppercase tracking-[0.18em] mb-2">IDs Ranked</p>
+                  <p className="text-white font-black text-xl tabular-nums" style={{ fontFamily: "var(--font-display), system-ui, sans-serif" }}>
+                    {rows.length}
+                  </p>
+                </div>
+                <div className="px-6 py-5">
+                  <p className="text-[11px] text-zinc-600 uppercase tracking-[0.18em] mb-2">Genesis Holders</p>
+                  <p className="text-amber-400 font-black text-xl tabular-nums" style={{ fontFamily: "var(--font-display), system-ui, sans-serif" }}>
+                    {genesisCount}
+                    <span className="text-zinc-700 font-normal text-sm ml-1">/ 100</span>
+                  </p>
+                </div>
+                <div className="px-6 py-5">
+                  <p className="text-[11px] text-zinc-600 uppercase tracking-[0.18em] mb-2">Combined Weight</p>
+                  <p className="text-blue-400 font-black text-xl tabular-nums" style={{ fontFamily: "var(--font-display), system-ui, sans-serif" }}>
+                    {totalWeight.toFixed(2)}
+                    <span className="text-zinc-700 font-normal text-sm ml-1">×</span>
+                  </p>
+                </div>
+              </div>
+
+              {/* Chart */}
+              <div className="px-6 pt-5 pb-4 border-b border-white/[0.04]">
+                <p className="text-[10px] text-zinc-700 uppercase tracking-[0.18em] mb-3">$BASED Weight Curve</p>
+                <WeightChart rows={rows} />
+              </div>
+
+              {/* Chart legend */}
+              <div className="px-6 py-3 flex items-center gap-6">
+                <div className="flex items-center gap-2">
+                  <div className="w-6 h-px bg-blue-500 opacity-70" />
+                  <span className="text-zinc-600 text-[10px]">Weight = 1 ÷ √ID</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-px border-t border-dashed border-amber-500/50" />
+                  <span className="text-zinc-600 text-[10px]">Genesis boundary (#100)</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Table (with "Your Rank" highlighting) */}
+            <LeaderboardTable rows={rows} />
+
+            {/* Footer */}
+            <div className="flex items-center justify-between pt-2">
+              <p className="text-zinc-700 text-[11px] font-mono">
+                {rows.length} holders · refreshes every 60s
               </p>
+              <Link href="/" className="text-[11px] text-blue-400 hover:text-blue-300 transition-colors">
+                Mint your Based ID →
+              </Link>
             </div>
-            <div className="px-6 py-5">
-              <p className="text-[11px] text-zinc-600 uppercase tracking-[0.18em] mb-2">Combined Weight</p>
-              <p className="text-blue-400 font-black text-xl tabular-nums" style={{ fontFamily: "var(--font-display), system-ui, sans-serif" }}>
-                {isPreview ? "—" : totalWeight.toFixed(2)}
-                <span className="text-zinc-700 font-normal text-sm ml-1">×</span>
-              </p>
-            </div>
-          </div>
-
-          {/* Chart */}
-          <div className="px-6 pt-5 pb-4 border-b border-white/[0.04]">
-            <p className="text-[10px] text-zinc-700 uppercase tracking-[0.18em] mb-3">$BASED Weight Curve</p>
-            <WeightChart rows={rows} />
-          </div>
-
-          {/* Chart legend */}
-          <div className="px-6 py-3 flex items-center gap-6">
-            <div className="flex items-center gap-2">
-              <div className="w-6 h-px bg-blue-500 opacity-70" />
-              <span className="text-zinc-600 text-[10px]">Weight = 1 ÷ √ID</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-px border-t border-dashed border-amber-500/50" />
-              <span className="text-zinc-600 text-[10px]">Genesis boundary (#100)</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Preview banner */}
-        {isPreview && (
-          <div className="flex items-center gap-3 px-5 py-3.5 rounded-xl border border-amber-400/15 bg-amber-400/[0.03]">
-            <div className="w-1.5 h-1.5 rounded-full bg-amber-400/50 flex-shrink-0" />
-            <p className="text-amber-400/60 text-xs">
-              Preview mode — no IDs minted yet. This is how the leaderboard will look once minting begins.
-            </p>
-          </div>
+          </>
         )}
 
-        {/* Table (with "Your Rank" highlighting) */}
-        <LeaderboardTable rows={rows} />
-
-        {/* Footer */}
-        <div className="flex items-center justify-between pt-2">
-          <p className="text-zinc-700 text-[11px] font-mono">
-            {rows.length} holders · refreshes every 60s
-          </p>
-          <Link href="/" className="text-[11px] text-blue-400 hover:text-blue-300 transition-colors">
-            Mint your Based ID →
-          </Link>
-        </div>
-
       </div>
+
+      <footer className="border-t border-white/[0.04] mt-16 px-6 py-5">
+        <div className="max-w-4xl mx-auto flex items-center justify-between gap-4 flex-wrap">
+          <div className="flex items-center gap-3">
+            <svg width="16" height="16" viewBox="0 0 111 111" fill="none" className="opacity-40">
+              <path d="M54.921 110.034C85.359 110.034 110.034 85.402 110.034 55.017C110.034 24.6 85.359 0 54.921 0C26.0 0 2.0 22.0 0 50.354H72.943V59.68H0C2.0 88.0 26.0 110.034 54.921 110.034Z" fill="#0052FF"/>
+            </svg>
+            <span className="text-zinc-700 text-[11px]">Built on Base · 2026</span>
+          </div>
+          <div className="flex items-center gap-5 text-[11px] text-zinc-700">
+            <Link href="/" className="hover:text-zinc-400 transition-colors">Home</Link>
+            <Link href="/dashboard" className="hover:text-zinc-400 transition-colors">Dashboard</Link>
+            <a href="https://x.com/basedidofficial" target="_blank" rel="noopener noreferrer" className="hover:text-zinc-400 transition-colors">@basedidofficial</a>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
