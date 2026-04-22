@@ -528,10 +528,10 @@ export default function Home() {
           <FadeIn className="mb-14">
             <p className="text-zinc-600 text-[11px] uppercase tracking-[0.2em] mb-4">What you get</p>
             <h2 style={D} className="text-[clamp(2.5rem,5vw,4rem)] font-bold tracking-tight leading-tight">
-              One ID.<br />Everything unlocks.
+              Mint once.<br />Unlock everything.
             </h2>
             <p className="text-zinc-500 text-sm mt-4 max-w-md leading-relaxed">
-              Mint once. Your ID marks when you arrived. Your activity score tells what you&apos;ve built since. Both matter.
+              Your ID marks when you arrived. Your activity score tells what you&apos;ve built since. Both matter.
             </p>
           </FadeIn>
 
@@ -663,17 +663,17 @@ export default function Home() {
               </div>
             </FadeIn>
 
-            {/* Whitelist — coming soon */}
-            <FadeIn delay={0.18}>
-              <div className="bg-background rounded-2xl border border-white/[0.04] p-8 h-full flex flex-col gap-5">
-                <div className="flex items-center justify-between">
+            {/* Whitelist — coming soon, full width */}
+            <FadeIn delay={0.18} className="lg:col-span-3">
+              <div className="bg-background rounded-2xl border border-white/[0.04] p-8 flex flex-col sm:flex-row items-start gap-8">
+                <div className="flex items-center justify-between w-full sm:w-auto sm:flex-col sm:items-start gap-2 flex-shrink-0">
                   <span className="text-[10px] text-zinc-600 font-medium uppercase tracking-[0.2em]">Whitelist Access</span>
                   <span className="text-[9px] px-2 py-0.5 rounded-full border border-white/[0.07] text-zinc-600 uppercase tracking-[0.1em]">Q4 2026</span>
                 </div>
-                <div className="flex-1 space-y-3 opacity-40">
+                <div className="flex-1 space-y-2 opacity-40">
                   <p style={D} className="text-white font-bold text-xl leading-tight">One ID. Many doors.</p>
-                  <p className="text-zinc-500 text-sm leading-relaxed">
-                    Auto-whitelisted for partner launches and early access drops. Hold once, qualify forever.
+                  <p className="text-zinc-500 text-sm leading-relaxed max-w-lg">
+                    Auto-whitelisted for partner launches and early access drops. Hold once, qualify forever. No forms, no follow-backs, no grinding.
                   </p>
                 </div>
               </div>
@@ -689,7 +689,6 @@ export default function Home() {
                 { n: "01", title: "Connect wallet", body: "Any Base wallet — Coinbase, MetaMask, Rainbow." },
                 { n: "02", title: "Approve $2 USDC", body: "One-time. Exactly $2. Nothing hidden." },
                 { n: "03", title: "Mint your ID", body: "Your permanent number is onchain. Forever." },
-                { n: "04", title: "Build your reputation", body: "Your onchain activity on Base auto-scores your profile. The longer you build, the higher your grade." },
               ].map(({ n, title, body }) => (
                 <div key={n} className="flex-1 bg-background p-6 flex gap-4 items-start border-b sm:border-b-0 sm:border-r border-white/[0.05] last:border-0">
                   <span className="text-[2rem] font-black text-white/[0.06] leading-none tabular-nums flex-shrink-0">{n}</span>
@@ -699,6 +698,14 @@ export default function Home() {
                   </div>
                 </div>
               ))}
+            </div>
+
+            {/* Reputation callout */}
+            <div className="mt-4 flex items-center gap-3 px-5 py-3.5 rounded-xl border border-white/[0.05] bg-white/[0.01]">
+              <span className="w-1.5 h-1.5 rounded-full bg-green-500 flex-shrink-0" />
+              <p className="text-zinc-500 text-xs leading-relaxed">
+                Your profile automatically scores your Base activity — wallet age, transactions, protocols used. No action needed. The longer you build on Base, the higher your grade.
+              </p>
             </div>
           </FadeIn>
         </div>
@@ -875,6 +882,7 @@ export default function Home() {
                   { label: "Entry cost per holder", typical: "$0",     based: "$2 USDC"  },
                   { label: "Bot exposure",          typical: "High",   based: "Zero"     },
                   { label: "Multi-wallet farmers",  typical: "Common", based: "Blocked"  },
+                  { label: "Reputation score",      typical: "None",   based: "Built-in" },
                   { label: "Forms required",        typical: "Yes",    based: "None"     },
                   { label: "Holder commitment",     typical: "None",   based: "Paid in"  },
                 ].map(({ label, typical, based }, i) => (
@@ -1602,8 +1610,12 @@ export default function Home() {
                     a: "Yes. The mint price is hardcoded in the contract at $2 USDC. It cannot be changed — not even by us.",
                   },
                   {
+                    q: "What is the Base Activity Score?",
+                    a: "Every Based ID profile automatically scores the holder's onchain history on Base — wallet age, transaction volume, and protocols used. Scores update continuously and are visible on your public profile. Partners use scores to identify real builders vs. new wallets. Your score has no effect on your $BASED airdrop allocation, which is determined solely by your ID number.",
+                  },
+                  {
                     q: "What is $BASED? Is it tradeable?",
-                    a: "$BASED is a community governance token distributed to Based ID holders. It will be claimable in January 2027. No guaranteed value.",
+                    a: "$BASED is a community token distributed to Based ID holders. It will be claimable in January 2027. No guaranteed value.",
                   },
                   {
                     q: "How does the airdrop weight work?",
