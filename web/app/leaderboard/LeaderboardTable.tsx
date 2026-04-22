@@ -106,11 +106,11 @@ export function LeaderboardTable({ rows }: { rows: HolderRow[] }) {
       <div className="rounded-2xl border border-white/[0.06] overflow-hidden">
 
         {/* Column headers */}
-        <div className="grid grid-cols-[48px_minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)] px-5 py-3 border-b border-white/[0.05] bg-white/[0.015]">
+        <div className="grid grid-cols-[40px_minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)] sm:grid-cols-[48px_minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)] px-4 sm:px-5 py-3 border-b border-white/[0.05] bg-white/[0.015]">
           <span className="text-[10px] text-zinc-700 uppercase tracking-[0.18em]">Rank</span>
           <span className="text-[10px] text-zinc-700 uppercase tracking-[0.18em]">Holder</span>
-          <span className="text-[10px] text-zinc-700 uppercase tracking-[0.18em]">Based ID</span>
-          <span className="text-[10px] text-zinc-700 uppercase tracking-[0.18em]">Tier</span>
+          <span className="text-[10px] text-zinc-700 uppercase tracking-[0.18em]">ID</span>
+          <span className="hidden sm:block text-[10px] text-zinc-700 uppercase tracking-[0.18em]">Tier</span>
           <span className="text-[10px] text-zinc-700 uppercase tracking-[0.18em] text-right">Weight</span>
         </div>
 
@@ -137,7 +137,7 @@ export function LeaderboardTable({ rows }: { rows: HolderRow[] }) {
           return (
             <div
               key={row.tokenId}
-              className={`grid grid-cols-[48px_minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)] px-5 py-3.5 border-b border-white/[0.03] last:border-0 transition-colors items-center ${leftBorder} ${rowBg}`}
+              className={`grid grid-cols-[40px_minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)] sm:grid-cols-[48px_minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)] px-4 sm:px-5 py-3.5 border-b border-white/[0.03] last:border-0 transition-colors items-center ${leftBorder} ${rowBg}`}
             >
               {/* Rank */}
               <span className={`text-sm font-mono font-bold tabular-nums ${isTop ? rankColors[i] : "text-zinc-700"}`}>
@@ -181,7 +181,7 @@ export function LeaderboardTable({ rows }: { rows: HolderRow[] }) {
               </Link>
 
               {/* Tier */}
-              <span className={`text-[10px] font-mono tracking-widest ${
+              <span className={`hidden sm:block text-[10px] font-mono tracking-widest ${
                 row.isAuction ? "text-amber-400/80" : "text-zinc-500"
               }`}>
                 {row.tier}

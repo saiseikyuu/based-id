@@ -5,6 +5,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { ActivityFeed, type ActivityEvent } from "./ActivityFeed";
 import { LivePulse } from "./LivePulse";
+import { MobileNav } from "@/app/components/MobileNav";
 
 export const revalidate = 30;
 
@@ -102,6 +103,8 @@ export default async function ActivityPage() {
           </div>
         </div>
       </header>
+
+      <MobileNav />
 
       {/* Ambient glow */}
       <div className="relative overflow-hidden">

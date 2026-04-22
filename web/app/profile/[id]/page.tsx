@@ -3,6 +3,7 @@ import { base, baseSepolia, mainnet } from "viem/chains";
 import { BASED_ID_ADDRESS, BASED_ID_ABI, BASESCAN_URL } from "@/lib/contracts";
 import { NftCard } from "../../NftCard";
 import { TipButton } from "../TipButton";
+import { MobileNav } from "@/app/components/MobileNav";
 import Link from "next/link";
 import type { Metadata } from "next";
 
@@ -232,6 +233,8 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
           </Link>
         </div>
       </header>
+
+      <MobileNav />
 
       {/* Hero */}
       <div className="relative overflow-hidden border-b border-white/[0.04]">

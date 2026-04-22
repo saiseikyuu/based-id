@@ -5,6 +5,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { IdSearch } from "./IdSearch";
 import { LeaderboardTable, type HolderRow } from "./LeaderboardTable";
+import { MobileNav } from "@/app/components/MobileNav";
 
 export const revalidate = 60;
 
@@ -181,6 +182,8 @@ export default async function LeaderboardPage() {
           </div>
         </div>
       </header>
+
+      <MobileNav />
 
       <div className="max-w-4xl mx-auto px-6 py-12 space-y-8">
 

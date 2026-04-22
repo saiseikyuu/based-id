@@ -868,13 +868,13 @@ export default function Home() {
             <FadeIn delay={0.1}>
               <div className="rounded-2xl border border-white/[0.07] overflow-hidden">
                 {/* Header */}
-                <div className="grid grid-cols-[1fr_100px_100px] border-b border-white/[0.06] bg-white/[0.02]">
-                  <div className="px-5 py-3" />
-                  <div className="px-4 py-3 text-center border-l border-white/[0.05]">
-                    <p className="text-zinc-600 text-[10px] uppercase tracking-[0.15em]">Typical drop</p>
+                <div className="grid grid-cols-[1fr_70px_70px] sm:grid-cols-[1fr_100px_100px] border-b border-white/[0.06] bg-white/[0.02]">
+                  <div className="px-3 sm:px-5 py-3" />
+                  <div className="px-2 sm:px-4 py-3 text-center border-l border-white/[0.05]">
+                    <p className="text-zinc-600 text-[9px] sm:text-[10px] uppercase tracking-[0.12em] sm:tracking-[0.15em]">Typical</p>
                   </div>
-                  <div className="px-4 py-3 text-center border-l border-blue-900/30 bg-blue-950/20">
-                    <p className="text-blue-400 text-[10px] uppercase tracking-[0.15em] font-semibold">Based ID</p>
+                  <div className="px-2 sm:px-4 py-3 text-center border-l border-blue-900/30 bg-blue-950/20">
+                    <p className="text-blue-400 text-[9px] sm:text-[10px] uppercase tracking-[0.12em] sm:tracking-[0.15em] font-semibold">Based ID</p>
                   </div>
                 </div>
                 {[
@@ -886,15 +886,15 @@ export default function Home() {
                   { label: "Forms required",        typical: "Yes",    based: "None"     },
                   { label: "Holder commitment",     typical: "None",   based: "Paid in"  },
                 ].map(({ label, typical, based }, i) => (
-                  <div key={label} className={`grid grid-cols-[1fr_100px_100px] border-b border-white/[0.04] last:border-0 ${i % 2 === 0 ? "" : "bg-white/[0.01]"}`}>
-                    <div className="px-5 py-3.5">
-                      <p className="text-zinc-400 text-xs">{label}</p>
+                  <div key={label} className={`grid grid-cols-[1fr_70px_70px] sm:grid-cols-[1fr_100px_100px] border-b border-white/[0.04] last:border-0 ${i % 2 === 0 ? "" : "bg-white/[0.01]"}`}>
+                    <div className="px-3 sm:px-5 py-3 sm:py-3.5">
+                      <p className="text-zinc-400 text-[11px] sm:text-xs">{label}</p>
                     </div>
-                    <div className="px-4 py-3.5 text-center border-l border-white/[0.05]">
-                      <p className="text-zinc-600 text-xs tabular-nums">{typical}</p>
+                    <div className="px-2 sm:px-4 py-3 sm:py-3.5 text-center border-l border-white/[0.05]">
+                      <p className="text-zinc-600 text-[11px] sm:text-xs tabular-nums">{typical}</p>
                     </div>
-                    <div className="px-4 py-3.5 text-center border-l border-blue-900/20 bg-blue-950/10">
-                      <p className="text-blue-300 text-xs font-semibold tabular-nums">{based}</p>
+                    <div className="px-2 sm:px-4 py-3 sm:py-3.5 text-center border-l border-blue-900/20 bg-blue-950/10">
+                      <p className="text-blue-300 text-[11px] sm:text-xs font-semibold tabular-nums">{based}</p>
                     </div>
                   </div>
                 ))}

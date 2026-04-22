@@ -18,6 +18,7 @@ import { NftCard } from "../NftCard";
 import CountUp from "../components/CountUp";
 import SpotlightCard from "../components/SpotlightCard";
 import AnimatedBackground from "../components/AnimatedBackground";
+import { MobileNav } from "../components/MobileNav";
 
 const SNAPSHOT_DATE   = new Date("2026-09-30T00:00:00Z");
 const SNAPSHOT_2_DATE = new Date("2026-12-31T23:59:59Z");
@@ -2072,6 +2073,7 @@ function Shell({ children }: { children: React.ReactNode }) {
           </div>
         </div>
       </header>
+      <MobileNav />
       {children}
       <footer className="border-t border-white/[0.04] px-6 py-5 flex items-center justify-between gap-4 flex-wrap">
         <div className="flex items-center gap-3">
