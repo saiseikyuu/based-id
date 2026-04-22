@@ -267,7 +267,7 @@ export default function Home() {
 
             {/* Subline */}
             <BlurText
-              text="Your permanent identity on Base. Rewards, drops, and whitelists land directly in your dashboard. Never miss an opportunity."
+              text="Your permanent identity on Base. Your ID marks when you arrived. Your activity score proves what you've built. Both open every door."
               delay={60}
               direction="bottom"
               className="text-zinc-400 text-[15px] leading-relaxed max-w-[22rem]"
@@ -451,7 +451,8 @@ export default function Home() {
                 {[
                   { value: "Onchain", label: "Every holder verified on Base" },
                   { value: "$2 USDC", label: "Entry barrier that filters noise" },
-                  { value: "Automatic", label: "Qualify with zero action required" },
+                  { value: "Scored", label: "Activity score separates builders from bots" },
+                  { value: "Automatic", label: "Holders qualify with zero extra action" },
                 ].map(({ value, label }) => (
                   <div key={label} className="flex items-baseline gap-6 py-4">
                     <span className="text-white font-bold text-sm w-24 flex-shrink-0" style={{ fontFamily: "var(--font-display), system-ui, sans-serif" }}>{value}</span>
@@ -530,7 +531,7 @@ export default function Home() {
               One ID.<br />Everything unlocks.
             </h2>
             <p className="text-zinc-500 text-sm mt-4 max-w-md leading-relaxed">
-              Mint once. Your Based ID becomes your permanent onchain pass — benefits activate as the ecosystem grows.
+              Mint once. Your ID marks when you arrived. Your activity score tells what you&apos;ve built since. Both matter.
             </p>
           </FadeIn>
 
@@ -597,35 +598,51 @@ export default function Home() {
               </SpotlightCard>
             </FadeIn>
 
-            {/* Base Activity Score */}
-            <FadeIn delay={0.1}>
-              <SpotlightCard className="bg-background rounded-2xl border border-white/[0.06] p-8 h-full flex flex-col gap-5" spotlightColor="rgba(59,130,246,0.06)">
-                <div className="flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-green-400" />
-                  <span className="text-[10px] text-zinc-500 font-medium uppercase tracking-[0.2em]">Reputation</span>
+            {/* Base Activity Score — spans 2 cols */}
+            <FadeIn delay={0.1} className="lg:col-span-2">
+              <SpotlightCard className="bg-background rounded-2xl border border-green-500/[0.12] p-8 h-full flex flex-col gap-6" spotlightColor="rgba(34,197,94,0.05)">
+                <div className="flex items-start justify-between gap-4 flex-wrap">
+                  <div className="space-y-3 flex-1">
+                    <div className="flex items-center gap-2">
+                      <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+                      <span className="text-[10px] text-green-400 font-medium uppercase tracking-[0.2em]">Base Activity Score</span>
+                    </div>
+                    <p style={D} className="text-white font-bold text-2xl leading-tight">Your score.<br />Your reputation.</p>
+                    <p className="text-zinc-500 text-sm leading-relaxed max-w-sm">
+                      Based ID scores every holder automatically. Wallet age, transaction count, protocols used, token moves — all combined into a grade. Low ID shows when you arrived. High score shows what you&apos;ve built.
+                    </p>
+                  </div>
+
+                  {/* Score rings */}
+                  <div className="flex items-center gap-5 flex-shrink-0">
+                    {([["S", 88, "#f59e0b", "Elite"], ["A", 65, "#3b82f6", "Active"], ["B", 42, "#a1a1aa", "Regular"], ["C", 12, "#3f3f46", "New"]] as [string, number, string, string][]).map(([g, s, c, label]) => {
+                      const r = 18, circ = 2 * Math.PI * r;
+                      return (
+                        <div key={g} className="flex flex-col items-center gap-1.5">
+                          <svg width="44" height="44" viewBox="0 0 44 44">
+                            <circle cx="22" cy="22" r={r} fill="none" stroke="#ffffff06" strokeWidth="3.5" />
+                            <circle cx="22" cy="22" r={r} fill="none" stroke={c} strokeWidth="3.5" strokeLinecap="round"
+                              strokeDasharray={circ} strokeDashoffset={circ * (1 - s / 100)} transform="rotate(-90 22 22)" />
+                            <text x="22" y="27" textAnchor="middle" fill="white" fontSize="11" fontWeight="800" fontFamily="monospace">{g}</text>
+                          </svg>
+                          <p className="text-zinc-700 text-[9px] font-mono">{label}</p>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
-                <div className="flex-1 space-y-3">
-                  <p style={D} className="text-white font-bold text-xl leading-tight">Your Base history,<br />made visible.</p>
-                  <p className="text-zinc-500 text-sm leading-relaxed">
-                    Every profile scores your onchain activity on Base — wallet age, transactions, protocols, and token moves. OGs get recognized.
-                  </p>
-                </div>
-                {/* Mini score rings */}
-                <div className="pt-4 border-t border-white/[0.05] flex items-center gap-4">
-                  {([["S", 88, "#f59e0b"], ["A", 65, "#3b82f6"], ["B", 42, "#a1a1aa"], ["C", 12, "#3f3f46"]] as [string, number, string][]).map(([g, s, c]) => {
-                    const r = 14, circ = 2 * Math.PI * r;
-                    return (
-                      <div key={g} className="flex flex-col items-center gap-1">
-                        <svg width="36" height="36" viewBox="0 0 36 36">
-                          <circle cx="18" cy="18" r={r} fill="none" stroke="#ffffff08" strokeWidth="3" />
-                          <circle cx="18" cy="18" r={r} fill="none" stroke={c} strokeWidth="3" strokeLinecap="round"
-                            strokeDasharray={circ} strokeDashoffset={circ * (1 - s / 100)} transform="rotate(-90 18 18)" />
-                          <text x="18" y="22" textAnchor="middle" fill="white" fontSize="9" fontWeight="800" fontFamily="monospace">{g}</text>
-                        </svg>
-                        <p className="text-zinc-700 text-[9px] font-mono">{g}</p>
-                      </div>
-                    );
-                  })}
+
+                <div className="mt-auto pt-5 border-t border-white/[0.05] grid grid-cols-3 gap-6">
+                  {[
+                    { label: "Wallet age", desc: "How long active on Base" },
+                    { label: "Transactions", desc: "Volume of onchain activity" },
+                    { label: "Protocols used", desc: "Breadth across Base DeFi + NFT" },
+                  ].map(({ label, desc }) => (
+                    <div key={label}>
+                      <p className="text-white text-xs font-semibold mb-1">{label}</p>
+                      <p className="text-zinc-600 text-[11px] leading-relaxed">{desc}</p>
+                    </div>
+                  ))}
                 </div>
               </SpotlightCard>
             </FadeIn>
@@ -672,6 +689,7 @@ export default function Home() {
                 { n: "01", title: "Connect wallet", body: "Any Base wallet — Coinbase, MetaMask, Rainbow." },
                 { n: "02", title: "Approve $2 USDC", body: "One-time. Exactly $2. Nothing hidden." },
                 { n: "03", title: "Mint your ID", body: "Your permanent number is onchain. Forever." },
+                { n: "04", title: "Build your reputation", body: "Your onchain activity on Base auto-scores your profile. The longer you build, the higher your grade." },
               ].map(({ n, title, body }) => (
                 <div key={n} className="flex-1 bg-background p-6 flex gap-4 items-start border-b sm:border-b-0 sm:border-r border-white/[0.05] last:border-0">
                   <span className="text-[2rem] font-black text-white/[0.06] leading-none tabular-nums flex-shrink-0">{n}</span>
