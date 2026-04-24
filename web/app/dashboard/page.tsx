@@ -10,7 +10,7 @@ import { parseAbiItem } from "viem";
 import { useState, useEffect, useCallback, useRef } from "react";
 import { motion } from "motion/react";
 import {
-  BASED_ID_ADDRESS, BASED_ID_ABI, USDC_ADDRESS, ERC20_ABI, BASESCAN_URL,
+  BASED_ID_ADDRESS, BASED_ID_ABI, USDC_ADDRESS, ERC20_ABI, BASESCAN_URL, DEPLOY_BLOCK,
   AUCTION_HOUSE_ADDRESS, AUCTION_HOUSE_ABI,
 } from "@/lib/contracts";
 import { useCountdown, pad } from "@/lib/countdown";
@@ -67,13 +67,13 @@ async function findAllTokens(
         address: BASED_ID_ADDRESS,
         event: parseAbiItem("event Transfer(address indexed from, address indexed to, uint256 indexed tokenId)"),
         args: { to: address as `0x${string}` },
-        fromBlock: BigInt(0), toBlock: "latest",
+        fromBlock: DEPLOY_BLOCK, toBlock: "latest",
       }),
       client.getLogs({
         address: BASED_ID_ADDRESS,
         event: parseAbiItem("event Transfer(address indexed from, address indexed to, uint256 indexed tokenId)"),
         args: { from: address as `0x${string}` },
-        fromBlock: BigInt(0), toBlock: "latest",
+        fromBlock: DEPLOY_BLOCK, toBlock: "latest",
       }),
     ]);
     const inIds  = new Set(inLogs.map((l) => l.args.tokenId?.toString()).filter(Boolean));

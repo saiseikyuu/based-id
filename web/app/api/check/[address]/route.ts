@@ -1,6 +1,6 @@
 import { createPublicClient, http, isAddress, parseAbiItem } from "viem";
 import { base, baseSepolia } from "viem/chains";
-import { BASED_ID_ADDRESS, isAuctionId } from "@/lib/contracts";
+import { BASED_ID_ADDRESS, isAuctionId, DEPLOY_BLOCK } from "@/lib/contracts";
 
 export const runtime = "nodejs";
 
@@ -83,7 +83,7 @@ export async function GET(
         "event Minted(address indexed to, uint256 indexed tokenId)"
       ),
       args: { to: address },
-      fromBlock: BigInt(0),
+      fromBlock: DEPLOY_BLOCK,
     });
 
     const ids = logs

@@ -34,6 +34,13 @@ export const BASESCAN_URL =
     ? "https://basescan.org"
     : "https://sepolia.basescan.org";
 
+// Block at which the BasedID contract was deployed.
+// Using this instead of BigInt(0) avoids public RPC block-range limits.
+export const DEPLOY_BLOCK =
+  process.env.NEXT_PUBLIC_CHAIN_ID === "8453"
+    ? BigInt(45102399)  // Base mainnet deploy block
+    : BigInt(0);         // Sepolia — chain is short enough
+
 export const BASED_ID_ABI = [
   {
     type: "function",

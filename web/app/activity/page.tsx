@@ -1,6 +1,6 @@
 import { createPublicClient, http, parseAbiItem } from "viem";
 import { base, baseSepolia } from "viem/chains";
-import { BASED_ID_ADDRESS } from "@/lib/contracts";
+import { BASED_ID_ADDRESS, DEPLOY_BLOCK } from "@/lib/contracts";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { ActivityFeed, type ActivityEvent } from "./ActivityFeed";
@@ -31,7 +31,7 @@ async function getActivity(): Promise<ActivityEvent[]> {
     const logs = await client.getLogs({
       address: BASED_ID_ADDRESS,
       event: parseAbiItem("event Transfer(address indexed from, address indexed to, uint256 indexed tokenId)"),
-      fromBlock: BigInt(0),
+      fromBlock: DEPLOY_BLOCK,
       toBlock: "latest",
     });
     if (logs.length === 0) return [];

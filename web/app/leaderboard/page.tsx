@@ -1,6 +1,6 @@
 import { createPublicClient, http, parseAbiItem } from "viem";
 import { base, baseSepolia } from "viem/chains";
-import { BASED_ID_ADDRESS, BASED_ID_ABI, isAuctionId } from "@/lib/contracts";
+import { BASED_ID_ADDRESS, BASED_ID_ABI, isAuctionId, DEPLOY_BLOCK } from "@/lib/contracts";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { IdSearch } from "./IdSearch";
@@ -30,7 +30,7 @@ async function getLeaderboard(): Promise<HolderRow[]> {
       address: BASED_ID_ADDRESS,
       event: parseAbiItem("event Transfer(address indexed from, address indexed to, uint256 indexed tokenId)"),
       args: { from: "0x0000000000000000000000000000000000000000" },
-      fromBlock: BigInt(0),
+      fromBlock: DEPLOY_BLOCK,
     });
     const ids = logs
       .map((log) => Number(log.args.tokenId))
