@@ -195,6 +195,7 @@ export default async function LeaderboardPage() {
             </div>
           </Link>
           <nav className="hidden md:flex items-center gap-7">
+            <Link href="/drops"       className="text-[13px] text-zinc-400 hover:text-white transition-colors flex items-center gap-1.5">Drops<span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" /></Link>
             <Link href="/leaderboard" className="text-[13px] text-white transition-colors">Leaderboard</Link>
             <Link href="/activity"    className="text-[13px] text-zinc-400 hover:text-white transition-colors">Activity</Link>
             <Link href="/dashboard"   className="text-[13px] text-zinc-400 hover:text-white transition-colors">Dashboard</Link>

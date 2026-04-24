@@ -176,6 +176,10 @@ export default function Home() {
 
           {/* Center nav */}
           <nav className="hidden md:flex items-center gap-7">
+            <Link href="/drops"       className="text-[13px] text-white font-medium hover:text-zinc-300 transition-colors flex items-center gap-1.5">
+              Drops
+              <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" />
+            </Link>
             <Link href="/leaderboard" className="text-[13px] text-zinc-400 hover:text-white transition-colors">Leaderboard</Link>
             <Link href="/activity"    className="text-[13px] text-zinc-400 hover:text-white transition-colors">Activity</Link>
             <Link href="/dashboard"   className="text-[13px] text-zinc-400 hover:text-white transition-colors">Dashboard</Link>
@@ -206,6 +210,10 @@ export default function Home() {
         {menuOpen && (
           <div className="md:hidden border-t border-white/[0.05] bg-black/95 backdrop-blur-xl">
             <nav className="max-w-7xl mx-auto px-6 py-5 flex flex-col gap-1">
+              <Link href="/drops"       onClick={() => setMenuOpen(false)} className="px-3 py-2.5 rounded-lg text-sm text-white font-medium hover:bg-white/[0.04] transition-all flex items-center justify-between">
+                Drops
+                <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" />
+              </Link>
               <Link href="/leaderboard" onClick={() => setMenuOpen(false)} className="px-3 py-2.5 rounded-lg text-sm text-zinc-400 hover:text-white hover:bg-white/[0.04] transition-all">Leaderboard</Link>
               <Link href="/activity"    onClick={() => setMenuOpen(false)} className="px-3 py-2.5 rounded-lg text-sm text-zinc-400 hover:text-white hover:bg-white/[0.04] transition-all">Activity</Link>
               <Link href="/dashboard"   onClick={() => setMenuOpen(false)} className="px-3 py-2.5 rounded-lg text-sm text-zinc-400 hover:text-white hover:bg-white/[0.04] transition-all">Dashboard</Link>
@@ -237,14 +245,14 @@ export default function Home() {
               <ShinyText text="Live on Base" speed={6} className="text-green-400/80 text-[11px] uppercase tracking-[0.2em]" />
             </motion.div>
 
-            {/* Headline */}
+            {/* Headline — "The base of Airdrops." */}
             <div style={D} className="text-[clamp(3rem,7vw,5.5rem)] font-bold tracking-tight leading-[0.92]">
               <motion.div
                 initial={{ opacity: 0, y: 24 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
               >
-                One ID.<br />Every opportunity
+                The base of
               </motion.div>
               <motion.div
                 initial={{ opacity: 0 }}
@@ -252,10 +260,10 @@ export default function Home() {
                 transition={{ duration: 0.3, delay: 0.5 }}
               >
                 <RotatingText
-                  texts={["on Base.", "delivered.", "never missed."]}
+                  texts={["Airdrops.", "NFT drops.", "Whitelists.", "Raffles."]}
                   splitBy="words"
                   elementLevelClassName="grad-text"
-                  rotationInterval={3000}
+                  rotationInterval={2500}
                   transition={{ type: "spring", damping: 30, stiffness: 400 }}
                   initial={{ y: "110%", opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
@@ -267,12 +275,28 @@ export default function Home() {
 
             {/* Subline */}
             <BlurText
-              text="Your permanent identity on Base. Your ID marks when you arrived. Your activity score proves what you've built. Both open every door."
+              text="Every Base opportunity — airdrops, NFT drops, whitelists, raffles. One ID gets you in. $2. Permanent."
               delay={60}
               direction="bottom"
               className="text-zinc-400 text-[15px] leading-relaxed max-w-[22rem]"
               style={{ fontFamily: "var(--font-display), system-ui, sans-serif" } as React.CSSProperties}
             />
+
+            {/* Primary CTAs */}
+            <div className="flex items-center gap-3 flex-wrap">
+              <a
+                href="#mint-card"
+                className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-white text-black text-sm font-bold hover:bg-zinc-100 transition-colors"
+              >
+                Mint Based ID · $2
+              </a>
+              <Link
+                href="/drops"
+                className="inline-flex items-center gap-2 px-5 py-3 rounded-xl border border-white/[0.1] bg-white/[0.03] text-white text-sm font-medium hover:bg-white/[0.07] transition-colors"
+              >
+                See drops →
+              </Link>
+            </div>
 
             {/* Stats — 3-column metric panel */}
             <div className="grid grid-cols-3 border border-white/[0.06] rounded-2xl overflow-hidden divide-x divide-white/[0.06]">
@@ -418,6 +442,78 @@ export default function Home() {
               </div>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* ── LIVE DROPS (teaser / placeholder until portal launches) ── */}
+      <section className="border-t border-white/[0.05] relative overflow-hidden">
+        <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse 50% 40% at 50% 0%, rgba(37,99,235,0.06), transparent 70%)" }} />
+        <div className="max-w-7xl mx-auto px-6 py-24 relative">
+          <FadeIn>
+            <div className="flex items-end justify-between gap-6 mb-10 flex-wrap">
+              <div className="space-y-3">
+                <p className="text-blue-400 text-[11px] uppercase tracking-[0.2em] flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" />
+                  Live Drops
+                </p>
+                <h2 style={D} className="text-[clamp(2rem,4.5vw,3.5rem)] font-bold tracking-tight leading-[1.02]">
+                  Every Base drop.<br /><span style={GRAD}>One dashboard.</span>
+                </h2>
+              </div>
+              <Link href="/drops" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl border border-white/[0.1] bg-white/[0.03] text-white text-sm font-medium hover:bg-white/[0.07] transition-colors flex-shrink-0">
+                See all drops →
+              </Link>
+            </div>
+          </FadeIn>
+
+          {/* Empty state — 3 placeholder cards */}
+          <FadeIn delay={0.1}>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {[
+                { tag: "Coming soon", title: "First drop launching", sub: "Partner announcements in 3 weeks" },
+                { tag: "Coming soon", title: "Raffles open", sub: "Provably fair, onchain, Base-native" },
+                { tag: "Coming soon", title: "Whitelist gates", sub: "Hold Based ID → auto-qualify" },
+              ].map(({ tag, title, sub }, i) => (
+                <div
+                  key={i}
+                  className="relative rounded-2xl border border-white/[0.06] bg-white/[0.015] p-6 h-52 flex flex-col justify-between overflow-hidden"
+                >
+                  <div className="absolute inset-0 bg-gradient-to-br from-blue-950/20 via-transparent to-transparent pointer-events-none" />
+                  <div className="relative flex items-center justify-between">
+                    <span className="text-[9px] font-bold uppercase tracking-[0.2em] px-2 py-1 rounded-full bg-blue-900/30 text-blue-400 border border-blue-900/30">
+                      {tag}
+                    </span>
+                    <span className="text-zinc-700 text-[10px] font-mono">#{String(i + 1).padStart(2, "0")}</span>
+                  </div>
+                  <div className="relative space-y-2">
+                    <p className="text-white font-bold text-lg leading-tight">{title}</p>
+                    <p className="text-zinc-500 text-sm leading-relaxed">{sub}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </FadeIn>
+
+          {/* Partner CTA bar */}
+          <FadeIn delay={0.15}>
+            <div className="mt-8 rounded-2xl border border-white/[0.06] bg-white/[0.01] px-6 py-5 flex items-center justify-between gap-4 flex-wrap">
+              <div className="flex items-center gap-3">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-zinc-400">
+                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                </svg>
+                <p className="text-zinc-300 text-sm">
+                  Launching your project on Base?
+                  <span className="text-zinc-600 ml-2">Drop to verified holders — no bots, no farmers.</span>
+                </p>
+              </div>
+              <Link
+                href="/partner"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white text-black text-sm font-bold hover:bg-zinc-100 transition-colors flex-shrink-0"
+              >
+                Become a partner →
+              </Link>
+            </div>
+          </FadeIn>
         </div>
       </section>
 
@@ -645,35 +741,43 @@ export default function Home() {
               </SpotlightCard>
             </FadeIn>
 
-            {/* Partner Drops — coming soon */}
+            {/* Partner Drops — launching soon */}
             <FadeIn delay={0.14}>
-              <div className="bg-background rounded-2xl border border-white/[0.04] p-8 h-full flex flex-col gap-5">
-                <div className="flex items-center justify-between">
-                  <span className="text-[10px] text-zinc-600 font-medium uppercase tracking-[0.2em]">Partner Drops</span>
-                  <span className="text-[9px] px-2 py-0.5 rounded-full border border-white/[0.07] text-zinc-600 uppercase tracking-[0.1em]">Q3 2026</span>
+              <div className="bg-background rounded-2xl border border-blue-900/25 bg-blue-950/[0.04] p-8 h-full flex flex-col gap-5 relative overflow-hidden">
+                <div className="absolute -right-8 -top-8 w-32 h-32 rounded-full bg-blue-600/5 blur-3xl pointer-events-none" />
+                <div className="relative flex items-center justify-between">
+                  <span className="text-[10px] text-blue-400 font-medium uppercase tracking-[0.2em]">Partner Drops</span>
+                  <span className="text-[9px] px-2 py-0.5 rounded-full border border-blue-900/40 bg-blue-950/40 text-blue-300 uppercase tracking-[0.1em]">Launching soon</span>
                 </div>
-                <div className="flex-1 space-y-3 opacity-40">
+                <div className="relative flex-1 space-y-3">
                   <p style={D} className="text-white font-bold text-xl leading-tight">Drops land in your dashboard.</p>
-                  <p className="text-zinc-500 text-sm leading-relaxed">
-                    Hold a Based ID and automatically qualify for partner project airdrops. No forms. No grinding.
+                  <p className="text-zinc-400 text-sm leading-relaxed">
+                    NFT drops, token airdrops, WL raffles. Hold a Based ID, auto-qualify. No forms. No grinding.
                   </p>
                 </div>
+                <Link href="/drops" className="relative inline-flex items-center gap-1.5 text-blue-400 text-xs font-medium hover:text-blue-300 transition-colors">
+                  See what&apos;s coming →
+                </Link>
               </div>
             </FadeIn>
 
-            {/* Whitelist — coming soon, full width */}
+            {/* Whitelist — launching soon, full width */}
             <FadeIn delay={0.18} className="lg:col-span-3">
-              <div className="bg-background rounded-2xl border border-white/[0.04] p-8 flex flex-col sm:flex-row items-start gap-8">
-                <div className="flex items-center justify-between w-full sm:w-auto sm:flex-col sm:items-start gap-2 flex-shrink-0">
-                  <span className="text-[10px] text-zinc-600 font-medium uppercase tracking-[0.2em]">Whitelist Access</span>
-                  <span className="text-[9px] px-2 py-0.5 rounded-full border border-white/[0.07] text-zinc-600 uppercase tracking-[0.1em]">Q4 2026</span>
+              <div className="bg-background rounded-2xl border border-blue-900/20 p-8 flex flex-col sm:flex-row items-start gap-8 relative overflow-hidden">
+                <div className="absolute -right-12 -top-12 w-48 h-48 rounded-full bg-blue-600/5 blur-3xl pointer-events-none" />
+                <div className="relative flex items-center justify-between w-full sm:w-auto sm:flex-col sm:items-start gap-2 flex-shrink-0">
+                  <span className="text-[10px] text-blue-400 font-medium uppercase tracking-[0.2em]">Whitelist Access</span>
+                  <span className="text-[9px] px-2 py-0.5 rounded-full border border-blue-900/40 bg-blue-950/40 text-blue-300 uppercase tracking-[0.1em]">Launching soon</span>
                 </div>
-                <div className="flex-1 space-y-2 opacity-40">
+                <div className="relative flex-1 space-y-2">
                   <p style={D} className="text-white font-bold text-xl leading-tight">One ID. Many doors.</p>
-                  <p className="text-zinc-500 text-sm leading-relaxed max-w-lg">
+                  <p className="text-zinc-400 text-sm leading-relaxed max-w-lg">
                     Auto-whitelisted for partner launches and early access drops. Hold once, qualify forever. No forms, no follow-backs, no grinding.
                   </p>
                 </div>
+                <Link href="/partner" className="relative inline-flex items-center gap-1.5 text-blue-400 text-xs font-medium hover:text-blue-300 transition-colors sm:self-center flex-shrink-0">
+                  Partner with us →
+                </Link>
               </div>
             </FadeIn>
 
@@ -846,19 +950,24 @@ export default function Home() {
               <p style={{ fontFamily: "var(--font-display), system-ui, sans-serif" }} className="text-zinc-400 text-base leading-relaxed max-w-sm">
                 Every Based ID holder paid $2 and signed onchain. A small committed audience beats a massive noisy one every time.
               </p>
-              <div className="flex items-center gap-4 pt-2">
+              <div className="flex items-center gap-3 pt-2 flex-wrap">
+                <Link
+                  href="/partner"
+                  className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white text-black text-sm font-bold hover:bg-zinc-100 transition-colors"
+                >
+                  Launch a drop →
+                </Link>
                 <a
                   href="https://x.com/basedidofficial"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white text-black text-sm font-bold hover:bg-zinc-100 transition-colors"
+                  className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-white/[0.08] bg-white/[0.02] text-zinc-300 text-sm font-medium hover:bg-white/[0.05] transition-colors"
                 >
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.737-8.835L1.254 2.25H8.08l4.259 5.631 5.905-5.631zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
                   </svg>
-                  Partner with us
+                  DM us
                 </a>
-                <span className="text-zinc-700 text-xs">@basedidofficial</span>
               </div>
             </FadeIn>
 
