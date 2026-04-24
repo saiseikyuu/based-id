@@ -1,11 +1,15 @@
-import { isAddress } from "viem";
+import { isAddress, createPublicClient, http } from "viem";
+import { base, baseSepolia } from "viem/chains";
+import { BASED_ID_ADDRESS, BASED_ID_ABI } from "@/lib/contracts";
 
 export const runtime = "nodejs";
 
-const CHAIN_ID = process.env.NEXT_PUBLIC_CHAIN_ID === "8453" ? "8453" : "84532";
-const BASESCAN_API = `https://api.etherscan.io/v2/api?chainid=${CHAIN_ID}`;
+const isMainnet = process.env.NEXT_PUBLIC_CHAIN_ID === "8453";
+const chain = isMainnet ? base : baseSepolia;
+const rpcUrl = isMainnet ? "https://mainnet.base.org" : "https://sepolia.base.org";
 
-const API_KEY = process.env.BASESCAN_API_KEY ?? "";
+// Base mainnet launched Aug 2023 — used as reference for wallet age
+const BASE_LAUNCH_TIMESTAMP = 1691366400; // Aug 7 2023
 
 function grade(score: number): string {
   if (score >= 80) return "S";
@@ -25,36 +29,38 @@ export async function GET(
   }
 
   try {
-    // Fetch normal transactions
-    const txRes = await fetch(
-      `${BASESCAN_API}&module=account&action=txlist&address=${address}&startblock=0&endblock=99999999&sort=asc&apikey=${API_KEY}`
-    );
-    const txData = await txRes.json();
-    const txList: { timeStamp: string; to: string | null }[] =
-      txData.status === "1" ? txData.result : [];
+    const client = createPublicClient({ chain, transport: http(rpcUrl, { timeout: 8_000 }) });
 
-    const txCount = txList.length;
-    const ageDays =
-      txList.length > 0
-        ? Math.floor(
-            (Date.now() / 1000 - parseInt(txList[0].timeStamp)) / 86400
-          )
-        : 0;
+    // eth_getTransactionCount = nonce = number of txs sent (outgoing activity)
+    const [nonce, nftBalance] = await Promise.all([
+      client.getTransactionCount({ address: address as `0x${string}` }),
+      client.readContract({
+        address: BASED_ID_ADDRESS,
+        abi: BASED_ID_ABI,
+        functionName: "balanceOf",
+        args: [address as `0x${string}`],
+      }) as Promise<bigint>,
+    ]);
 
-    // Unique contracts interacted with
-    const uniqueContracts = new Set(
-      txList.map((tx) => tx.to?.toLowerCase()).filter(Boolean)
-    ).size;
+    const txCount = nonce;
+    const nftCount = Number(nftBalance);
 
-    // Normalize each component to 0–100 then weight
-    const txScore = Math.min(100, (txCount / 500) * 100);       // 500 txs = max
-    const ageScore = Math.min(100, (ageDays / 365) * 100);      // 1 year = max
-    const contractScore = Math.min(100, (uniqueContracts / 50) * 100); // 50 contracts = max
+    // Wallet age: days since Base launched (all Base wallets started Aug 2023 at earliest)
+    // We approximate age by when the wallet first could have been active on Base
+    const ageDays = Math.floor((Date.now() / 1000 - BASE_LAUNCH_TIMESTAMP) / 86400);
 
-    const score = Math.round(txScore * 0.4 + ageScore * 0.3 + contractScore * 0.3);
+    // Score components (all normalized 0–100):
+    // - TX count:   how active the wallet is (50% weight) — 200 txs on Base = max
+    // - NFT count:  Based ID holdings signal commitment (30% weight) — 10 IDs = max
+    // - Age proxy:  time since Base launch, capped at 365 days (20% weight)
+    const txScore  = Math.min(100, (txCount / 200) * 100);
+    const nftScore = Math.min(100, (nftCount / 10) * 100);
+    const ageScore = Math.min(100, (ageDays / 365) * 100);
+
+    const score = Math.round(txScore * 0.5 + nftScore * 0.3 + ageScore * 0.2);
 
     return Response.json(
-      { address, score, txCount, ageDays, uniqueContracts, grade: grade(score) },
+      { address, score, txCount, nftCount, ageDays, grade: grade(score) },
       { headers: { "Cache-Control": "public, max-age=3600" } }
     );
   } catch {
