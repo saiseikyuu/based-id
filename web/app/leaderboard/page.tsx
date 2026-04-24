@@ -29,30 +29,54 @@ export const metadata: Metadata = {
 async function getLeaderboard(): Promise<HolderRow[]> {
   const client = createPublicClient({ chain, transport: http(rpcUrl, { timeout: 8_000 }) });
   try {
+    // All minted IDs (mint = Transfer from zero address), sorted ascending
     const logs = await client.getLogs({
       address: BASED_ID_ADDRESS,
       event: parseAbiItem("event Transfer(address indexed from, address indexed to, uint256 indexed tokenId)"),
       args: { from: "0x0000000000000000000000000000000000000000" },
       fromBlock: DEPLOY_BLOCK,
     });
-    const ids = logs
+    const allIds = logs
       .map((log) => Number(log.args.tokenId))
       .filter((id) => !isNaN(id) && id > 0)
-      .sort((a, b) => a - b)
-      .slice(0, 100);
+      .sort((a, b) => a - b);
 
-    // Fetch all ownerOf in one parallel batch — server-side RPC can handle it
-    const results = await Promise.allSettled(
-      ids.map((id) =>
-        client.readContract({ address: BASED_ID_ADDRESS, abi: BASED_ID_ABI, functionName: "ownerOf", args: [BigInt(id)] })
-      )
-    );
-    const rows: HolderRow[] = results.map((result, idx) => {
-      const id = ids[idx];
-      const holder = result.status === "fulfilled" ? (result.value as string) : "—";
-      return { tokenId: id, tier: getTier(id), weight: 1 / Math.sqrt(id), holder, isAuction: isAuctionId(id) };
-    });
-    return rows;
+    // Fetch ownerOf in batches of 25 to avoid rate limiting
+    const BATCH = 25;
+    const ownerMap = new Map<number, string>(); // id → owner
+    for (let i = 0; i < allIds.length; i += BATCH) {
+      const batch = allIds.slice(i, i + BATCH);
+      const results = await Promise.allSettled(
+        batch.map((id) =>
+          client.readContract({ address: BASED_ID_ADDRESS, abi: BASED_ID_ABI, functionName: "ownerOf", args: [BigInt(id)] })
+        )
+      );
+      results.forEach((result, idx) => {
+        if (result.status === "fulfilled")
+          ownerMap.set(batch[idx], (result.value as string).toLowerCase());
+      });
+    }
+
+    // One row per unique holder — show their lowest ID (best rank)
+    const holderBest = new Map<string, number>(); // holder → lowest id
+    for (const id of allIds) {
+      const owner = ownerMap.get(id);
+      if (!owner) continue;
+      if (!holderBest.has(owner) || id < holderBest.get(owner)!)
+        holderBest.set(owner, id);
+    }
+
+    // Sort holders by their best (lowest) ID
+    return [...holderBest.entries()]
+      .sort((a, b) => a[1] - b[1])
+      .slice(0, 100)
+      .map(([holder, id]) => ({
+        tokenId: id,
+        tier: getTier(id),
+        weight: 1 / Math.sqrt(id),
+        holder,
+        isAuction: isAuctionId(id),
+      }));
   } catch {
     return [];
   }
@@ -196,7 +220,7 @@ export default async function LeaderboardPage() {
             Leaderboard
           </h1>
           <p className="text-zinc-600 text-sm leading-relaxed">
-            Top 100 Based IDs ranked by $BASED weight.<br className="sm:hidden" /> Lower ID = bigger airdrop share.
+            Top 100 holders ranked by lowest ID.<br className="sm:hidden" /> One row per wallet — lower ID = bigger airdrop share.
           </p>
         </div>
 
