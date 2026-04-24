@@ -62,7 +62,7 @@ export async function POST(req: Request) {
     const db = createServerClient();
 
     // Insert drop
-    const feeAmount = body.tier === "featured" ? 200 : 50;
+    const feeAmount = body.tier === "featured" ? 200 : 0;
     const { data: drop, error: dropErr } = await db
       .from("drops")
       .insert({

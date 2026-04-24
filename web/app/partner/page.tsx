@@ -70,9 +70,9 @@ export default function PartnerPage() {
               <div className="rounded-2xl border border-white/[0.08] bg-white/[0.02] p-7 space-y-5">
                 <div className="flex items-center justify-between">
                   <p className="text-zinc-400 text-[10px] uppercase tracking-[0.2em] font-bold">Standard</p>
-                  <span className="text-[9px] px-2 py-0.5 rounded-full border border-white/[0.08] text-zinc-500 uppercase tracking-[0.1em]">One-time</span>
+                  <span className="text-[9px] px-2 py-0.5 rounded-full border border-green-900/30 bg-green-950/20 text-green-400 uppercase tracking-[0.1em]">Free</span>
                 </div>
-                <p className="text-white font-black text-4xl tabular-nums" style={DISPLAY}>50 <span className="text-zinc-600 text-xl">USDC</span></p>
+                <p className="text-white font-black text-4xl tabular-nums" style={DISPLAY}>$0 <span className="text-zinc-600 text-xl">always</span></p>
                 <ul className="space-y-2 text-zinc-400 text-sm">
                   {["Listed in /drops grid","Configurable tasks (follow X, Discord, hold NFT)","Partner dashboard with live entries","Auto-drawn winners + exportable wallet list"].map((f) => (
                     <li key={f} className="flex items-start gap-2">

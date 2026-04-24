@@ -50,7 +50,7 @@ export function CreateDropWizard() {
   const { sendTransaction, isPending: sendPending } = useSendTransaction();
   const { isLoading: txLoading, isSuccess: txSuccess } = useWaitForTransactionReceipt({ hash: txHash });
 
-  const feeAmount = tier === "featured" ? 200 : 50;
+  const feeAmount = tier === "featured" ? 200 : 0;
 
   function addTask(type: TaskType) {
     if (type === "hold_based_id") return; // always required, not manually added
@@ -219,7 +219,7 @@ export function CreateDropWizard() {
               <label className="text-zinc-400 text-sm font-medium">Listing tier</label>
               <div className="grid grid-cols-2 gap-3">
                 {[
-                  { value: "standard" as DropTier, label: "Standard", price: "50 USDC", desc: "Listed in /drops grid" },
+                  { value: "standard" as DropTier, label: "Standard", price: "Free", desc: "Listed in /drops grid" },
                   { value: "featured" as DropTier, label: "Featured", price: "200 USDC", desc: "Top placement + landing page + X announcement" },
                 ].map((t) => (
                   <button
@@ -374,7 +374,15 @@ export function CreateDropWizard() {
               ))}
             </div>
 
-            {!txHash ? (
+            {feeAmount === 0 ? (
+              <button
+                onClick={handleActivate}
+                disabled={activating}
+                className="w-full py-4 rounded-xl bg-white text-black font-bold text-sm hover:bg-zinc-100 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+              >
+                {activating ? "Activating…" : "Make drop live — it's free →"}
+              </button>
+            ) : !txHash ? (
               <button
                 onClick={handlePayFee}
                 disabled={sendPending}
@@ -400,7 +408,9 @@ export function CreateDropWizard() {
             ) : null}
 
             <p className="text-zinc-700 text-xs text-center">
-              Funds go directly to the Based ID treasury. Non-refundable once the drop activates.
+              {feeAmount === 0
+                ? "Standard listings are free. Upgrade to Featured (200 USDC) for homepage + X announcement."
+                : "Funds go directly to the Based ID treasury. Non-refundable once activated."}
             </p>
           </div>
         )}

@@ -43,7 +43,13 @@ export async function POST(
     return Response.json({ error: "Unauthorized" }, { status: 403 });
   }
 
-  // Verify tx onchain
+  // Free tier — skip payment verification, activate immediately
+  if (drop.fee_amount_usdc === 0) {
+    await db.from("drops").update({ status: "active" }).eq("id", id);
+    return Response.json({ success: true, message: "Drop is now active (free tier)" });
+  }
+
+  // Verify tx onchain (featured drops only)
   try {
     const client = createPublicClient({ chain, transport: http(rpcUrl) });
     const receipt = await client.getTransactionReceipt({ hash: tx_hash as `0x${string}` });
