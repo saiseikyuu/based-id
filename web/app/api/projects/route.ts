@@ -21,6 +21,7 @@ export async function POST(req: Request) {
     name: string;
     description?: string;
     logo_url?: string;
+    banner_url?: string;
     website?: string;
     twitter?: string;
     discord?: string;
@@ -41,6 +42,7 @@ export async function POST(req: Request) {
       name:        body.name.trim(),
       description: body.description?.trim() ?? "",
       logo_url:    body.logo_url ?? null,
+      banner_url:  body.banner_url ?? null,
       website:     body.website?.trim() ?? null,
       twitter:     body.twitter?.trim() ?? null,
       discord:     body.discord?.trim() ?? null,

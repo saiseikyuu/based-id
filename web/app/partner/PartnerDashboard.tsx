@@ -236,29 +236,34 @@ function ProjectProfileEditor({
   existing: Project | null;
   onSaved: (p: Project) => void;
 }) {
-  const [name,        setName]    = useState(existing?.name ?? "");
-  const [description, setDesc]    = useState(existing?.description ?? "");
-  const [twitter,     setTwitter] = useState(existing?.twitter ?? "");
-  const [discord,     setDiscord] = useState(existing?.discord ?? "");
-  const [website,     setWebsite] = useState(existing?.website ?? "");
-  const [logoUrl,     setLogoUrl] = useState(existing?.logo_url ?? "");
-  const [uploading,   setUploading] = useState(false);
-  const [saving,      setSaving]  = useState(false);
-  const fileRef = useRef<HTMLInputElement>(null);
+  const [name,        setName]      = useState(existing?.name ?? "");
+  const [description, setDesc]      = useState(existing?.description ?? "");
+  const [twitter,     setTwitter]   = useState(existing?.twitter ?? "");
+  const [discord,     setDiscord]   = useState(existing?.discord ?? "");
+  const [website,     setWebsite]   = useState(existing?.website ?? "");
+  const [logoUrl,     setLogoUrl]   = useState(existing?.logo_url ?? "");
+  const [bannerUrl,   setBannerUrl] = useState(existing?.banner_url ?? "");
+  const [uploading,   setUploading] = useState<"logo" | "banner" | null>(null);
+  const [saving,      setSaving]    = useState(false);
+  const logoRef   = useRef<HTMLInputElement>(null);
+  const bannerRef = useRef<HTMLInputElement>(null);
 
-  async function handleLogoUpload(e: React.ChangeEvent<HTMLInputElement>) {
+  async function handleUpload(e: React.ChangeEvent<HTMLInputElement>, type: "logo" | "banner") {
     const file = e.target.files?.[0];
     if (!file) return;
-    setUploading(true);
+    setUploading(type);
     try {
       const form = new FormData();
       form.append("file", file);
       const res  = await fetch("/api/upload", { method: "POST", body: form });
       const data = await res.json();
-      if (res.ok) { setLogoUrl(data.url); toast.success("Logo uploaded"); }
-      else toast.error(data.error ?? "Upload failed");
+      if (res.ok) {
+        if (type === "logo") setLogoUrl(data.url);
+        else setBannerUrl(data.url);
+        toast.success(`${type === "logo" ? "Logo" : "Banner"} uploaded`);
+      } else toast.error(data.error ?? "Upload failed");
     } catch { toast.error("Upload failed"); }
-    finally { setUploading(false); }
+    finally { setUploading(null); }
   }
 
   async function handleSave() {
@@ -268,7 +273,7 @@ function ProjectProfileEditor({
       const res = await fetch("/api/projects", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ address, name, description, twitter, discord, website, logo_url: logoUrl || null }),
+        body: JSON.stringify({ address, name, description, twitter, discord, website, logo_url: logoUrl || null, banner_url: bannerUrl || null }),
       });
       const data = await res.json();
       if (res.ok) { toast.success("Profile saved"); onSaved(data); }
@@ -278,27 +283,59 @@ function ProjectProfileEditor({
   }
 
   return (
-    <div className="rounded-2xl border border-blue-900/25 bg-blue-950/[0.06] p-6 space-y-5">
+    <div className="rounded-2xl border border-white/[0.08] p-6 space-y-6">
       <div className="flex items-center justify-between">
-        <p className="text-blue-400 text-[11px] uppercase tracking-[0.2em] font-bold">Project profile</p>
-        <p className="text-zinc-500 text-xs">This appears on your public project page at /projects/{address.slice(0, 6)}…</p>
+        <p className="text-white font-semibold text-sm">Project profile</p>
+        <p className="text-zinc-600 text-xs">/projects/{address.slice(0, 6)}…</p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-[auto_1fr] gap-5 items-start">
+      {/* Banner upload */}
+      <div className="space-y-2">
+        <p className="text-zinc-500 text-xs font-medium">Banner image <span className="text-zinc-700">(1500×500px recommended)</span></p>
+        <input ref={bannerRef} type="file" accept="image/*" onChange={e => handleUpload(e, "banner")} className="hidden" />
+        <button type="button" onClick={() => bannerRef.current?.click()} disabled={uploading !== null}
+          className="w-full h-32 rounded-xl border border-white/[0.08] overflow-hidden relative hover:border-white/[0.16] transition-colors disabled:opacity-50 group">
+          {bannerUrl ? (
+            <>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={bannerUrl} alt="Banner" className="w-full h-full object-cover" />
+              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                <span className="text-white text-xs font-medium">Change banner</span>
+              </div>
+            </>
+          ) : (
+            <div className="w-full h-full bg-zinc-950 flex flex-col items-center justify-center gap-1.5">
+              {uploading === "banner"
+                ? <div className="w-5 h-5 rounded-full border-2 border-white/20 border-t-white animate-spin" />
+                : <>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-zinc-600"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                    <span className="text-zinc-600 text-xs">Upload banner</span>
+                  </>}
+            </div>
+          )}
+        </button>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-[80px_1fr] gap-5 items-start">
         {/* Logo upload */}
         <div className="space-y-2">
           <p className="text-zinc-500 text-xs font-medium">Logo</p>
-          <input ref={fileRef} type="file" accept="image/*" onChange={handleLogoUpload} className="hidden" />
-          <button type="button" onClick={() => fileRef.current?.click()} disabled={uploading}
-            className="w-20 h-20 rounded-xl border border-white/[0.08] overflow-hidden relative group flex-shrink-0 hover:border-white/[0.2] transition-colors disabled:opacity-50">
+          <input ref={logoRef} type="file" accept="image/*" onChange={e => handleUpload(e, "logo")} className="hidden" />
+          <button type="button" onClick={() => logoRef.current?.click()} disabled={uploading !== null}
+            className="w-20 h-20 rounded-xl border border-white/[0.08] overflow-hidden hover:border-white/[0.2] transition-colors disabled:opacity-50 group relative">
             {logoUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={logoUrl} alt="Logo" className="w-full h-full object-cover" />
+              <>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={logoUrl} alt="Logo" className="w-full h-full object-cover" />
+                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-white"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                </div>
+              </>
             ) : (
-              <div className="w-full h-full bg-white/[0.02] flex items-center justify-center">
-                {uploading
+              <div className="w-full h-full bg-zinc-950 flex items-center justify-center">
+                {uploading === "logo"
                   ? <div className="w-4 h-4 rounded-full border-2 border-white/20 border-t-white animate-spin" />
-                  : <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-zinc-600"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>}
+                  : <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-zinc-600"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>}
               </div>
             )}
           </button>
@@ -309,21 +346,21 @@ function ProjectProfileEditor({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {[
               { label: "Project name *", value: name,    onChange: setName,    placeholder: "Your project name" },
-              { label: "Twitter / X",   value: twitter,  onChange: setTwitter, placeholder: "@handle" },
+              { label: "Twitter / X",    value: twitter, onChange: setTwitter, placeholder: "@handle" },
               { label: "Discord invite", value: discord, onChange: setDiscord, placeholder: "https://discord.gg/…" },
-              { label: "Website",       value: website,  onChange: setWebsite, placeholder: "https://…" },
-            ].map((f) => (
+              { label: "Website",        value: website, onChange: setWebsite, placeholder: "https://…" },
+            ].map(f => (
               <div key={f.label} className="space-y-1">
                 <label className="text-zinc-500 text-xs">{f.label}</label>
-                <input value={f.value} onChange={(e) => f.onChange(e.target.value)} placeholder={f.placeholder}
-                  className="w-full bg-white/[0.03] border border-white/[0.08] rounded-lg px-3 py-2 text-white text-sm placeholder-zinc-700 outline-none focus:border-blue-500/50 transition-colors" />
+                <input value={f.value} onChange={e => f.onChange(e.target.value)} placeholder={f.placeholder}
+                  className="w-full bg-white/[0.02] border border-white/[0.08] rounded-lg px-3 py-2 text-white text-sm placeholder-zinc-700 outline-none focus:border-white/20 transition-colors" />
               </div>
             ))}
           </div>
           <div className="space-y-1">
             <label className="text-zinc-500 text-xs">Description</label>
-            <textarea value={description} onChange={(e) => setDesc(e.target.value)} rows={2} placeholder="What does your project do?"
-              className="w-full bg-white/[0.03] border border-white/[0.08] rounded-lg px-3 py-2 text-white text-sm placeholder-zinc-700 outline-none focus:border-blue-500/50 transition-colors resize-none" />
+            <textarea value={description} onChange={e => setDesc(e.target.value)} rows={2} placeholder="What does your project do?"
+              className="w-full bg-white/[0.02] border border-white/[0.08] rounded-lg px-3 py-2 text-white text-sm placeholder-zinc-700 outline-none focus:border-white/20 transition-colors resize-none" />
           </div>
         </div>
       </div>

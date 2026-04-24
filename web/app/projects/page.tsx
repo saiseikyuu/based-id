@@ -73,34 +73,42 @@ export default async function ProjectsPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {projects.map((project) => (
                 <Link key={project.address} href={`/projects/${project.address}`} className="group block">
-                  <div className="rounded-2xl border border-white/[0.07] bg-white/[0.015] p-6 flex items-start gap-4 hover:border-white/[0.14] hover:bg-white/[0.025] transition-all h-full">
-                    {/* Logo */}
-                    <div className="w-12 h-12 rounded-xl overflow-hidden flex-shrink-0 border border-white/[0.08]">
-                      {project.logo_url ? (
+                  <div className="rounded-2xl border border-white/[0.07] overflow-hidden hover:border-white/[0.14] transition-all h-full flex flex-col">
+                    {/* Banner */}
+                    <div className="relative h-28 bg-zinc-950 flex-shrink-0">
+                      {project.banner_url ? (
                         // eslint-disable-next-line @next/next/no-img-element
-                        <img src={project.logo_url} alt={project.name} className="w-full h-full object-cover" />
+                        <img src={project.banner_url} alt="" className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-300" />
                       ) : (
-                        <div className="w-full h-full bg-gradient-to-br from-blue-900/50 to-zinc-900 flex items-center justify-center">
-                          <span className="text-white font-black text-lg" style={DISPLAY}>{project.name.slice(0, 1).toUpperCase()}</span>
-                        </div>
+                        <div className="w-full h-full bg-gradient-to-br from-zinc-900 to-black" />
+                      )}
+                      {/* Logo overlay */}
+                      <div className="absolute -bottom-5 left-4 w-10 h-10 rounded-xl border-2 border-black overflow-hidden bg-zinc-950 flex-shrink-0">
+                        {project.logo_url ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={project.logo_url} alt={project.name} className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="w-full h-full bg-zinc-800 flex items-center justify-center">
+                            <span className="text-white font-black text-sm" style={DISPLAY}>{project.name.slice(0, 1).toUpperCase()}</span>
+                          </div>
+                        )}
+                      </div>
+                      {project.drop_count > 0 && (
+                        <span className="absolute top-3 right-3 text-[9px] font-bold px-2 py-0.5 rounded-full bg-black/60 text-green-400 border border-green-500/30 backdrop-blur-sm">
+                          {project.drop_count} live
+                        </span>
                       )}
                     </div>
 
-                    <div className="flex-1 min-w-0 space-y-2">
-                      <div className="flex items-start justify-between gap-2">
-                        <h3 className="text-white font-bold text-base group-hover:text-blue-200 transition-colors leading-tight truncate">
-                          {project.name}
-                        </h3>
-                        {project.drop_count > 0 && (
-                          <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-green-500/10 text-green-400 border border-green-500/20 flex-shrink-0">
-                            {project.drop_count} live
-                          </span>
-                        )}
-                      </div>
+                    {/* Info */}
+                    <div className="p-4 pt-7 flex-1 space-y-1.5 bg-white/[0.01]">
+                      <h3 className="text-white font-bold text-sm group-hover:text-zinc-200 transition-colors leading-tight">
+                        {project.name}
+                      </h3>
                       {project.description && (
                         <p className="text-zinc-500 text-xs leading-relaxed line-clamp-2">{project.description}</p>
                       )}
-                      <div className="flex items-center gap-3 text-[10px] text-zinc-700">
+                      <div className="flex items-center gap-2 text-[10px] text-zinc-700 pt-0.5">
                         {project.twitter && <span>@{project.twitter.replace("@", "")}</span>}
                         <span className="font-mono">{project.address.slice(0, 6)}…{project.address.slice(-4)}</span>
                       </div>

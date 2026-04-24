@@ -26,13 +26,13 @@ export function DropCard({ drop, featured = false }: { drop: Drop; featured?: bo
           ? "border-amber-500/20 hover:border-amber-500/35"
           : "border-white/[0.08] hover:border-white/[0.14]"
       }`}>
-        {/* Image */}
-        <div className="relative h-40 overflow-hidden flex-shrink-0 bg-zinc-950">
+        {/* Image — fixed aspect ratio so all cards match */}
+        <div className="relative aspect-[16/9] overflow-hidden flex-shrink-0 bg-zinc-950">
           {drop.image_url ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={drop.image_url} alt={drop.title} className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-300" />
+            <img src={drop.image_url} alt={drop.title} className="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-300" />
           ) : (
-            <div className="w-full h-full flex items-center justify-center">
+            <div className="absolute inset-0 flex items-center justify-center">
               <span className="text-zinc-800 font-black text-6xl" style={DISPLAY}>{drop.title.slice(0, 1).toUpperCase()}</span>
             </div>
           )}

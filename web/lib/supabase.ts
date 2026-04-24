@@ -62,6 +62,7 @@ export interface Project {
   name: string;
   description: string;
   logo_url: string | null;
+  banner_url: string | null;
   website: string | null;
   twitter: string | null;
   discord: string | null;

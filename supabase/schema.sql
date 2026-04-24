@@ -130,3 +130,6 @@ create policy "drop_images_public_read" on storage.objects
   for select using (bucket_id = 'drop-images');
 create policy "drop_images_authenticated_upload" on storage.objects
   for insert with check (bucket_id = 'drop-images');
+
+-- ─── Add banner_url to projects (run if projects table already exists) ────────
+alter table projects add column if not exists banner_url text;

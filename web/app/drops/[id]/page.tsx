@@ -109,13 +109,13 @@ export default async function DropPage({ params }: { params: Promise<{ id: strin
 
             {/* Left — drop info */}
             <div className="space-y-7">
-              {/* Image */}
-              <div className="rounded-2xl overflow-hidden h-64 sm:h-80">
+              {/* Image — fixed aspect ratio */}
+              <div className="rounded-2xl overflow-hidden relative aspect-[16/9]">
                 {drop.image_url ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={drop.image_url} alt={drop.title} className="w-full h-full object-cover" />
+                  <img src={drop.image_url} alt={drop.title} className="absolute inset-0 w-full h-full object-cover" />
                 ) : (
-                  <div className="w-full h-full bg-gradient-to-br from-blue-950/50 via-zinc-900 to-zinc-950 flex items-center justify-center">
+                  <div className="absolute inset-0 bg-zinc-950 flex items-center justify-center">
                     <span className="text-zinc-700 text-8xl font-black" style={DISPLAY}>
                       {drop.title.slice(0, 1).toUpperCase()}
                     </span>
