@@ -6,6 +6,7 @@ import type { Metadata } from "next";
 import { IdSearch } from "./IdSearch";
 import { LeaderboardTable, type HolderRow } from "./LeaderboardTable";
 import { MobileNav } from "@/app/components/MobileNav";
+import { Nav } from "@/app/components/Nav";
 
 export const revalidate = 60;
 
@@ -182,49 +183,20 @@ export default async function LeaderboardPage() {
 
   return (
     <div className="min-h-screen bg-background">
-
-      {/* Nav */}
-      <header className="sticky top-0 z-50 border-b border-white/[0.04] bg-black/70 backdrop-blur-xl">
-        <div className="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between gap-6">
-          <Link href="/" className="flex items-center gap-2 flex-shrink-0 hover:opacity-80 transition-opacity">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo.svg" alt="Based ID" className="w-7 h-7 rounded-lg" />
-            <div className="flex items-center gap-1">
-              <span style={{ fontFamily: "var(--font-display), system-ui, sans-serif" }} className="font-bold text-sm text-white tracking-tight">Based</span>
-              <span className="font-mono text-[11px] text-zinc-500 tracking-widest ml-0.5">ID</span>
-            </div>
-          </Link>
-          <nav className="hidden md:flex items-center gap-7">
-            <Link href="/drops"       className="text-[13px] text-zinc-400 hover:text-white transition-colors flex items-center gap-1.5">Drops<span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" /></Link>
-            <Link href="/leaderboard" className="text-[13px] text-white transition-colors">Leaderboard</Link>
-            <Link href="/activity"    className="text-[13px] text-zinc-400 hover:text-white transition-colors">Activity</Link>
-            <Link href="/dashboard"   className="text-[13px] text-zinc-400 hover:text-white transition-colors">Dashboard</Link>
-          </nav>
-          <div className="flex items-center gap-4 flex-shrink-0">
-            <IdSearch />
-            <div className="flex items-center gap-2">
-              <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-              <span className="text-zinc-600 text-[11px] tracking-wide">Live</span>
-            </div>
-          </div>
-        </div>
-      </header>
-
+      <Nav active="/leaderboard" />
       <MobileNav />
 
       <div className="max-w-4xl mx-auto px-6 py-12 space-y-8">
 
         {/* Page title */}
-        <div>
-          <h1
-            className="text-white font-black text-3xl mb-1"
-            style={{ fontFamily: "var(--font-display), system-ui, sans-serif" }}
-          >
-            Leaderboard
-          </h1>
-          <p className="text-zinc-600 text-sm leading-relaxed">
-            Top 100 wallets ranked by total $BASED weight.<br className="sm:hidden" /> Weight = sum of 1÷√id across all IDs held.
-          </p>
+        <div className="flex items-start justify-between gap-4 flex-wrap">
+          <div>
+            <h1 className="text-white font-black text-4xl sm:text-5xl mb-2" style={{ fontFamily: "var(--font-display), system-ui, sans-serif" }}>
+              Leaderboard
+            </h1>
+            <p className="text-zinc-500 text-sm">Top 100 wallets ranked by total $BASED weight.</p>
+          </div>
+          <IdSearch />
         </div>
 
         {isEmpty ? (
@@ -258,34 +230,24 @@ export default async function LeaderboardPage() {
         ) : (
           <>
             {/* Stats + chart card */}
-            <div className="border border-white/[0.06] rounded-2xl overflow-hidden">
+            <div className="border border-white/[0.08] rounded-2xl overflow-hidden">
               {/* Stat row */}
-              <div className="grid grid-cols-3 divide-x divide-white/[0.05] border-b border-white/[0.05]">
-                <div className="px-3 sm:px-6 py-4 sm:py-5">
-                  <p className="text-[9px] sm:text-[11px] text-zinc-600 uppercase tracking-[0.12em] sm:tracking-[0.18em] mb-2">Ranked</p>
-                  <p className="text-white font-black text-xl tabular-nums" style={{ fontFamily: "var(--font-display), system-ui, sans-serif" }}>
-                    {rows.length}
-                  </p>
-                </div>
-                <div className="px-3 sm:px-6 py-4 sm:py-5">
-                  <p className="text-[9px] sm:text-[11px] text-zinc-600 uppercase tracking-[0.12em] sm:tracking-[0.18em] mb-2">Genesis</p>
-                  <p className="text-amber-400 font-black text-xl tabular-nums" style={{ fontFamily: "var(--font-display), system-ui, sans-serif" }}>
-                    {genesisCount}
-                    <span className="text-zinc-700 font-normal text-sm ml-1">/ 100</span>
-                  </p>
-                </div>
-                <div className="px-3 sm:px-6 py-4 sm:py-5">
-                  <p className="text-[9px] sm:text-[11px] text-zinc-600 uppercase tracking-[0.12em] sm:tracking-[0.18em] mb-2">Weight</p>
-                  <p className="text-blue-400 font-black text-xl tabular-nums" style={{ fontFamily: "var(--font-display), system-ui, sans-serif" }}>
-                    {totalWeight.toFixed(2)}
-                    <span className="text-zinc-700 font-normal text-sm ml-1">×</span>
-                  </p>
-                </div>
+              <div className="grid grid-cols-3 divide-x divide-white/[0.06] border-b border-white/[0.06]">
+                {[
+                  { label: "Holders", value: rows.length, color: "text-white" },
+                  { label: "Genesis", value: `${genesisCount}/100`, color: "text-amber-400" },
+                  { label: "Total weight", value: `${totalWeight.toFixed(2)}×`, color: "text-blue-400" },
+                ].map(({ label, value, color }) => (
+                  <div key={label} className="px-4 sm:px-6 py-4 sm:py-5">
+                    <p className="text-xs text-zinc-600 mb-1.5">{label}</p>
+                    <p className={`${color} font-black text-xl tabular-nums`} style={{ fontFamily: "var(--font-display), system-ui, sans-serif" }}>{value}</p>
+                  </div>
+                ))}
               </div>
 
               {/* Chart */}
-              <div className="px-6 pt-5 pb-4 border-b border-white/[0.04]">
-                <p className="text-[10px] text-zinc-700 uppercase tracking-[0.18em] mb-3">$BASED Weight Curve</p>
+              <div className="px-5 pt-5 pb-4 border-b border-white/[0.04]">
+                <p className="text-xs text-zinc-600 mb-3">$BASED weight curve</p>
                 <WeightChart rows={rows} />
               </div>
 
@@ -319,15 +281,10 @@ export default async function LeaderboardPage() {
 
       </div>
 
-      <footer className="border-t border-white/[0.04] mt-16 px-6 py-5">
+      <footer className="border-t border-white/[0.06] px-6 py-6">
         <div className="max-w-4xl mx-auto flex items-center justify-between gap-4 flex-wrap">
-          <div className="flex items-center gap-3">
-            <svg width="16" height="16" viewBox="0 0 111 111" fill="none" className="opacity-40">
-              <path d="M54.921 110.034C85.359 110.034 110.034 85.402 110.034 55.017C110.034 24.6 85.359 0 54.921 0C26.0 0 2.0 22.0 0 50.354H72.943V59.68H0C2.0 88.0 26.0 110.034 54.921 110.034Z" fill="#0052FF"/>
-            </svg>
-            <span className="text-zinc-700 text-[11px]">Built on Base · 2026</span>
-          </div>
-          <div className="flex items-center gap-5 text-[11px] text-zinc-700">
+          <span className="text-zinc-700 text-xs">Built on Base · 2026</span>
+          <div className="flex items-center gap-5 text-xs text-zinc-700">
             <Link href="/" className="hover:text-zinc-400 transition-colors">Home</Link>
             <Link href="/dashboard" className="hover:text-zinc-400 transition-colors">Dashboard</Link>
             <a href="https://x.com/basedidofficial" target="_blank" rel="noopener noreferrer" className="hover:text-zinc-400 transition-colors">@basedidofficial</a>

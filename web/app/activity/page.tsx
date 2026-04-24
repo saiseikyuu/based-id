@@ -6,6 +6,7 @@ import type { Metadata } from "next";
 import { ActivityFeed, type ActivityEvent } from "./ActivityFeed";
 import { LivePulse } from "./LivePulse";
 import { MobileNav } from "@/app/components/MobileNav";
+import { Nav } from "@/app/components/Nav";
 
 export const revalidate = 30;
 
@@ -109,56 +110,18 @@ export default async function ActivityPage() {
 
   return (
     <div className="min-h-screen bg-background">
-
-      {/* Nav */}
-      <header className="sticky top-0 z-50 border-b border-white/[0.04] bg-black/70 backdrop-blur-xl">
-        <div className="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between gap-6">
-          <Link href="/" className="flex items-center gap-2 flex-shrink-0 hover:opacity-80 transition-opacity">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo.svg" alt="Based ID" className="w-7 h-7 rounded-lg" />
-            <div className="flex items-center gap-1">
-              <span style={{ fontFamily: "var(--font-display), system-ui, sans-serif" }} className="font-bold text-sm text-white tracking-tight">Based</span>
-              <span className="font-mono text-[11px] text-zinc-500 tracking-widest ml-0.5">ID</span>
-            </div>
-          </Link>
-          <nav className="hidden md:flex items-center gap-7">
-            <Link href="/drops"       className="text-[13px] text-zinc-400 hover:text-white transition-colors flex items-center gap-1.5">Drops<span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" /></Link>
-            <Link href="/leaderboard" className="text-[13px] text-zinc-400 hover:text-white transition-colors">Leaderboard</Link>
-            <Link href="/activity"    className="text-[13px] text-white transition-colors">Activity</Link>
-            <Link href="/dashboard"   className="text-[13px] text-zinc-400 hover:text-white transition-colors">Dashboard</Link>
-          </nav>
-          <div className="flex items-center gap-2 flex-shrink-0">
-            <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-            <span className="text-zinc-600 text-[11px] tracking-wide">Live</span>
-          </div>
-        </div>
-      </header>
-
+      <Nav active="/activity" />
       <MobileNav />
 
-      {/* Ambient glow */}
-      <div className="relative overflow-hidden">
-        <div
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            background: "radial-gradient(ellipse 50% 40% at 50% 0%, rgba(34,197,94,0.05), transparent 70%)",
-          }}
-        />
-
-        <div className="relative max-w-3xl mx-auto px-6 pt-14 pb-10 space-y-10">
+      <div className="max-w-3xl mx-auto px-6 pt-14 pb-16 space-y-10">
 
           {/* Header */}
           <div className="flex items-start justify-between gap-6">
-            <div>
-              <h1
-                className="text-white font-black text-5xl leading-[1] tracking-tight"
-                style={{ fontFamily: "var(--font-display), system-ui, sans-serif" }}
-              >
+            <div className="space-y-2">
+              <h1 className="text-white font-black text-4xl sm:text-5xl tracking-tight" style={{ fontFamily: "var(--font-display), system-ui, sans-serif" }}>
                 Activity
               </h1>
-              <p className="text-zinc-500 text-sm mt-3 max-w-md leading-relaxed">
-                Every mint and transfer on Based ID, in real time. Refreshes every 30s.
-              </p>
+              <p className="text-zinc-500 text-sm">Every mint and transfer on Based ID, live. Refreshes every 30s.</p>
             </div>
             <LivePulse />
           </div>
@@ -226,18 +189,12 @@ export default async function ActivityPage() {
             </>
           )}
 
-        </div>
       </div>
 
-      <footer className="border-t border-white/[0.04] mt-8 px-6 py-5">
+      <footer className="border-t border-white/[0.06] px-6 py-6">
         <div className="max-w-3xl mx-auto flex items-center justify-between gap-4 flex-wrap">
-          <div className="flex items-center gap-3">
-            <svg width="16" height="16" viewBox="0 0 111 111" fill="none" className="opacity-40">
-              <path d="M54.921 110.034C85.359 110.034 110.034 85.402 110.034 55.017C110.034 24.6 85.359 0 54.921 0C26.0 0 2.0 22.0 0 50.354H72.943V59.68H0C2.0 88.0 26.0 110.034 54.921 110.034Z" fill="#0052FF"/>
-            </svg>
-            <span className="text-zinc-700 text-[11px]">Built on Base · 2026</span>
-          </div>
-          <div className="flex items-center gap-5 text-[11px] text-zinc-700">
+          <span className="text-zinc-700 text-xs">Built on Base · 2026</span>
+          <div className="flex items-center gap-5 text-xs text-zinc-700">
             <Link href="/" className="hover:text-zinc-400 transition-colors">Home</Link>
             <Link href="/dashboard" className="hover:text-zinc-400 transition-colors">Dashboard</Link>
             <a href="https://x.com/basedidofficial" target="_blank" rel="noopener noreferrer" className="hover:text-zinc-400 transition-colors">@basedidofficial</a>

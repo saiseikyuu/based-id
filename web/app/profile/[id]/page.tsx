@@ -4,6 +4,7 @@ import { BASED_ID_ADDRESS, BASED_ID_ABI, BASESCAN_URL } from "@/lib/contracts";
 import { NftCard } from "../../NftCard";
 import { TipButton } from "../TipButton";
 import { MobileNav } from "@/app/components/MobileNav";
+import { Nav } from "@/app/components/Nav";
 import Link from "next/link";
 import type { Metadata } from "next";
 
@@ -208,33 +209,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
 
   return (
     <div className="min-h-screen bg-background">
-
-      {/* Nav */}
-      <header className="sticky top-0 z-50 border-b border-white/[0.04] bg-black/70 backdrop-blur-xl">
-        <div className="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between gap-6">
-          <Link href="/" className="flex items-center gap-2 flex-shrink-0 hover:opacity-80 transition-opacity">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo.svg" alt="Based ID" className="w-7 h-7 rounded-lg" />
-            <div className="flex items-center gap-1">
-              <span style={{ fontFamily: "var(--font-display), system-ui, sans-serif" }} className="font-bold text-sm text-white tracking-tight">Based</span>
-              <span className="font-mono text-[11px] text-zinc-500 tracking-widest ml-0.5">ID</span>
-            </div>
-          </Link>
-          <nav className="hidden md:flex items-center gap-7">
-            <Link href="/drops"       className="text-[13px] text-zinc-400 hover:text-white transition-colors flex items-center gap-1.5">Drops<span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" /></Link>
-            <Link href="/leaderboard" className="text-[13px] text-zinc-400 hover:text-white transition-colors">Leaderboard</Link>
-            <Link href="/activity"    className="text-[13px] text-zinc-400 hover:text-white transition-colors">Activity</Link>
-            <Link href="/dashboard"   className="text-[13px] text-zinc-400 hover:text-white transition-colors">Dashboard</Link>
-          </nav>
-          <Link
-            href="/"
-            className="flex-shrink-0 text-[12px] text-zinc-400 hover:text-white transition-colors px-3 py-1.5 rounded-lg border border-white/[0.08] hover:border-white/[0.15]"
-          >
-            Mint →
-          </Link>
-        </div>
-      </header>
-
+      <Nav />
       <MobileNav />
 
       {/* Hero */}

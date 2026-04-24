@@ -17,7 +17,6 @@ import { useCountdown, pad } from "@/lib/countdown";
 import { NftCard } from "../NftCard";
 import CountUp from "../components/CountUp";
 import SpotlightCard from "../components/SpotlightCard";
-import AnimatedBackground from "../components/AnimatedBackground";
 import { MobileNav } from "../components/MobileNav";
 
 const SNAPSHOT_DATE   = new Date("2026-09-30T00:00:00Z");
@@ -2095,23 +2094,19 @@ const DISPLAY: React.CSSProperties = {
 
 function Shell({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen bg-background text-foreground relative">
-      <AnimatedBackground />
-      <header className="sticky top-0 z-50 border-b border-white/[0.04] bg-black/70 backdrop-blur-xl">
+    <div className="min-h-screen bg-background text-foreground">
+      <header className="sticky top-0 z-50 border-b border-white/[0.06] bg-black/80 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between gap-6">
-          <Link href="/" className="flex items-center gap-2 flex-shrink-0 hover:opacity-80 transition-opacity">
+          <Link href="/" className="flex items-center gap-2 flex-shrink-0 hover:opacity-75 transition-opacity">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo.svg" alt="Based ID" className="w-7 h-7 rounded-lg" />
-            <div className="flex items-center gap-1">
-              <span style={DISPLAY} className="font-bold text-sm text-white tracking-tight">Based</span>
-              <span className="font-mono text-[11px] text-zinc-500 tracking-widest ml-0.5">ID</span>
-            </div>
+            <img src="/logo.svg" alt="Based ID" className="w-6 h-6 rounded-md" />
+            <span style={DISPLAY} className="font-bold text-sm text-white tracking-tight">Based ID</span>
           </Link>
           <nav className="hidden md:flex items-center gap-7">
-            <Link href="/drops"       className="text-[13px] text-zinc-400 hover:text-white transition-colors flex items-center gap-1.5">Drops<span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" /></Link>
-            <Link href="/leaderboard" className="text-[13px] text-zinc-400 hover:text-white transition-colors">Leaderboard</Link>
-            <Link href="/activity"    className="text-[13px] text-zinc-400 hover:text-white transition-colors">Activity</Link>
-            <Link href="/dashboard"   className="text-[13px] text-white transition-colors">Dashboard</Link>
+            <Link href="/drops"       className="text-sm text-zinc-400 hover:text-white transition-colors">Drops</Link>
+            <Link href="/projects"    className="text-sm text-zinc-400 hover:text-white transition-colors">Projects</Link>
+            <Link href="/leaderboard" className="text-sm text-zinc-400 hover:text-white transition-colors">Leaderboard</Link>
+            <Link href="/dashboard"   className="text-sm text-white font-medium transition-colors">Dashboard</Link>
           </nav>
           <div className="flex-shrink-0">
             <ConnectButton showBalance={false} chainStatus="icon" />
@@ -2120,14 +2115,9 @@ function Shell({ children }: { children: React.ReactNode }) {
       </header>
       <MobileNav />
       {children}
-      <footer className="border-t border-white/[0.04] px-6 py-5 flex items-center justify-between gap-4 flex-wrap">
-        <div className="flex items-center gap-3">
-          <svg width="16" height="16" viewBox="0 0 111 111" fill="none" xmlns="http://www.w3.org/2000/svg" className="opacity-40">
-            <path d="M54.921 110.034C85.359 110.034 110.034 85.402 110.034 55.017C110.034 24.6 85.359 0 54.921 0C26.0 0 2.0 22.0 0 50.354H72.943V59.68H0C2.0 88.0 26.0 110.034 54.921 110.034Z" fill="#0052FF"/>
-          </svg>
-          <span className="text-zinc-700 text-[11px]">Built on Base · 2026</span>
-        </div>
-        <div className="flex items-center gap-5 text-[11px] text-zinc-700">
+      <footer className="border-t border-white/[0.06] px-6 py-6 flex items-center justify-between gap-4 flex-wrap">
+        <span className="text-zinc-700 text-xs">Built on Base · 2026</span>
+        <div className="flex items-center gap-5 text-xs text-zinc-700">
           <Link href="/" className="hover:text-zinc-400 transition-colors">Home</Link>
           <a href="https://x.com/basedidofficial" target="_blank" rel="noopener noreferrer" className="hover:text-zinc-400 transition-colors">@basedidofficial</a>
         </div>

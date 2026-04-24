@@ -19,53 +19,27 @@ import {
   BASESCAN_URL,
 } from "@/lib/contracts";
 import { NftCard } from "./NftCard";
-import BlurText from "./components/BlurText";
 import CountUp from "./components/CountUp";
-import SpotlightCard from "./components/SpotlightCard";
-import ShinyText from "./components/ShinyText";
 import RotatingText from "./components/RotatingText";
-import AnimatedBackground from "./components/AnimatedBackground";
 import { motion } from "motion/react";
 
 type MintState = "idle" | "approving" | "approved" | "minting" | "success";
 
-// Space Grotesk applied via CSS variable — used on all display headings
-const D: React.CSSProperties = {
-  fontFamily: "var(--font-display), system-ui, sans-serif",
-};
+const D: React.CSSProperties = { fontFamily: "var(--font-display), system-ui, sans-serif" };
 
-const GRAD: React.CSSProperties = {
-  background: "linear-gradient(180deg,#93c5fd 0%,#1d4ed8 100%)",
-  WebkitBackgroundClip: "text",
-  WebkitTextFillColor: "transparent",
-};
-
-// ── Scroll animation helpers ─────────────────────────────────────────────────
-
-/** Fade-up on scroll into view. `delay` staggers sibling items (seconds). */
-function FadeIn({
-  children,
-  delay = 0,
-  className,
-}: {
-  children: React.ReactNode;
-  delay?: number;
-  className?: string;
-}) {
+function FadeIn({ children, delay = 0, className }: { children: React.ReactNode; delay?: number; className?: string }) {
   return (
     <motion.div
       className={className}
-      initial={{ opacity: 0, y: 32 }}
+      initial={{ opacity: 0, y: 24 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-80px" }}
-      transition={{ duration: 0.6, delay, ease: [0.16, 1, 0.3, 1] }}
+      viewport={{ once: true, margin: "-60px" }}
+      transition={{ duration: 0.5, delay, ease: [0.16, 1, 0.3, 1] }}
     >
       {children}
     </motion.div>
   );
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
 
 export default function Home() {
   const { address, isConnected } = useAccount();
@@ -104,12 +78,8 @@ export default function Home() {
       setMintState("approved"); refetchAllowance();
       toast.success("USDC approved — ready to mint");
     } else if (mintState === "minting") {
-      // Minted event has 3 topics: [sig, to, tokenId]
-      // ERC721 Transfer has 4 topics — filter specifically on 3 to avoid reading address as ID
       const log = receipt.logs.find(
-        (l) =>
-          l.address.toLowerCase() === BASED_ID_ADDRESS.toLowerCase() &&
-          l.topics.length === 3
+        (l) => l.address.toLowerCase() === BASED_ID_ADDRESS.toLowerCase() && l.topics.length === 3
       );
       const newId = log?.topics[2] ? BigInt(log.topics[2]) : null;
       if (newId) setMintedId(newId);
@@ -140,302 +110,185 @@ export default function Home() {
 
   const isLoading           = isPending || isConfirming;
   const insufficientBalance = usdcBalance !== undefined && usdcBalance < MINT_PRICE;
-
-  // If nextId is in the auction reserve range (1–100), public mint hasn't opened yet.
-  // Show #101 as the first public ID in that case.
-  const resolvedNextId =
-    nextId !== undefined
-      ? nextId <= BigInt(100)
-        ? BigInt(101)
-        : nextId
-      : BigInt(101);
-
-  const previewId =
-    mintState === "success" && mintedId !== null
-      ? `#${mintedId.toString()}`
-      : `#${resolvedNextId.toString()}`;
+  const resolvedNextId      = nextId !== undefined ? (nextId <= BigInt(100) ? BigInt(101) : nextId) : BigInt(101);
+  const previewId           = mintState === "success" && mintedId !== null ? `#${mintedId.toString()}` : `#${resolvedNextId.toString()}`;
 
   return (
-    <div className="min-h-screen bg-background text-foreground overflow-x-hidden relative">
-      {/* ── Animated aurora background (fixed, behind all content) ── */}
-      <AnimatedBackground />
+    <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
 
-      {/* ── HEADER ─────────────────────────────────────────────── */}
-      <header className="fixed top-0 inset-x-0 z-50 border-b border-white/[0.04] bg-black/70 backdrop-blur-xl">
+      {/* ── NAV ── */}
+      <header className="fixed top-0 inset-x-0 z-50 border-b border-white/[0.06] bg-black/80 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between gap-6">
-
-          {/* Logo + wordmark */}
-          <Link href="/" className="flex items-center gap-2 flex-shrink-0 hover:opacity-80 transition-opacity">
+          <Link href="/" className="flex items-center gap-2 flex-shrink-0 hover:opacity-75 transition-opacity">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo.svg" alt="Based ID" className="w-7 h-7 rounded-lg" />
-            <div className="flex items-center gap-1">
-              <span style={D} className="font-bold text-sm text-white tracking-tight">Based</span>
-              <span className="font-mono text-[11px] text-zinc-500 tracking-widest ml-0.5">ID</span>
-            </div>
+            <img src="/logo.svg" alt="Based ID" className="w-6 h-6 rounded-md" />
+            <span style={D} className="font-bold text-sm text-white tracking-tight">Based ID</span>
           </Link>
 
-          {/* Center nav */}
-          <nav className="hidden md:flex items-center gap-7">
-            <Link href="/drops"       className="text-[13px] text-white font-medium hover:text-zinc-300 transition-colors flex items-center gap-1.5">
-              Drops
-              <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" />
-            </Link>
-            <Link href="/leaderboard" className="text-[13px] text-zinc-400 hover:text-white transition-colors">Leaderboard</Link>
-            <Link href="/activity"    className="text-[13px] text-zinc-400 hover:text-white transition-colors">Activity</Link>
-            <Link href="/dashboard"   className="text-[13px] text-zinc-400 hover:text-white transition-colors">Dashboard</Link>
+          <nav className="hidden md:flex items-center gap-8">
+            <Link href="/drops"       className="text-sm text-white font-medium hover:text-zinc-300 transition-colors">Drops</Link>
+            <Link href="/projects"    className="text-sm text-zinc-400 hover:text-white transition-colors">Projects</Link>
+            <Link href="/leaderboard" className="text-sm text-zinc-400 hover:text-white transition-colors">Leaderboard</Link>
+            <Link href="/dashboard"   className="text-sm text-zinc-400 hover:text-white transition-colors">Dashboard</Link>
           </nav>
 
-          {/* Right: wallet + mobile menu */}
           <div className="flex items-center gap-3 flex-shrink-0">
             <ConnectButton showBalance={false} chainStatus="icon" />
-            <button
-              className="md:hidden p-1.5 text-zinc-500 hover:text-white transition-colors"
-              onClick={() => setMenuOpen((o) => !o)}
-              aria-label="Toggle menu"
-            >
-              {menuOpen ? (
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
-                  <line x1="2" y1="2" x2="14" y2="14" /><line x1="14" y1="2" x2="2" y2="14" />
-                </svg>
-              ) : (
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
-                  <line x1="2" y1="4" x2="14" y2="4" /><line x1="2" y1="8" x2="14" y2="8" /><line x1="2" y1="12" x2="14" y2="12" />
-                </svg>
-              )}
+            <button className="md:hidden p-1.5 text-zinc-500 hover:text-white transition-colors" onClick={() => setMenuOpen(o => !o)} aria-label="Menu">
+              {menuOpen
+                ? <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><line x1="2" y1="2" x2="14" y2="14"/><line x1="14" y1="2" x2="2" y2="14"/></svg>
+                : <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><line x1="2" y1="4" x2="14" y2="4"/><line x1="2" y1="8" x2="14" y2="8"/><line x1="2" y1="12" x2="14" y2="12"/></svg>}
             </button>
           </div>
         </div>
-
-        {/* Mobile menu */}
         {menuOpen && (
-          <div className="md:hidden border-t border-white/[0.05] bg-black/95 backdrop-blur-xl">
-            <nav className="max-w-7xl mx-auto px-6 py-5 flex flex-col gap-1">
-              <Link href="/drops"       onClick={() => setMenuOpen(false)} className="px-3 py-2.5 rounded-lg text-sm text-white font-medium hover:bg-white/[0.04] transition-all flex items-center justify-between">
-                Drops
-                <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" />
-              </Link>
-              <Link href="/leaderboard" onClick={() => setMenuOpen(false)} className="px-3 py-2.5 rounded-lg text-sm text-zinc-400 hover:text-white hover:bg-white/[0.04] transition-all">Leaderboard</Link>
-              <Link href="/activity"    onClick={() => setMenuOpen(false)} className="px-3 py-2.5 rounded-lg text-sm text-zinc-400 hover:text-white hover:bg-white/[0.04] transition-all">Activity</Link>
-              <Link href="/dashboard"   onClick={() => setMenuOpen(false)} className="px-3 py-2.5 rounded-lg text-sm text-zinc-400 hover:text-white hover:bg-white/[0.04] transition-all">Dashboard</Link>
+          <div className="md:hidden border-t border-white/[0.05] bg-black">
+            <nav className="max-w-7xl mx-auto px-6 py-4 flex flex-col gap-0.5">
+              {[
+                { href: "/drops",       label: "Drops" },
+                { href: "/projects",    label: "Projects" },
+                { href: "/leaderboard", label: "Leaderboard" },
+                { href: "/activity",    label: "Activity" },
+                { href: "/dashboard",   label: "Dashboard" },
+              ].map(({ href, label }) => (
+                <Link key={href} href={href} onClick={() => setMenuOpen(false)}
+                  className="px-3 py-2.5 rounded-lg text-sm text-zinc-300 hover:text-white hover:bg-white/[0.04] transition-all">
+                  {label}
+                </Link>
+              ))}
             </nav>
           </div>
         )}
       </header>
 
-      {/* ── HERO ────────────────────────────────────────────────── */}
-      <section id="mint" className="min-h-screen flex items-center relative overflow-hidden">
+      {/* ── HERO ── */}
+      <section id="mint" className="min-h-screen flex items-center pt-14">
+        <div className="max-w-7xl mx-auto px-6 py-24 w-full grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-center">
 
-        {/* Background ambient glows */}
-        <div className="absolute top-1/4 right-1/3 w-[700px] h-[700px] rounded-full bg-blue-600/[0.06] blur-[180px] pointer-events-none" />
-        <div className="absolute bottom-1/3 left-1/4 w-64 h-64 rounded-full bg-blue-900/[0.07] blur-[100px] pointer-events-none" />
-
-        <div className="max-w-7xl mx-auto px-6 pt-28 pb-24 w-full grid grid-cols-1 lg:grid-cols-[1fr_1.05fr] gap-16 items-center relative z-10">
-
-          {/* ── Left ── */}
+          {/* Left */}
           <div className="space-y-8">
-
-            {/* Live badge */}
-            <motion.div
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full border border-green-900/35 bg-green-500/[0.04]"
-            >
-              <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse flex-shrink-0" />
-              <ShinyText text="Live on Base" speed={6} className="text-green-400/80 text-[11px] uppercase tracking-[0.2em]" />
-            </motion.div>
-
-            {/* Headline — "The base of Airdrops." */}
-            <div style={D} className="text-[clamp(3rem,7vw,5.5rem)] font-bold tracking-tight leading-[0.92]">
-              <motion.div
-                initial={{ opacity: 0, y: 24 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-              >
-                The base of
-              </motion.div>
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.3, delay: 0.5 }}
-              >
-                <RotatingText
-                  texts={["Airdrops.", "NFT drops.", "Whitelists.", "Raffles."]}
-                  splitBy="words"
-                  elementLevelClassName="grad-text"
-                  rotationInterval={2500}
-                  transition={{ type: "spring", damping: 30, stiffness: 400 }}
-                  initial={{ y: "110%", opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  exit={{ y: "-110%", opacity: 0 }}
-                  animatePresenceInitial
-                />
-              </motion.div>
+            <div className="flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+              <span className="text-green-500 text-xs font-medium">Live on Base</span>
             </div>
 
-            {/* Subline */}
-            <BlurText
-              text="Every Base opportunity — airdrops, NFT drops, whitelists, raffles. One ID gets you in. $2. Permanent."
-              delay={60}
-              direction="bottom"
-              className="text-zinc-400 text-[15px] leading-relaxed max-w-[22rem]"
-              style={{ fontFamily: "var(--font-display), system-ui, sans-serif" } as React.CSSProperties}
-            />
+            <div style={D} className="text-[clamp(3.5rem,7vw,6rem)] font-black tracking-tight leading-[0.9]">
+              <div className="text-white">The base of</div>
+              <RotatingText
+                texts={["Airdrops.", "NFT Drops.", "Whitelists.", "Raffles."]}
+                splitBy="words"
+                elementLevelClassName="grad-text"
+                rotationInterval={2500}
+                transition={{ type: "spring", damping: 30, stiffness: 400 }}
+                initial={{ y: "110%", opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                exit={{ y: "-110%", opacity: 0 }}
+                animatePresenceInitial
+              />
+            </div>
 
-            {/* Primary CTAs */}
-            <div className="flex items-center gap-3 flex-wrap">
-              <a
-                href="#mint-card"
-                className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-white text-black text-sm font-bold hover:bg-zinc-100 transition-colors"
-              >
-                Mint Based ID · $2
+            <p className="text-zinc-400 text-lg leading-relaxed max-w-md">
+              Every Base opportunity in one place. Mint a Based ID for $2 and auto-qualify for every drop on Base.
+            </p>
+
+            <div className="flex items-center gap-4 flex-wrap">
+              <a href="#mint-card" onClick={e => { e.preventDefault(); document.getElementById("mint-card")?.scrollIntoView({ behavior: "smooth" }); }}
+                className="px-6 py-3 rounded-xl bg-white text-black text-sm font-bold hover:bg-zinc-100 transition-colors">
+                Mint Based ID — $2
               </a>
-              <Link
-                href="/drops"
-                className="inline-flex items-center gap-2 px-5 py-3 rounded-xl border border-white/[0.1] bg-white/[0.03] text-white text-sm font-medium hover:bg-white/[0.07] transition-colors"
-              >
-                See drops →
+              <Link href="/drops" className="px-6 py-3 rounded-xl border border-white/[0.1] text-sm text-zinc-300 font-medium hover:border-white/20 hover:text-white transition-colors">
+                Browse drops →
               </Link>
             </div>
 
-            {/* Stats — 3-column metric panel */}
-            <div className="grid grid-cols-3 border border-white/[0.06] rounded-2xl overflow-hidden divide-x divide-white/[0.06]">
-              <div className="px-3 sm:px-5 py-4 sm:py-5">
-                <div className="flex items-center gap-1.5 mb-1.5">
-                  {totalMinted !== undefined ? (
-                    <CountUp to={Number(totalMinted)} duration={1.8} className="text-2xl sm:text-[1.6rem] font-black tabular-nums leading-none" />
-                  ) : (
-                    <span className="text-2xl sm:text-[1.6rem] font-black leading-none">—</span>
-                  )}
-                  <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse flex-shrink-0" />
+            {/* Stats */}
+            <div className="flex items-center gap-8 pt-2">
+              <div>
+                <div className="text-2xl font-black text-white tabular-nums">
+                  {totalMinted !== undefined
+                    ? <CountUp to={Number(totalMinted)} duration={1.5} />
+                    : "—"}
                 </div>
-                <p className="text-zinc-600 text-[9px] sm:text-[10px] uppercase tracking-[0.12em] sm:tracking-[0.18em]">Minted</p>
+                <p className="text-zinc-600 text-xs mt-0.5">IDs minted</p>
               </div>
-              <div className="px-3 sm:px-5 py-4 sm:py-5">
-                <p className="text-2xl sm:text-[1.6rem] font-black leading-none mb-1.5">$2</p>
-                <p className="text-zinc-600 text-[9px] sm:text-[10px] uppercase tracking-[0.12em] sm:tracking-[0.18em]">USDC flat</p>
+              <div className="w-px h-8 bg-white/[0.06]" />
+              <div>
+                <div className="text-2xl font-black text-white">$2</div>
+                <p className="text-zinc-600 text-xs mt-0.5">Flat price</p>
               </div>
-              <div className="px-3 sm:px-5 py-4 sm:py-5">
-                <p className="text-2xl sm:text-[1.6rem] font-black leading-none mb-1.5" style={GRAD}>1B</p>
-                <p className="text-zinc-600 text-[9px] sm:text-[10px] uppercase tracking-[0.12em] sm:tracking-[0.18em]">$BASED supply</p>
+              <div className="w-px h-8 bg-white/[0.06]" />
+              <div>
+                <div className="text-2xl font-black text-white">1B</div>
+                <p className="text-zinc-600 text-xs mt-0.5">$BASED supply</p>
               </div>
             </div>
           </div>
 
-          {/* ── Right — unified product panel ── */}
+          {/* Right — Mint card */}
           <div id="mint-card" className="relative">
-            {/* Outer glow */}
-            <div className="absolute -inset-10 rounded-[2rem] bg-blue-600/[0.07] blur-3xl pointer-events-none" />
+            <div className="rounded-2xl border border-white/[0.08] bg-white/[0.02] overflow-hidden">
 
-            <div className="relative rounded-3xl border border-white/[0.09] bg-white/[0.025] overflow-hidden">
-
-              {/* Top meta bar */}
-              <div className="flex items-center justify-between px-5 py-3.5 border-b border-white/[0.06] bg-white/[0.01]">
-                <div className="flex items-center gap-2 text-[10px] text-zinc-500 uppercase tracking-[0.15em]">
-                  <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse flex-shrink-0" />
-                  Minting open
+              {/* Top bar */}
+              <div className="flex items-center justify-between px-5 py-3.5 border-b border-white/[0.06]">
+                <div className="flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                  <span className="text-xs text-zinc-500">Minting open</span>
                 </div>
-                <span className="text-[10px] text-zinc-600 tabular-nums hidden sm:block">Snapshot #1 — Sep 30, 2026</span>
+                <span className="text-xs text-zinc-600 hidden sm:block">Snapshot #1 — Sep 30, 2026</span>
               </div>
 
-              {/* NFT card */}
+              {/* NFT Card */}
               <div className="p-5 pb-4">
                 <NftCard id={previewId} holder={address ?? "connect wallet to mint"} />
               </div>
 
-              {/* Bottom mint area */}
+              {/* Mint area */}
               <div className="px-5 pb-5 space-y-4">
-                {/* Snapshot + price row */}
-                <div className="flex items-center justify-between text-[10px] text-zinc-700 uppercase tracking-[0.12em]">
-                  <div className="flex items-center gap-1.5 min-w-0">
+                <div className="flex items-center justify-between text-xs text-zinc-700">
+                  <div className="flex items-center gap-1.5">
                     <span className="w-1 h-1 rounded-full bg-blue-600 flex-shrink-0" />
                     <span className="truncate">Snapshot #1 — Sep 30, 2026</span>
                   </div>
-                  <span className="normal-case tracking-normal font-medium text-zinc-500 flex-shrink-0 ml-2">$2 USDC</span>
+                  <span className="text-zinc-500 font-medium flex-shrink-0 ml-2">$2 USDC</span>
                 </div>
 
-                {/* Mint states */}
                 {mintState === "success" && mintedId !== null ? (
                   <SuccessCard id={mintedId} onMintAnother={handleReset} />
                 ) : !isConnected ? (
-                  <motion.div
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                    className="relative rounded-2xl border border-blue-900/30 bg-gradient-to-b from-blue-950/[0.15] to-white/[0.01] overflow-hidden"
-                  >
-                    {/* Subtle inner glow */}
-                    <div className="absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-blue-500/[0.05] to-transparent pointer-events-none" />
-
-                    <div className="relative p-5 space-y-4">
-                      {/* Next ID reveal */}
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" />
-                          <span className="text-blue-400 text-[10px] font-bold uppercase tracking-[0.18em]">
-                            Your ID is waiting
-                          </span>
+                  <div className="space-y-4">
+                    <ConnectButton.Custom>
+                      {({ openConnectModal }) => (
+                        <button onClick={openConnectModal}
+                          className="w-full py-4 rounded-xl bg-white text-black font-bold text-sm hover:bg-zinc-100 transition-colors">
+                          Connect Wallet
+                        </button>
+                      )}
+                    </ConnectButton.Custom>
+                    <div className="grid grid-cols-3 gap-1.5">
+                      {[{ n: "1", label: "Connect" }, { n: "2", label: "Approve" }, { n: "3", label: "Mint" }].map((s, i) => (
+                        <div key={s.n} className={`flex items-center gap-1.5 rounded-lg border border-white/[0.05] bg-white/[0.01] px-2 py-2 ${i > 0 ? "opacity-40" : ""}`}>
+                          <span className="w-4 h-4 rounded-full border border-white/[0.1] flex items-center justify-center text-[9px] font-bold text-zinc-500 flex-shrink-0">{s.n}</span>
+                          <span className="text-zinc-500 text-[10px] font-medium truncate">{s.label}</span>
                         </div>
-                        <span className="text-zinc-600 text-[10px] uppercase tracking-[0.15em] tabular-nums">
-                          #{resolvedNextId.toString()} next
-                        </span>
-                      </div>
-
-                      {/* Connect CTA */}
-                      <div className="flex justify-center pt-1">
-                        <ConnectButton label="Connect Wallet" />
-                      </div>
-
-                      {/* Value props — 3-step mini flow */}
-                      <div className="grid grid-cols-3 gap-1.5 pt-2">
-                        {[
-                          { n: "1", label: "Connect" },
-                          { n: "2", label: "Approve" },
-                          { n: "3", label: "Mint" },
-                        ].map((step, i) => (
-                          <div
-                            key={step.n}
-                            className={`flex items-center gap-1.5 rounded-lg border border-white/[0.05] bg-white/[0.015] px-2 py-2 ${
-                              i === 0 ? "" : "opacity-50"
-                            }`}
-                          >
-                            <span className="w-4 h-4 rounded-full border border-white/[0.1] flex items-center justify-center text-[9px] font-bold tabular-nums text-zinc-400 flex-shrink-0">
-                              {step.n}
-                            </span>
-                            <span className="text-zinc-500 text-[10px] font-medium truncate">
-                              {step.label}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-
-                      {/* Footer reassurance */}
-                      <p className="text-zinc-600 text-[10px] text-center leading-relaxed pt-1">
-                        Permanent · Non-custodial · $2 one-time
-                      </p>
+                      ))}
                     </div>
-                  </motion.div>
+                  </div>
                 ) : insufficientBalance ? (
                   <div className="rounded-xl border border-red-900/30 bg-red-950/10 p-4 text-center">
-                    <p className="text-red-400 text-sm font-medium">You need $2 USDC on Base to mint.</p>
+                    <p className="text-red-400 text-sm font-medium">You need $2 USDC on Base.</p>
                     <p className="text-red-800/70 text-xs mt-1">Bridge USDC to Base, then try again.</p>
                   </div>
                 ) : !hasAllowance && mintState !== "approved" ? (
                   <MintAction
-                    label="Approve $2 USDC"
-                    sub="Step 1 of 2"
+                    label="Approve $2 USDC" sub="Step 1 of 2"
                     btnLabel={isLoading && mintState === "approving" ? (isConfirming ? "Confirming…" : "Approving…") : "Approve $2 USDC"}
-                    onClick={handleApprove}
-                    loading={isLoading && mintState === "approving"}
+                    onClick={handleApprove} loading={isLoading && mintState === "approving"}
                   />
                 ) : (
                   <MintAction
-                    label={`Mint Based ID #${resolvedNextId.toString()}`}
-                    sub="Step 2 of 2 — permanent"
-                    btnLabel={isLoading && mintState === "minting" ? (isConfirming ? "Confirming…" : "Minting…") : "Mint Now — $2 USDC"}
-                    onClick={handleMint}
-                    loading={isLoading && mintState === "minting"}
-                    primary
+                    label="Mint your Based ID" sub="Step 2 of 2 — permanent" primary
+                    btnLabel={isLoading && mintState === "minting" ? (isConfirming ? "Confirming…" : "Minting…") : "Mint Based ID"}
+                    onClick={handleMint} loading={isLoading && mintState === "minting"}
                   />
                 )}
                 {errorMsg && <p className="text-red-400 text-xs text-center">{errorMsg}</p>}
@@ -445,71 +298,41 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── LIVE DROPS (teaser / placeholder until portal launches) ── */}
-      <section className="border-t border-white/[0.05] relative overflow-hidden">
-        <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse 50% 40% at 50% 0%, rgba(37,99,235,0.06), transparent 70%)" }} />
-        <div className="max-w-7xl mx-auto px-6 py-24 relative">
+      {/* ── LIVE DROPS ── */}
+      <section className="border-t border-white/[0.06]">
+        <div className="max-w-7xl mx-auto px-6 py-24 space-y-12">
           <FadeIn>
-            <div className="flex items-end justify-between gap-6 mb-10 flex-wrap">
+            <div className="flex items-end justify-between gap-6 flex-wrap">
               <div className="space-y-3">
-                <p className="text-blue-400 text-[11px] uppercase tracking-[0.2em] flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" />
-                  Live Drops
-                </p>
-                <h2 style={D} className="text-[clamp(2rem,4.5vw,3.5rem)] font-bold tracking-tight leading-[1.02]">
-                  Every Base drop.<br /><span style={GRAD}>One dashboard.</span>
-                </h2>
+                <h2 style={D} className="text-4xl sm:text-5xl font-black tracking-tight text-white">Live drops</h2>
+                <p className="text-zinc-500 text-base max-w-md">Airdrops, NFT mints, whitelists, raffles — all in one place. Your Based ID gets you in.</p>
               </div>
-              <Link href="/drops" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl border border-white/[0.1] bg-white/[0.03] text-white text-sm font-medium hover:bg-white/[0.07] transition-colors flex-shrink-0">
-                See all drops →
-              </Link>
+              <Link href="/drops" className="text-sm text-blue-400 hover:text-blue-300 transition-colors flex-shrink-0">View all →</Link>
             </div>
           </FadeIn>
 
-          {/* Empty state — 3 placeholder cards */}
           <FadeIn delay={0.1}>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {[
-                { tag: "Coming soon", title: "First drop launching", sub: "Partner announcements in 3 weeks" },
-                { tag: "Coming soon", title: "Raffles open", sub: "Provably fair, onchain, Base-native" },
-                { tag: "Coming soon", title: "Whitelist gates", sub: "Hold Based ID → auto-qualify" },
-              ].map(({ tag, title, sub }, i) => (
-                <div
-                  key={i}
-                  className="relative rounded-2xl border border-white/[0.06] bg-white/[0.015] p-6 h-52 flex flex-col justify-between overflow-hidden"
-                >
-                  <div className="absolute inset-0 bg-gradient-to-br from-blue-950/20 via-transparent to-transparent pointer-events-none" />
-                  <div className="relative flex items-center justify-between">
-                    <span className="text-[9px] font-bold uppercase tracking-[0.2em] px-2 py-1 rounded-full bg-blue-900/30 text-blue-400 border border-blue-900/30">
-                      {tag}
-                    </span>
-                    <span className="text-zinc-700 text-[10px] font-mono">#{String(i + 1).padStart(2, "0")}</span>
-                  </div>
-                  <div className="relative space-y-2">
-                    <p className="text-white font-bold text-lg leading-tight">{title}</p>
-                    <p className="text-zinc-500 text-sm leading-relaxed">{sub}</p>
-                  </div>
-                </div>
+                { label: "Token Drop",  title: "Airdrops",   desc: "New Base tokens drop to holders first." },
+                { label: "Whitelist",   title: "WL Access",  desc: "Auto-qualify for partner launches." },
+                { label: "Raffle",      title: "Raffles",    desc: "Enter with one click, onchain draw." },
+              ].map(({ label, title, desc }) => (
+                <Link key={title} href="/drops" className="group block rounded-2xl border border-white/[0.08] bg-white/[0.02] p-6 hover:border-white/[0.14] hover:bg-white/[0.03] transition-all">
+                  <p className="text-xs text-zinc-600 font-medium mb-3">{label}</p>
+                  <p className="text-white font-bold text-lg mb-1" style={D}>{title}</p>
+                  <p className="text-zinc-500 text-sm">{desc}</p>
+                  <p className="text-blue-400 text-xs mt-4 group-hover:text-blue-300 transition-colors">Browse {label}s →</p>
+                </Link>
               ))}
             </div>
           </FadeIn>
 
-          {/* Partner CTA bar */}
+          {/* Partner CTA */}
           <FadeIn delay={0.15}>
-            <div className="mt-8 rounded-2xl border border-white/[0.06] bg-white/[0.01] px-6 py-5 flex items-center justify-between gap-4 flex-wrap">
-              <div className="flex items-center gap-3">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-zinc-400">
-                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                </svg>
-                <p className="text-zinc-300 text-sm">
-                  Launching your project on Base?
-                  <span className="text-zinc-600 ml-2">Drop to verified holders — no bots, no farmers.</span>
-                </p>
-              </div>
-              <Link
-                href="/partner"
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white text-black text-sm font-bold hover:bg-zinc-100 transition-colors flex-shrink-0"
-              >
+            <div className="flex items-center justify-between gap-4 flex-wrap rounded-2xl border border-white/[0.06] px-6 py-5">
+              <p className="text-zinc-400 text-sm">Launching a project on Base? <span className="text-zinc-600">List your drop free.</span></p>
+              <Link href="/partner" className="px-5 py-2 rounded-xl bg-white text-black text-sm font-bold hover:bg-zinc-100 transition-colors flex-shrink-0">
                 Become a partner →
               </Link>
             </div>
@@ -517,1321 +340,210 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── BUILT ON BASE + PARTNERS ─────────────────────────────── */}
-      <section className="border-t border-white/[0.05]">
-        <div className="max-w-7xl mx-auto px-6 py-24">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-start">
-
-            {/* Left — copy */}
-            <FadeIn className="lg:sticky lg:top-24 space-y-10">
-              {/* Eyebrow with Base logo */}
-              <div className="flex items-center gap-2.5">
-                <svg width="16" height="16" viewBox="0 0 111 111" fill="none">
-                  <path d="M54.921 110.034C85.359 110.034 110.034 85.402 110.034 55.017C110.034 24.6 85.359 0 54.921 0C26.0 0 2.0 22.0 0 50.354H72.943V59.68H0C2.0 88.0 26.0 110.034 54.921 110.034Z" fill="#0052FF"/>
-                </svg>
-                <p className="text-zinc-600 text-[11px] uppercase tracking-[0.2em]">Built on Base · Partner Projects</p>
-              </div>
-
-              <h2 style={D} className="text-[clamp(2rem,4vw,3.2rem)] font-bold tracking-tight leading-[1.1]">
-                Real drops.<br />Zero friction.<br />Auto-qualify.
-              </h2>
-
-              <p className="text-zinc-400 text-base leading-relaxed max-w-sm" style={{ fontFamily: "var(--font-display), system-ui, sans-serif" }}>
-                Every Based ID holder automatically qualifies for partner drops — no forms, no grinding. Projects choose Based ID for bot-proof wallets with real skin in the game.
-              </p>
-
-              {/* Value props — clean divider list */}
-              <div className="divide-y divide-white/[0.04]">
-                {[
-                  { value: "Onchain", label: "Every holder verified on Base" },
-                  { value: "$2 USDC", label: "Entry barrier that filters noise" },
-                  { value: "Scored", label: "Activity score separates builders from bots" },
-                  { value: "Automatic", label: "Holders qualify with zero extra action" },
-                ].map(({ value, label }) => (
-                  <div key={label} className="flex items-baseline gap-6 py-4">
-                    <span className="text-white font-bold text-sm w-24 flex-shrink-0" style={{ fontFamily: "var(--font-display), system-ui, sans-serif" }}>{value}</span>
-                    <span className="text-zinc-500 text-sm" style={{ fontFamily: "var(--font-display), system-ui, sans-serif" }}>{label}</span>
-                  </div>
-                ))}
-              </div>
-
-              <a
-                href="https://x.com/basedidofficial"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2.5 px-6 py-3 rounded-xl bg-white text-black text-sm font-bold hover:bg-zinc-100 transition-colors"
-              >
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.737-8.835L1.254 2.25H8.08l4.259 5.631 5.905-5.631zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-                </svg>
-                Apply to partner
-              </a>
-            </FadeIn>
-
-            {/* Right — redacted partner cards */}
-            <FadeIn delay={0.08}>
-              <p className="text-zinc-700 text-[10px] uppercase tracking-[0.2em] mb-5">Partner Projects · Growing over time</p>
-              <div className="grid grid-cols-2 gap-3">
-                {[
-                  { barW: 62, soon: true },
-                  { barW: 48, soon: true },
-                  { barW: 70, soon: false },
-                  { barW: 55, soon: false },
-                  { barW: 66, soon: false },
-                ].map(({ barW, soon }, i) => (
-                  <div
-                    key={i}
-                    className={`rounded-2xl border p-5 space-y-5 ${soon ? "border-blue-900/25 bg-blue-950/[0.07]" : "border-white/[0.05] bg-white/[0.01]"}`}
-                  >
-                    <div className="flex items-center justify-between gap-1">
-                      <span className="font-mono text-zinc-700 text-[10px]">Project</span>
-                      <span className={`text-[9px] px-1.5 py-0.5 rounded-full border uppercase tracking-[0.06em] flex-shrink-0 ${soon ? "border-blue-900/35 text-blue-600/60" : "border-white/[0.06] text-zinc-700"}`}>
-                        {soon ? "Soon" : "TBA"}
-                      </span>
-                    </div>
-                    <div className="w-10 h-10 rounded-xl bg-white/[0.05] blur-[4px]" />
-                    <div className="space-y-2">
-                      <div className="h-2.5 rounded-full bg-white/[0.06]" style={{ width: `${barW}%` }} />
-                      <div className="h-1.5 rounded-full bg-white/[0.03]" style={{ width: `${Math.round(barW * 0.65)}%` }} />
-                    </div>
-                    <p className="text-zinc-700 text-[9px] uppercase tracking-[0.15em]">TBA</p>
-                  </div>
-                ))}
-
-                {/* Open-ended "more" card */}
-                <div className="rounded-2xl border border-white/[0.05] bg-white/[0.01] p-5 flex flex-col items-center justify-center gap-3 text-center">
-                  <div className="w-10 h-10 rounded-xl border border-white/[0.07] flex items-center justify-center">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
-                      <path d="M12 5v14M5 12h14"/>
-                    </svg>
-                  </div>
-                  <div>
-                    <p className="text-zinc-400 text-xs font-medium">Your project</p>
-                    <p className="text-zinc-700 text-[10px] mt-0.5">Unlimited · No cap</p>
-                  </div>
-                </div>
-              </div>
-            </FadeIn>
-          </div>
-        </div>
-      </section>
-
-      {/* ── WHAT YOU UNLOCK ─────────────────────────────────────── */}
-      <section id="unlock" className="border-t border-white/[0.05]">
-        <div className="max-w-7xl mx-auto px-6 py-28">
-          <FadeIn className="mb-14">
-            <p className="text-zinc-600 text-[11px] uppercase tracking-[0.2em] mb-4">What you get</p>
-            <h2 style={D} className="text-[clamp(2.5rem,5vw,4rem)] font-bold tracking-tight leading-tight">
-              Mint once.<br />Unlock everything.
-            </h2>
-            <p className="text-zinc-500 text-sm mt-4 max-w-md leading-relaxed">
-              Your ID marks when you arrived. Your activity score tells what you&apos;ve built since. Both matter.
-            </p>
-          </FadeIn>
-
-          {/* Bento grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-
-            {/* Featured: $BASED Airdrop — spans 2 cols */}
-            <FadeIn delay={0} className="lg:col-span-2">
-              <SpotlightCard className="bg-background rounded-2xl border border-blue-500/[0.15] p-8 h-full flex flex-col gap-6" spotlightColor="rgba(59,130,246,0.08)">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="space-y-3 flex-1">
-                    <div className="flex items-center gap-2">
-                      <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" />
-                      <span className="text-[10px] text-blue-400 font-medium uppercase tracking-[0.2em]">$BASED Airdrop</span>
-                    </div>
-                    <p style={D} className="text-white font-bold text-2xl leading-tight">Lower number.<br />Bigger share.</p>
-                    <p className="text-zinc-500 text-sm leading-relaxed max-w-sm">
-                      1 billion $BASED distributed across two snapshots. Your ID number is your weight —
-                      #1 always earns more than #1000.
-                    </p>
-                  </div>
-                  <div className="flex-shrink-0 hidden sm:flex flex-col items-end gap-1">
-                    <p className="text-[10px] text-zinc-700 uppercase tracking-[0.15em]">Total pool</p>
-                    <p className="text-white font-black text-2xl tabular-nums">1B</p>
-                    <p className="text-blue-400 text-[11px] font-mono">$BASED</p>
-                  </div>
-                </div>
-                <div className="mt-auto pt-5 border-t border-white/[0.05] grid grid-cols-2 gap-4">
-                  {[
-                    { label: "Snapshot #1", date: "Sep 30, 2026", amount: "400M $BASED" },
-                    { label: "Snapshot #2", date: "Dec 31, 2026", amount: "400M $BASED" },
-                  ].map(({ label, date, amount }) => (
-                    <div key={label}>
-                      <p className="text-[10px] text-zinc-600 uppercase tracking-[0.15em] mb-1.5">{label}</p>
-                      <p className="text-white font-semibold text-sm">{date}</p>
-                      <p className="text-zinc-500 text-xs mt-0.5">{amount}</p>
-                    </div>
-                  ))}
-                </div>
-              </SpotlightCard>
-            </FadeIn>
-
-            {/* Onchain Identity */}
-            <FadeIn delay={0.06}>
-              <SpotlightCard className="bg-background rounded-2xl border border-white/[0.06] p-8 h-full flex flex-col gap-5" spotlightColor="rgba(255,255,255,0.03)">
-                <div className="flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-green-400" />
-                  <span className="text-[10px] text-zinc-500 font-medium uppercase tracking-[0.2em]">Onchain Identity</span>
-                </div>
-                <div className="flex-1 space-y-3">
-                  <p style={D} className="text-white font-bold text-xl leading-tight">Your number.<br />Forever.</p>
-                  <p className="text-zinc-500 text-sm leading-relaxed">
-                    No servers. No IPFS. No expiry. Art lives inside the contract as pure SVG. #101 will always be #101.
-                  </p>
-                </div>
-                <div className="pt-4 border-t border-white/[0.05] space-y-1.5">
-                  {["Fully onchain SVG art", "No admin control", "Open source contract"].map((t) => (
-                    <div key={t} className="flex items-center gap-2">
-                      <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="#3b82f6" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                      <p className="text-zinc-500 text-xs">{t}</p>
-                    </div>
-                  ))}
-                </div>
-              </SpotlightCard>
-            </FadeIn>
-
-            {/* Base Activity Score — spans 2 cols */}
-            <FadeIn delay={0.1} className="lg:col-span-2">
-              <SpotlightCard className="bg-background rounded-2xl border border-green-500/[0.12] p-8 h-full flex flex-col gap-6" spotlightColor="rgba(34,197,94,0.05)">
-                <div className="flex items-start justify-between gap-4 flex-wrap">
-                  <div className="space-y-3 flex-1">
-                    <div className="flex items-center gap-2">
-                      <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
-                      <span className="text-[10px] text-green-400 font-medium uppercase tracking-[0.2em]">Base Activity Score</span>
-                    </div>
-                    <p style={D} className="text-white font-bold text-2xl leading-tight">Your score.<br />Your reputation.</p>
-                    <p className="text-zinc-500 text-sm leading-relaxed max-w-sm">
-                      Based ID scores every holder automatically. Wallet age, transaction count, protocols used, token moves — all combined into a grade. Low ID shows when you arrived. High score shows what you&apos;ve built.
-                    </p>
-                  </div>
-
-                  {/* Score rings */}
-                  <div className="hidden sm:flex items-center gap-5 flex-shrink-0">
-                    {([["S", 88, "#f59e0b", "Elite"], ["A", 65, "#3b82f6", "Active"], ["B", 42, "#a1a1aa", "Regular"], ["C", 12, "#3f3f46", "New"]] as [string, number, string, string][]).map(([g, s, c, label]) => {
-                      const r = 18, circ = 2 * Math.PI * r;
-                      return (
-                        <div key={g} className="flex flex-col items-center gap-1.5">
-                          <svg width="44" height="44" viewBox="0 0 44 44">
-                            <circle cx="22" cy="22" r={r} fill="none" stroke="#ffffff06" strokeWidth="3.5" />
-                            <circle cx="22" cy="22" r={r} fill="none" stroke={c} strokeWidth="3.5" strokeLinecap="round"
-                              strokeDasharray={circ} strokeDashoffset={circ * (1 - s / 100)} transform="rotate(-90 22 22)" />
-                            <text x="22" y="27" textAnchor="middle" fill="white" fontSize="11" fontWeight="800" fontFamily="monospace">{g}</text>
-                          </svg>
-                          <p className="text-zinc-700 text-[9px] font-mono">{label}</p>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                <div className="mt-auto pt-5 border-t border-white/[0.05] grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-6">
-                  {[
-                    { label: "Wallet age", desc: "How long active on Base" },
-                    { label: "Transactions", desc: "Volume of onchain activity" },
-                    { label: "Protocols used", desc: "Breadth across Base DeFi + NFT" },
-                  ].map(({ label, desc }) => (
-                    <div key={label}>
-                      <p className="text-white text-xs font-semibold mb-1">{label}</p>
-                      <p className="text-zinc-600 text-[11px] leading-relaxed">{desc}</p>
-                    </div>
-                  ))}
-                </div>
-              </SpotlightCard>
-            </FadeIn>
-
-            {/* Partner Drops — launching soon */}
-            <FadeIn delay={0.14}>
-              <div className="bg-background rounded-2xl border border-blue-900/25 bg-blue-950/[0.04] p-8 h-full flex flex-col gap-5 relative overflow-hidden">
-                <div className="absolute -right-8 -top-8 w-32 h-32 rounded-full bg-blue-600/5 blur-3xl pointer-events-none" />
-                <div className="relative flex items-center justify-between">
-                  <span className="text-[10px] text-blue-400 font-medium uppercase tracking-[0.2em]">Partner Drops</span>
-                  <span className="text-[9px] px-2 py-0.5 rounded-full border border-blue-900/40 bg-blue-950/40 text-blue-300 uppercase tracking-[0.1em]">Launching soon</span>
-                </div>
-                <div className="relative flex-1 space-y-3">
-                  <p style={D} className="text-white font-bold text-xl leading-tight">Drops land in your dashboard.</p>
-                  <p className="text-zinc-400 text-sm leading-relaxed">
-                    NFT drops, token airdrops, WL raffles. Hold a Based ID, auto-qualify. No forms. No grinding.
-                  </p>
-                </div>
-                <Link href="/drops" className="relative inline-flex items-center gap-1.5 text-blue-400 text-xs font-medium hover:text-blue-300 transition-colors">
-                  See what&apos;s coming →
-                </Link>
-              </div>
-            </FadeIn>
-
-            {/* Whitelist — launching soon, full width */}
-            <FadeIn delay={0.18} className="lg:col-span-3">
-              <div className="bg-background rounded-2xl border border-blue-900/20 p-8 flex flex-col sm:flex-row items-start gap-8 relative overflow-hidden">
-                <div className="absolute -right-12 -top-12 w-48 h-48 rounded-full bg-blue-600/5 blur-3xl pointer-events-none" />
-                <div className="relative flex items-center justify-between w-full sm:w-auto sm:flex-col sm:items-start gap-2 flex-shrink-0">
-                  <span className="text-[10px] text-blue-400 font-medium uppercase tracking-[0.2em]">Whitelist Access</span>
-                  <span className="text-[9px] px-2 py-0.5 rounded-full border border-blue-900/40 bg-blue-950/40 text-blue-300 uppercase tracking-[0.1em]">Launching soon</span>
-                </div>
-                <div className="relative flex-1 space-y-2">
-                  <p style={D} className="text-white font-bold text-xl leading-tight">One ID. Many doors.</p>
-                  <p className="text-zinc-400 text-sm leading-relaxed max-w-lg">
-                    Auto-whitelisted for partner launches and early access drops. Hold once, qualify forever. No forms, no follow-backs, no grinding.
-                  </p>
-                </div>
-                <Link href="/partner" className="relative inline-flex items-center gap-1.5 text-blue-400 text-xs font-medium hover:text-blue-300 transition-colors sm:self-center flex-shrink-0">
-                  Partner with us →
-                </Link>
-              </div>
-            </FadeIn>
-
-          </div>
-
-          {/* How to mint — 3 steps */}
-          <FadeIn className="mt-16">
-            <p className="text-zinc-700 text-[10px] uppercase tracking-[0.2em] mb-6">How to mint — under 60 seconds</p>
-            <div className="flex flex-col sm:flex-row gap-0 rounded-2xl overflow-hidden border border-white/[0.05]">
-              {[
-                { n: "01", title: "Connect wallet", body: "Any Base wallet — Coinbase, MetaMask, Rainbow." },
-                { n: "02", title: "Approve $2 USDC", body: "One-time. Exactly $2. Nothing hidden." },
-                { n: "03", title: "Mint your ID", body: "Your permanent number is onchain. Forever." },
-              ].map(({ n, title, body }) => (
-                <div key={n} className="flex-1 bg-background p-6 flex gap-4 items-start border-b sm:border-b-0 sm:border-r border-white/[0.05] last:border-0">
-                  <span className="text-[2rem] font-black text-white/[0.06] leading-none tabular-nums flex-shrink-0">{n}</span>
-                  <div>
-                    <p className="text-white font-semibold text-sm mb-1">{title}</p>
-                    <p className="text-zinc-500 text-xs leading-relaxed">{body}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* Reputation callout */}
-            <div className="mt-4 flex items-center gap-3 px-5 py-3.5 rounded-xl border border-white/[0.05] bg-white/[0.01]">
-              <span className="w-1.5 h-1.5 rounded-full bg-green-500 flex-shrink-0" />
-              <p className="text-zinc-500 text-xs leading-relaxed">
-                Your profile automatically scores your Base activity — wallet age, transactions, protocols used. No action needed. The longer you build on Base, the higher your grade.
-              </p>
+      {/* ── HOW IT WORKS ── */}
+      <section className="border-t border-white/[0.06]">
+        <div className="max-w-7xl mx-auto px-6 py-24 space-y-14">
+          <FadeIn>
+            <div className="space-y-3 max-w-xl">
+              <h2 style={D} className="text-4xl sm:text-5xl font-black tracking-tight text-white">Mint in under a minute</h2>
+              <p className="text-zinc-500 text-base">One wallet. One ID. Every drop on Base.</p>
             </div>
           </FadeIn>
-        </div>
-      </section>
 
-      {/* ── GENESIS VAULT ───────────────────────────────────────── */}
-      <section id="genesis" className="border-t border-white/[0.05]">
-        <div className="max-w-7xl mx-auto px-6 py-28">
-          <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.1fr] gap-20 items-center">
-
-            {/* Left — copy */}
-            <div className="lg:sticky lg:top-24">
-              <FadeIn>
-                <p className="text-amber-500/60 text-[11px] uppercase tracking-[0.2em] mb-6">Genesis Reserve</p>
-                <h2 style={D} className="text-[clamp(2.5rem,5vw,4rem)] font-bold tracking-tight leading-[1.05]">
-                  100 IDs.<br />Never publicly<br />minted.
-                </h2>
-                <p className="mt-6 leading-relaxed text-zinc-400 text-base max-w-sm"
-                  style={{ fontFamily: "var(--font-display), system-ui, sans-serif" }}>
-                  IDs #1–#100 are permanently reserved — never available at $2.
-                  Auctions start around the 1,000 mint mark, counting down from #100 to #1.
-                  Each winner earns $BASED at the highest weight of any ID on Base.
-                </p>
-
-                {/* Stats */}
-                <div className="grid grid-cols-3 gap-3 mt-10">
-                  {[
-                    { value: "100", label: "IDs reserved", gold: true },
-                    { value: "1 / wk", label: "Auction pace", gold: false },
-                    { value: "1.0×", label: "Peak $BASED weight", gold: false },
-                  ].map(({ value, label, gold }) => (
-                    <div key={label} className={`rounded-xl border p-4 ${gold ? "border-amber-900/35 bg-amber-950/12" : "border-white/[0.05] bg-white/[0.015]"}`}>
-                      <p className={`text-[1.6rem] font-bold leading-none tracking-tight ${gold ? "text-amber-400" : "text-white"}`}>{value}</p>
-                      <p className="text-zinc-600 text-[10px] uppercase tracking-[0.12em] mt-2">{label}</p>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Mechanics */}
-                <div className="divide-y divide-white/[0.04] mt-10">
-                  {[
-                    { n: "01", text: "One-week auction — highest USDC bid wins the ID." },
-                    { n: "02", text: "#100 goes first, #1 goes last. Every ID rarer than the previous." },
-                    { n: "03", text: "Winners earn $BASED at the highest weight of any ID." },
-                  ].map(({ n, text }) => (
-                    <div key={n} className="flex items-baseline gap-5 py-4">
-                      <span className="font-mono text-amber-800/50 text-[11px] flex-shrink-0">{n}</span>
-                      <p className="text-zinc-500 text-sm leading-relaxed" style={{ fontFamily: "var(--font-display), system-ui, sans-serif" }}>{text}</p>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="mt-8 flex items-center gap-2.5 px-4 py-2.5 rounded-xl border border-amber-900/30 bg-amber-500/[0.04]">
-                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse flex-shrink-0" />
-                  <span className="text-amber-500/75 text-[11px] uppercase tracking-[0.12em]">First auction · ~1,000 mints · Before Sep 30</span>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-white/[0.06] rounded-2xl overflow-hidden">
+            {[
+              { n: "01", title: "Connect wallet", body: "Any Base wallet — Coinbase, MetaMask, Rainbow." },
+              { n: "02", title: "Approve $2 USDC", body: "One-time approval. Exactly $2. Nothing hidden." },
+              { n: "03", title: "Mint your ID",    body: "Your permanent number is onchain. Forever." },
+            ].map(({ n, title, body }) => (
+              <FadeIn key={n}>
+                <div className="bg-black p-8 h-full">
+                  <span className="font-mono text-zinc-700 text-xs mb-6 block">{n}</span>
+                  <p className="text-white font-bold text-lg mb-2" style={D}>{title}</p>
+                  <p className="text-zinc-500 text-sm leading-relaxed">{body}</p>
                 </div>
               </FadeIn>
-            </div>
-
-            {/* Right — rarity map (no numbers, pure color) */}
-            <FadeIn delay={0.1}>
-              <div
-                className="relative rounded-2xl border border-amber-900/25 overflow-hidden p-6"
-                style={{ background: "radial-gradient(ellipse 90% 80% at 6% 6%, rgba(180,83,9,0.12) 0%, rgba(12,8,2,0.85) 55%)" }}
-              >
-                {/* #1 glow spot */}
-                <div
-                  className="absolute pointer-events-none"
-                  style={{
-                    top: "1.5rem", left: "1.5rem", width: "64px", height: "64px",
-                    background: "radial-gradient(circle, rgba(245,158,11,0.35) 0%, transparent 70%)",
-                    filter: "blur(8px)",
-                  }}
-                />
-
-                <div className="grid grid-cols-10 gap-1.5 relative">
-                  {Array.from({ length: 100 }, (_, i) => i + 1).map((n) => {
-                    const r   = 1 - (n - 1) / 99;
-                    const bg  = (0.06 + r * 0.40).toFixed(2);
-                    const bd  = (0.04 + r * 0.42).toFixed(2);
-                    const isOne = n === 1;
-                    const txA  = (0.22 + r * 0.55).toFixed(2);
-                    return (
-                      <div
-                        key={n}
-                        title={`#${n}`}
-                        className="aspect-square rounded-[5px] flex flex-col items-center justify-center gap-[2px]"
-                        style={{
-                          background: isOne ? "rgba(245,158,11,0.55)" : `rgba(120,53,15,${bg})`,
-                          border:     `1px solid rgba(217,119,6,${isOne ? "0.8" : bd})`,
-                          boxShadow:  isOne ? "0 0 12px rgba(245,158,11,0.4)" : undefined,
-                        }}
-                      >
-                        {/* Lock icon */}
-                        <svg width="7" height="7" viewBox="0 0 10 11" fill="none" style={{ opacity: Number(txA) }}>
-                          <rect x="1.5" y="4.5" width="7" height="5.5" rx="1.2" fill={`rgba(251,191,36,${txA})`} />
-                          <path d="M3.2 4.5V3a1.8 1.8 0 013.6 0v1.5" stroke={`rgba(251,191,36,${txA})`} strokeWidth="1.1" strokeLinecap="round" fill="none"/>
-                        </svg>
-                        {/* Number */}
-                        <span className="font-mono leading-none" style={{ fontSize: "5.5px", color: `rgba(251,191,36,${txA})` }}>{n}</span>
-                      </div>
-                    );
-                  })}
-                </div>
-
-                {/* Caption row inside panel */}
-                <div className="mt-5 flex items-center justify-between gap-2 flex-wrap">
-                  <p className="text-amber-900/70 text-[10px] uppercase tracking-[0.12em]">100 of 100 locked</p>
-                  <div className="flex items-center gap-3 text-[10px] uppercase tracking-[0.08em]">
-                    <span className="flex items-center gap-1.5 text-amber-600/60">
-                      <span className="w-3 h-[9px] rounded-[3px] inline-block flex-shrink-0" style={{ background: "rgba(245,158,11,0.55)", border: "1px solid rgba(217,119,6,0.8)" }} />
-                      #1 — rarest
-                    </span>
-                    <span className="flex items-center gap-1.5 text-zinc-700">
-                      <span className="w-3 h-[9px] rounded-[3px] inline-block flex-shrink-0" style={{ background: "rgba(120,53,15,0.06)", border: "1px solid rgba(217,119,6,0.04)" }} />
-                      #100
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </FadeIn>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* ── FOR PROJECTS ────────────────────────────────────────── */}
-      <section className="border-t border-white/[0.05]">
-        <div className="max-w-7xl mx-auto px-6 py-28 space-y-14">
-
-          {/* Top — heading + comparison panel */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-
-            {/* Left: heading */}
+      {/* ── FOR PARTNERS ── */}
+      <section className="border-t border-white/[0.06]">
+        <div className="max-w-7xl mx-auto px-6 py-24">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <FadeIn className="space-y-6">
-              <p className="text-zinc-600 text-[11px] uppercase tracking-[0.2em]">For Projects</p>
-              <h2 style={D} className="text-[clamp(2.5rem,5vw,4rem)] font-bold tracking-tight leading-[0.95]">
-                Drop to real<br />wallets.<br />
-                <span style={GRAD}>Not bots.</span>
+              <h2 style={D} className="text-4xl sm:text-5xl font-black tracking-tight leading-[0.95] text-white">
+                Drop to real wallets.<br />
+                <span className="grad-text">Not bots.</span>
               </h2>
-              <p style={{ fontFamily: "var(--font-display), system-ui, sans-serif" }} className="text-zinc-400 text-base leading-relaxed max-w-sm">
+              <p className="text-zinc-400 text-base leading-relaxed max-w-md">
                 Every Based ID holder paid $2 and signed onchain. A small committed audience beats a massive noisy one every time.
               </p>
-              <div className="flex items-center gap-3 pt-2 flex-wrap">
-                <Link
-                  href="/partner"
-                  className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white text-black text-sm font-bold hover:bg-zinc-100 transition-colors"
-                >
+              <div className="flex items-center gap-3 flex-wrap">
+                <Link href="/partner/new" className="px-5 py-2.5 rounded-xl bg-white text-black text-sm font-bold hover:bg-zinc-100 transition-colors">
                   Launch a drop →
                 </Link>
-                <a
-                  href="https://x.com/basedidofficial"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-white/[0.08] bg-white/[0.02] text-zinc-300 text-sm font-medium hover:bg-white/[0.05] transition-colors"
-                >
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.737-8.835L1.254 2.25H8.08l4.259 5.631 5.905-5.631zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-                  </svg>
-                  DM us
-                </a>
-              </div>
-            </FadeIn>
-
-            {/* Right: comparison table */}
-            <FadeIn delay={0.1}>
-              <div className="rounded-2xl border border-white/[0.07] overflow-hidden">
-                {/* Header */}
-                <div className="grid grid-cols-[1fr_70px_70px] sm:grid-cols-[1fr_100px_100px] border-b border-white/[0.06] bg-white/[0.02]">
-                  <div className="px-3 sm:px-5 py-3" />
-                  <div className="px-2 sm:px-4 py-3 text-center border-l border-white/[0.05]">
-                    <p className="text-zinc-600 text-[9px] sm:text-[10px] uppercase tracking-[0.12em] sm:tracking-[0.15em]">Typical</p>
-                  </div>
-                  <div className="px-2 sm:px-4 py-3 text-center border-l border-blue-900/30 bg-blue-950/20">
-                    <p className="text-blue-400 text-[9px] sm:text-[10px] uppercase tracking-[0.12em] sm:tracking-[0.15em] font-semibold">Based ID</p>
-                  </div>
-                </div>
-                {[
-                  { label: "Wallet verification",  typical: "None",   based: "Onchain"  },
-                  { label: "Entry cost per holder", typical: "$0",     based: "$2 USDC"  },
-                  { label: "Bot exposure",          typical: "High",   based: "Zero"     },
-                  { label: "Multi-wallet farmers",  typical: "Common", based: "Blocked"  },
-                  { label: "Reputation score",      typical: "None",   based: "Built-in" },
-                  { label: "Forms required",        typical: "Yes",    based: "None"     },
-                  { label: "Holder commitment",     typical: "None",   based: "Paid in"  },
-                ].map(({ label, typical, based }, i) => (
-                  <div key={label} className={`grid grid-cols-[1fr_70px_70px] sm:grid-cols-[1fr_100px_100px] border-b border-white/[0.04] last:border-0 ${i % 2 === 0 ? "" : "bg-white/[0.01]"}`}>
-                    <div className="px-3 sm:px-5 py-3 sm:py-3.5">
-                      <p className="text-zinc-400 text-[11px] sm:text-xs">{label}</p>
-                    </div>
-                    <div className="px-2 sm:px-4 py-3 sm:py-3.5 text-center border-l border-white/[0.05]">
-                      <p className="text-zinc-600 text-[11px] sm:text-xs tabular-nums">{typical}</p>
-                    </div>
-                    <div className="px-2 sm:px-4 py-3 sm:py-3.5 text-center border-l border-blue-900/20 bg-blue-950/10">
-                      <p className="text-blue-300 text-[11px] sm:text-xs font-semibold tabular-nums">{based}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </FadeIn>
-          </div>
-
-          {/* Stats + features combined row */}
-          <FadeIn>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              {[
-                {
-                  icon: (
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/>
-                    </svg>
-                  ),
-                  value: "$2",
-                  label: "Verified entry",
-                  body: "Every holder paid $2 USDC and signed onchain. You can't fake a Based ID — wallets are real, committed, and on Base.",
-                },
-                {
-                  icon: (
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                      <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
-                    </svg>
-                  ),
-                  value: "4 tiers",
-                  label: "Targeted reach",
-                  body: "Reach Genesis, Founding, Pioneer, or Builder holders — or all of them. Every wallet and tier is verifiable onchain.",
-                },
-                {
-                  icon: (
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
-                      <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-                    </svg>
-                  ),
-                  value: "Curated",
-                  label: "Manually reviewed",
-                  body: "Every partner is vetted before any drop — contracts reviewed, team verified, utility checked. No bots, no scams, no noise.",
-                },
-              ].map(({ icon, value, label, body }) => (
-                <SpotlightCard
-                  key={label}
-                  className="bg-background rounded-2xl border border-white/[0.06] p-6 space-y-5 h-full"
-                  spotlightColor="rgba(37,99,235,0.07)"
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/10 flex items-center justify-center text-blue-400 flex-shrink-0">
-                      {icon}
-                    </div>
-                    <p className="text-[2rem] font-black leading-none" style={GRAD}>{value}</p>
-                  </div>
-                  <div className="space-y-1.5">
-                    <p className="text-white font-semibold text-sm">{label}</p>
-                    <p className="text-zinc-500 text-xs leading-relaxed">{body}</p>
-                  </div>
-                </SpotlightCard>
-              ))}
-            </div>
-          </FadeIn>
-
-          {/* Partner CTA bar */}
-          <FadeIn>
-            <div className="relative rounded-2xl overflow-hidden border border-blue-900/20">
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-950/40 via-background to-background" />
-              <div className="relative grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-6 items-center p-8">
-                <div className="space-y-4">
-                  <div>
-                    <p style={D} className="text-white font-bold text-xl mb-1.5">Ready to partner?</p>
-                    <p className="text-zinc-500 text-sm leading-relaxed max-w-lg">
-                      We work with projects building real things on Base. DM us on X — we&apos;ll review your project and set up the drop if it&apos;s a fit.
-                    </p>
-                  </div>
-                  <div className="flex flex-wrap gap-x-6 gap-y-2">
-                    {[
-                      "Verifiable contracts",
-                      "Accountable team",
-                      "Real utility",
-                      "Long-term mindset",
-                    ].map((req) => (
-                      <div key={req} className="flex items-center gap-1.5">
-                        <svg width="11" height="11" viewBox="0 0 12 12" fill="none" className="text-blue-500 flex-shrink-0">
-                          <path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                        </svg>
-                        <span className="text-zinc-500 text-xs">{req}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                <a
-                  href="https://x.com/basedidofficial"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex-shrink-0 flex items-center gap-2.5 px-7 py-4 rounded-xl bg-white text-black text-sm font-bold hover:bg-zinc-100 transition-colors justify-center"
-                >
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.737-8.835L1.254 2.25H8.08l4.259 5.631 5.905-5.631zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-                  </svg>
+                <a href="https://x.com/basedidofficial" target="_blank" rel="noopener noreferrer"
+                  className="px-5 py-2.5 rounded-xl border border-white/[0.1] text-zinc-400 text-sm font-medium hover:text-white hover:border-white/20 transition-colors">
                   DM us on X
                 </a>
               </div>
-            </div>
-          </FadeIn>
-        </div>
-      </section>
-
-      {/* ── TOKENOMICS ──────────────────────────────────────────── */}
-      <section className="border-t border-white/[0.05]">
-        <div className="max-w-7xl mx-auto px-6 py-28 space-y-16">
-
-          {/* Heading row */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-end">
-            <FadeIn>
-              <p className="text-zinc-600 text-[11px] uppercase tracking-[0.2em] mb-4">Tokenomics</p>
-              <h2 style={D} className="text-[clamp(2.5rem,5vw,4rem)] font-bold tracking-tight leading-tight">
-                1,000,000,000<br /><span style={GRAD}>$BASED.</span>
-              </h2>
-              <p style={{ fontFamily: "var(--font-display), system-ui, sans-serif" }} className="text-zinc-400 text-base mt-5 leading-relaxed max-w-sm">
-                Fixed supply. 80% goes directly to the community — distributed by ID number. Earlier = more.
-              </p>
             </FadeIn>
+
             <FadeIn delay={0.1}>
-              {/* Weight formula card */}
-              <div className="rounded-2xl border border-white/[0.06] bg-white/[0.01] p-6 space-y-4">
-                <p className="text-zinc-600 text-[10px] uppercase tracking-[0.2em]">Allocation formula</p>
-                <div className="flex items-center gap-4">
-                  <div className="flex-1 rounded-xl bg-white/[0.03] border border-white/[0.06] px-5 py-4 text-center">
-                    <p className="font-mono text-white text-lg font-bold tracking-wide">
-                      weight = 1 ÷ √id
-                    </p>
-                    <p className="text-zinc-600 text-[10px] mt-1.5">Your share of each 400M pool</p>
+              <div className="rounded-2xl border border-white/[0.08] overflow-hidden">
+                <div className="grid grid-cols-[1fr_90px_90px] border-b border-white/[0.06] bg-white/[0.02]">
+                  <div className="px-5 py-3" />
+                  <div className="px-3 py-3 text-center border-l border-white/[0.05]">
+                    <p className="text-zinc-600 text-xs">Typical</p>
+                  </div>
+                  <div className="px-3 py-3 text-center border-l border-blue-900/30 bg-blue-950/10">
+                    <p className="text-blue-400 text-xs font-semibold">Based ID</p>
                   </div>
                 </div>
-                <div className="grid grid-cols-4 gap-2 text-center">
-                  {[
-                    { id: "#1",     w: "1.000×", color: "text-amber-400" },
-                    { id: "#100",   w: "0.100×", color: "text-blue-400"  },
-                    { id: "#1,000", w: "0.032×", color: "text-zinc-400"  },
-                    { id: "#10K",   w: "0.010×", color: "text-zinc-600"  },
-                  ].map(({ id, w, color }) => (
-                    <div key={id} className="rounded-lg bg-white/[0.02] border border-white/[0.04] py-2.5 px-1">
-                      <p className="text-zinc-600 text-[9px] font-mono mb-1">{id}</p>
-                      <p className={`text-xs font-bold tabular-nums ${color}`}>{w}</p>
-                    </div>
-                  ))}
-                </div>
+                {[
+                  { label: "Wallet verified",  a: "No",     b: "Onchain" },
+                  { label: "Cost per entry",   a: "$0",     b: "$2 USDC" },
+                  { label: "Bot exposure",      a: "High",   b: "Zero" },
+                  { label: "Farmers blocked",   a: "No",     b: "Yes" },
+                  { label: "Forms required",    a: "Yes",    b: "None" },
+                ].map(({ label, a, b }, i) => (
+                  <div key={label} className={`grid grid-cols-[1fr_90px_90px] border-b border-white/[0.04] last:border-0 ${i % 2 ? "bg-white/[0.01]" : ""}`}>
+                    <div className="px-5 py-3.5"><p className="text-zinc-400 text-sm">{label}</p></div>
+                    <div className="px-3 py-3.5 text-center border-l border-white/[0.05]"><p className="text-zinc-600 text-sm">{a}</p></div>
+                    <div className="px-3 py-3.5 text-center border-l border-blue-900/20 bg-blue-950/10"><p className="text-blue-300 text-sm font-medium">{b}</p></div>
+                  </div>
+                ))}
               </div>
             </FadeIn>
           </div>
+        </div>
+      </section>
 
-          {/* Distribution bar */}
+      {/* ── $BASED ── */}
+      <section className="border-t border-white/[0.06]">
+        <div className="max-w-7xl mx-auto px-6 py-24 space-y-12">
           <FadeIn>
-            <div className="space-y-3">
-              <p className="text-zinc-600 text-[10px] uppercase tracking-[0.2em]">Token distribution</p>
-              <div className="flex h-3 rounded-full overflow-hidden gap-0.5">
-                <div className="h-full rounded-l-full" style={{ width: "40%", background: "linear-gradient(90deg,#1d4ed8,#3b82f6)" }} />
-                <div className="h-full"                style={{ width: "40%", background: "linear-gradient(90deg,#2563eb,#60a5fa)" }} />
-                <div className="h-full"                style={{ width: "15%", background: "#27272a" }} />
-                <div className="h-full rounded-r-full" style={{ width: "5%",  background: "#18181b" }} />
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-end">
+              <div className="space-y-4">
+                <h2 style={D} className="text-4xl sm:text-5xl font-black tracking-tight text-white">
+                  1,000,000,000 $BASED
+                </h2>
+                <p className="text-zinc-400 text-base leading-relaxed max-w-md">
+                  80% goes to holders. Earlier ID = larger share. Two snapshots — Sep 30 and Dec 31, 2026. Hold through both to earn the maximum allocation.
+                </p>
               </div>
-              <div className="flex items-center gap-6 flex-wrap">
+              <div className="grid grid-cols-3 gap-4">
                 {[
-                  { color: "bg-blue-600",   label: "Community Snapshot #1 — 40%" },
-                  { color: "bg-blue-400",   label: "Community Snapshot #2 — 40%" },
-                  { color: "bg-zinc-700",   label: "Founder — 15%"               },
-                  { color: "bg-zinc-800",   label: "Partners — 5%"               },
-                ].map(({ color, label }) => (
-                  <div key={label} className="flex items-center gap-2">
-                    <span className={`w-2 h-2 rounded-full flex-shrink-0 ${color}`} />
-                    <span className="text-zinc-500 text-xs">{label}</span>
+                  { value: "400M", label: "Snapshot #1", sub: "Sep 30, 2026", color: "text-blue-400" },
+                  { value: "400M", label: "Snapshot #2", sub: "Dec 31, 2026", color: "text-blue-300" },
+                  { value: "200M", label: "Team + Partners", sub: "Locked until 2027", color: "text-zinc-400" },
+                ].map(({ value, label, sub, color }) => (
+                  <div key={label} className="rounded-2xl border border-white/[0.08] p-5">
+                    <p className={`${color} font-black text-2xl tabular-nums`} style={D}>{value}</p>
+                    <p className="text-white text-xs font-semibold mt-2">{label}</p>
+                    <p className="text-zinc-600 text-[11px] mt-0.5">{sub}</p>
                   </div>
                 ))}
               </div>
             </div>
           </FadeIn>
 
-          {/* Allocation cards */}
+          <FadeIn delay={0.1}>
+            <div className="rounded-2xl border border-white/[0.08] bg-white/[0.01] p-6 sm:p-8">
+              <p className="text-zinc-500 text-sm mb-3">Airdrop weight formula</p>
+              <p className="font-mono text-white text-xl font-bold mb-4">weight = 1 ÷ √id</p>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                {[
+                  { id: "#1",    w: "1.0000×", color: "text-amber-400" },
+                  { id: "#100",  w: "0.1000×", color: "text-blue-400" },
+                  { id: "#1K",   w: "0.0316×", color: "text-zinc-400" },
+                  { id: "#10K",  w: "0.0100×", color: "text-zinc-600" },
+                ].map(({ id, w, color }) => (
+                  <div key={id} className="rounded-xl border border-white/[0.05] bg-white/[0.01] p-3 text-center">
+                    <p className="text-zinc-600 text-xs font-mono mb-1">{id}</p>
+                    <p className={`${color} text-sm font-bold tabular-nums`}>{w}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </FadeIn>
+        </div>
+      </section>
+
+      {/* ── FAQ ── */}
+      <section className="border-t border-white/[0.06]">
+        <div className="max-w-3xl mx-auto px-6 py-24 space-y-10">
           <FadeIn>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <h2 style={D} className="text-4xl font-black tracking-tight text-white">FAQ</h2>
+          </FadeIn>
+          <FadeIn delay={0.05}>
+            <div className="divide-y divide-white/[0.06] rounded-2xl border border-white/[0.08] overflow-hidden">
               {[
-                {
-                  pct: "40%",
-                  tokens: "400M",
-                  label: "Snapshot #1",
-                  date: "Sep 30, 2026 UTC",
-                  desc: "Distributed to all holders at first snapshot. Weight by ID number.",
-                  badge: "Community",
-                  badgeColor: "text-blue-400 bg-blue-900/20 border-blue-900/30",
-                  blue: true,
-                  locked: false,
-                },
-                {
-                  pct: "40%",
-                  tokens: "400M",
-                  label: "Snapshot #2",
-                  date: "Dec 31, 2026 UTC",
-                  desc: "Second distribution. Hold through both snapshots to earn the full 800M.",
-                  badge: "Community",
-                  badgeColor: "text-blue-400 bg-blue-900/20 border-blue-900/30",
-                  blue: true,
-                  locked: false,
-                },
-                {
-                  pct: "15%",
-                  tokens: "150M",
-                  label: "Founder",
-                  date: "Locked until Dec 2026",
-                  desc: "Vested alongside community. No early unlock — aligned with holder outcomes.",
-                  badge: "Locked",
-                  badgeColor: "text-zinc-500 bg-white/[0.03] border-white/[0.06]",
-                  blue: false,
-                  locked: true,
-                },
-                {
-                  pct: "5%",
-                  tokens: "50M",
-                  label: "Partners",
-                  date: "Ecosystem growth",
-                  desc: "Reserved for vetted partner projects — distributed as ecosystem incentives.",
-                  badge: "Reserved",
-                  badgeColor: "text-zinc-500 bg-white/[0.03] border-white/[0.06]",
-                  blue: false,
-                  locked: false,
-                },
-              ].map(({ pct, tokens, label, date, desc, badge, badgeColor, blue, locked }) => (
-                <SpotlightCard
-                  key={label}
-                  className="bg-background rounded-2xl border border-white/[0.05] p-6 flex flex-col gap-4"
-                  spotlightColor={blue ? "rgba(37,99,235,0.08)" : "rgba(255,255,255,0.02)"}
-                >
-                  <div className="flex items-start justify-between gap-2">
-                    <p className="text-[2.8rem] font-black leading-none" style={blue ? GRAD : { color: "#3f3f46" }}>{pct}</p>
-                    <span className={`text-[9px] font-bold px-2 py-1 rounded-full uppercase tracking-[0.1em] border flex-shrink-0 mt-1 ${badgeColor}`}>
-                      {badge}
-                    </span>
-                  </div>
-                  <div className="flex-1 space-y-1">
-                    <p className={`font-bold text-sm ${blue ? "text-white" : "text-zinc-500"}`}>{label}</p>
-                    <p className={`text-[10px] uppercase tracking-[0.12em] ${blue ? "text-blue-400/70" : "text-zinc-700"}`}>{tokens} tokens</p>
-                  </div>
-                  <div className="pt-3 border-t border-white/[0.05] space-y-1.5">
-                    <div className="flex items-center gap-1.5">
-                      {locked && (
-                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-zinc-600 flex-shrink-0">
-                          <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-                        </svg>
-                      )}
-                      <p className={`text-[10px] ${locked ? "text-zinc-600" : "text-zinc-600"}`}>{date}</p>
-                    </div>
-                    <p className="text-zinc-600 text-[11px] leading-relaxed">{desc}</p>
-                  </div>
-                </SpotlightCard>
+                { q: "Can I mint more than one ID?", a: "Yes. No limit per wallet. Each ID earns $BASED separately — your lowest-numbered ID earns the most." },
+                { q: "What happens if I sell before the snapshot?", a: "Whoever holds the ID at snapshot time earns the allocation. Sell before Sep 30 and the buyer gets Snapshot #1 rewards." },
+                { q: "Is the $2 price permanent?", a: "Yes. The mint price is hardcoded in the contract at $2 USDC and cannot be changed — not even by us." },
+                { q: "What are Genesis IDs (#1–#100)?", a: "Reserved for auctions, not public minting. Auctioned one-by-one starting from #100, before Snapshot #1. Winners earn $BASED at the highest weight." },
+                { q: "Do I need to do anything to receive the airdrop?", a: "No action needed before January 2027. Hold your Based ID through both snapshots. A claim button will appear in your dashboard." },
+              ].map(({ q, a }) => (
+                <FaqItem key={q} q={q} a={a} />
               ))}
             </div>
           </FadeIn>
-
-          {/* Tier weight section */}
-          <FadeIn>
-            <div className="space-y-5">
-              <div className="flex items-end justify-between gap-4 flex-wrap">
-                <div>
-                  <p className="text-zinc-600 text-[10px] uppercase tracking-[0.2em] mb-2">Airdrop weight by tier</p>
-                  <p style={{ fontFamily: "var(--font-display), system-ui, sans-serif" }} className="text-white font-bold text-lg">Lower number. Heavier weight. Larger share.</p>
-                </div>
-                <p className="text-zinc-700 text-xs max-w-xs text-right">Tier determined by your lowest-owned ID. Multiple IDs each earn separately.</p>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-                {[
-                  { tier: "Genesis",  range: "#1 – #100",        example: "#1 = 1.000×",  bar: 100, color: "#f59e0b", bg: "rgba(245,158,11,0.06)", border: "rgba(245,158,11,0.15)", text: "text-amber-400" },
-                  { tier: "Founding", range: "#101 – #1,000",    example: "#101 = 0.099×", bar: 10,  color: "#3b82f6", bg: "rgba(59,130,246,0.06)",  border: "rgba(59,130,246,0.15)",  text: "text-blue-400"  },
-                  { tier: "Pioneer",  range: "#1,001 – #10,000", example: "#1K = 0.032×", bar: 3,   color: "#6b7280", bg: "rgba(107,114,128,0.04)", border: "rgba(107,114,128,0.1)",  text: "text-zinc-400"  },
-                  { tier: "Builder",  range: "#10,001+",          example: "#10K = 0.010×",bar: 1,   color: "#3f3f46", bg: "rgba(63,63,70,0.04)",    border: "rgba(63,63,70,0.12)",    text: "text-zinc-600"  },
-                ].map(({ tier, range, example, bar, color, bg, border, text }) => (
-                  <div
-                    key={tier}
-                    className="rounded-2xl p-5 space-y-4"
-                    style={{ backgroundColor: bg, border: `1px solid ${border}` }}
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className={`font-bold text-sm ${text}`}>{tier}</span>
-                      <span className="text-zinc-700 text-[10px] font-mono">{range}</span>
-                    </div>
-                    {/* Weight bar */}
-                    <div className="space-y-1.5">
-                      <div className="h-1.5 bg-white/[0.04] rounded-full overflow-hidden">
-                        <div
-                          className="h-full rounded-full transition-all"
-                          style={{ width: `${bar}%`, backgroundColor: color, opacity: 0.7 }}
-                        />
-                      </div>
-                      <p className="font-mono text-[11px] font-semibold" style={{ color }}>{example}</p>
-                    </div>
-                    <p className="text-zinc-600 text-[11px] leading-relaxed">
-                      {tier === "Genesis"  && "Highest weight. Genesis holders earn the most per ID by far."}
-                      {tier === "Founding" && "~10% the weight of #1. Still significantly ahead of later minters."}
-                      {tier === "Pioneer"  && "Locked in early. Higher weight than the vast majority of holders."}
-                      {tier === "Builder"  && "Base rate. Mint more IDs or lower numbers to increase your share."}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </FadeIn>
         </div>
       </section>
 
-      {/* ── ROADMAP ─────────────────────────────────────────────── */}
-      <section id="roadmap" className="border-t border-white/[0.05]">
-        <div className="max-w-7xl mx-auto px-6 py-28">
-          <div className="grid grid-cols-1 lg:grid-cols-[340px_1fr] gap-16 items-start">
-
-            {/* Left — sticky heading */}
-            <FadeIn className="lg:sticky lg:top-24 space-y-8">
-              <div>
-                <p className="text-zinc-600 text-[11px] uppercase tracking-[0.2em] mb-4">Timeline</p>
-                <h2 style={D} className="text-[clamp(2.5rem,5vw,4rem)] font-bold tracking-tight leading-tight">
-                  The roadmap.
-                </h2>
-                <p className="text-zinc-500 text-sm mt-4 leading-relaxed">
-                  Milestone-driven. No vague quarters — just what&apos;s built, what&apos;s next, and what&apos;s coming.
-                </p>
-              </div>
-
-              {/* Progress bar */}
-              <div className="space-y-2.5">
-                <div className="flex items-center justify-between">
-                  <span className="text-zinc-700 text-[10px] uppercase tracking-[0.15em]">Progress</span>
-                  <span className="text-green-500 text-[10px] uppercase tracking-[0.15em]">Phase 1 of 4</span>
-                </div>
-                <div className="h-1 bg-white/[0.04] rounded-full overflow-hidden">
-                  <div className="h-full w-[12%] bg-gradient-to-r from-green-600 to-green-400 rounded-full" />
-                </div>
-              </div>
-
-              {/* Phase legend */}
-              <div className="space-y-2">
-                {[
-                  { dot: "bg-green-500",     label: "Live now"   },
-                  { dot: "bg-blue-500/60",   label: "Upcoming"   },
-                  { dot: "bg-zinc-700",      label: "Future"     },
-                ].map(({ dot, label }) => (
-                  <div key={label} className="flex items-center gap-2.5">
-                    <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${dot}`} />
-                    <span className="text-zinc-600 text-xs">{label}</span>
-                  </div>
-                ))}
-              </div>
-            </FadeIn>
-
-            {/* Right — timeline cards */}
-            <div className="relative">
-              <div className="absolute left-[18px] top-3 bottom-3 w-px bg-white/[0.05]" />
-              <div className="space-y-3">
-                {[
-                  {
-                    date: "Now",
-                    title: "Based ID launches",
-                    body: "Public mint is open. $2 USDC flat. Permanent sequential IDs on Base — no expiry, no servers.",
-                    status: "now" as const,
-                  },
-                  {
-                    date: "~1,000 mints",
-                    title: "First Genesis auction — ID #100",
-                    body: "The rarest publicly-available slot goes to auction. Winner earns $BASED at the highest weight in both snapshots.",
-                    status: "upcoming" as const,
-                  },
-                  {
-                    date: "Sep 30, 2026 UTC",
-                    title: "Snapshot #1",
-                    body: "400M $BASED allocated proportionally by ID number. Lower number = higher weight = larger share.",
-                    status: "upcoming" as const,
-                  },
-                  {
-                    date: "Ongoing",
-                    title: "Genesis auctions continue",
-                    body: "IDs #99 down to #2 released one-by-one. Each number rarer than the last. Community events around each drop.",
-                    status: "upcoming" as const,
-                  },
-                  {
-                    date: "Dec 31, 2026 UTC",
-                    title: "Snapshot #2",
-                    body: "400M $BASED allocated. Every holder who made it through both snapshots earns from the full 800M pool.",
-                    status: "upcoming" as const,
-                  },
-                  {
-                    date: "January 2027",
-                    title: "Claim $BASED",
-                    body: "Claim button goes live in your dashboard. Every Based ID holder from both snapshots can claim their allocation.",
-                    status: "upcoming" as const,
-                  },
-                  {
-                    date: "2027",
-                    title: "DAO voting launches",
-                    body: "Community governs which projects join the ecosystem. Your $BASED weight = your governance power.",
-                    status: "future" as const,
-                  },
-                  {
-                    date: "2027+",
-                    title: "Genesis ID #1 — the final auction",
-                    body: "The rarest Based ID. One wallet wins it forever. The grand finale of the Genesis auction series.",
-                    status: "future" as const,
-                  },
-                ].map((item, i) => (
-                  <FadeIn key={i} delay={i * 0.06}>
-                    <RoadmapCard {...item} />
-                  </FadeIn>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── WHY BASED ID ─────────────────────────────────────────── */}
-      <section className="py-28 border-t border-white/[0.05] relative">
-        <div className="max-w-7xl mx-auto px-6 space-y-12">
-
-          <FadeIn>
-            <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
-              <div className="space-y-3">
-                <p className="text-zinc-600 text-[11px] uppercase tracking-[0.2em]">Why Based ID</p>
-                <h2 style={D} className="text-[clamp(2.5rem,5vw,4rem)] font-bold tracking-tight leading-tight">
-                  Built different.<br />By design.
-                </h2>
-              </div>
-              <p style={{ fontFamily: "var(--font-display), system-ui, sans-serif" }} className="text-zinc-500 text-sm leading-relaxed max-w-xs">
-                One ID. Every partner drop, whitelist, and airdrop — auto-qualified. No forms. No bots. No expiry.
-              </p>
-            </div>
-          </FadeIn>
-
-          {/* Bento grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-
-            {/* Hero card — $2 flat price */}
-            <FadeIn className="lg:col-span-2">
-              <div className="relative rounded-2xl border border-blue-900/25 bg-blue-950/10 p-8 h-full min-h-[220px] overflow-hidden flex flex-col justify-between gap-8">
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-950/30 via-transparent to-transparent pointer-events-none" />
-                <div className="absolute -right-8 -top-8 w-48 h-48 rounded-full bg-blue-600/5 blur-3xl pointer-events-none" />
-                <div className="relative space-y-2">
-                  <span className="inline-flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-[0.2em] px-2.5 py-1 rounded-full bg-green-900/30 text-green-400 border border-green-900/30">
-                    <span className="w-1 h-1 rounded-full bg-green-400 animate-pulse" />
-                    Live on Base
-                  </span>
-                  <p style={D} className="text-[4.5rem] font-black leading-none text-white">$2</p>
-                  <p style={D} className="text-xl font-bold text-white/80">One flat price. Forever.</p>
-                </div>
-                <div className="relative space-y-3">
-                  <p className="text-zinc-400 text-sm leading-relaxed max-w-sm">
-                    No phases, no presale, no price hike. The mint price is hardcoded in the contract — it cannot be changed by anyone, including us.
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    {["No presale", "No phases", "No price hike", "Hardcoded in contract"].map((t) => (
-                      <span key={t} className="text-[10px] text-blue-400/70 border border-blue-900/30 px-2.5 py-1 rounded-full">{t}</span>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </FadeIn>
-
-            {/* Permanent */}
-            <FadeIn delay={0.06}>
-              <SpotlightCard className="bg-background rounded-2xl border border-white/[0.06] p-7 h-full flex flex-col gap-5" spotlightColor="rgba(37,99,235,0.06)">
-                <div className="w-10 h-10 rounded-xl bg-white/[0.04] border border-white/[0.06] flex items-center justify-center text-zinc-400">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-                  </svg>
-                </div>
-                <div className="flex-1 space-y-2">
-                  <p style={D} className="text-white font-bold text-lg">Permanent</p>
-                  <p className="text-zinc-500 text-sm leading-relaxed">No servers. No IPFS. No expiry. Your ID art is generated inside the contract — it lives as long as Base lives.</p>
-                </div>
-                <div className="pt-4 border-t border-white/[0.05]">
-                  <p className="text-zinc-700 text-[10px] uppercase tracking-[0.15em]">On-chain SVG · No external dependencies</p>
-                </div>
-              </SpotlightCard>
-            </FadeIn>
-
-            {/* Bot-proof */}
-            <FadeIn delay={0.08}>
-              <SpotlightCard className="bg-background rounded-2xl border border-white/[0.06] p-7 h-full flex flex-col gap-5" spotlightColor="rgba(37,99,235,0.06)">
-                <div className="w-10 h-10 rounded-xl bg-white/[0.04] border border-white/[0.06] flex items-center justify-center text-zinc-400">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/>
-                  </svg>
-                </div>
-                <div className="flex-1 space-y-2">
-                  <p style={D} className="text-white font-bold text-lg">Bot-proof</p>
-                  <p className="text-zinc-500 text-sm leading-relaxed">Onchain by default. Wallet-verified. You can&apos;t fake a Based ID — every mint is a real person paying real money.</p>
-                </div>
-                <div className="pt-4 border-t border-white/[0.05]">
-                  <p className="text-zinc-700 text-[10px] uppercase tracking-[0.15em]">ERC-721 · $2 entry barrier</p>
-                </div>
-              </SpotlightCard>
-            </FadeIn>
-
-            {/* Auto-qualify */}
-            <FadeIn delay={0.10}>
-              <SpotlightCard className="bg-background rounded-2xl border border-white/[0.06] p-7 h-full flex flex-col gap-5" spotlightColor="rgba(37,99,235,0.06)">
-                <div className="w-10 h-10 rounded-xl bg-white/[0.04] border border-white/[0.06] flex items-center justify-center text-zinc-400">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
-                  </svg>
-                </div>
-                <div className="flex-1 space-y-2">
-                  <p style={D} className="text-white font-bold text-lg">Auto-qualify</p>
-                  <p className="text-zinc-500 text-sm leading-relaxed">Hold your ID and you&apos;re in — every partner drop and whitelist appears in your dashboard. No forms, no grinding.</p>
-                </div>
-                <div className="pt-4 border-t border-white/[0.05]">
-                  <p className="text-zinc-700 text-[10px] uppercase tracking-[0.15em]">Dashboard · Zero friction</p>
-                </div>
-              </SpotlightCard>
-            </FadeIn>
-
-            {/* 1B $BASED */}
-            <FadeIn delay={0.12}>
-              <SpotlightCard className="bg-background rounded-2xl border border-white/[0.06] p-7 h-full flex flex-col gap-5" spotlightColor="rgba(37,99,235,0.06)">
-                <div className="w-10 h-10 rounded-xl bg-white/[0.04] border border-white/[0.06] flex items-center justify-center text-zinc-400">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                    <ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>
-                  </svg>
-                </div>
-                <div className="flex-1 space-y-2">
-                  <p style={D} className="text-white font-bold text-lg">1B $BASED airdrop</p>
-                  <p className="text-zinc-500 text-sm leading-relaxed">Lower number = more weight = larger share. Two snapshots. The earlier you minted, the more you earn.</p>
-                </div>
-                <div className="pt-4 border-t border-white/[0.05]">
-                  <p className="text-zinc-700 text-[10px] uppercase tracking-[0.15em]">Claim January 2027</p>
-                </div>
-              </SpotlightCard>
-            </FadeIn>
-
-            {/* Open source — full width */}
-            <FadeIn delay={0.14} className="lg:col-span-3">
-              <div className="rounded-2xl border border-white/[0.06] bg-white/[0.01] p-7 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
-                <div className="flex items-start gap-5">
-                  <div className="w-10 h-10 rounded-xl bg-white/[0.04] border border-white/[0.06] flex items-center justify-center text-zinc-400 flex-shrink-0">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                      <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
-                    </svg>
-                  </div>
-                  <div className="space-y-1.5">
-                    <p style={D} className="text-white font-bold text-lg">Fully open source</p>
-                    <p className="text-zinc-500 text-sm leading-relaxed max-w-lg">
-                      Every line of contract code is public and verified on Basescan. No admin backdoor, no hidden permissions, no upgrade proxy. Read it yourself.
-                    </p>
-                  </div>
-                </div>
-                <a
-                  href={`${BASESCAN_URL}/address/${BASED_ID_ADDRESS}#code`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex-shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-xl border border-white/[0.08] text-zinc-300 text-sm font-medium hover:bg-white/[0.05] hover:text-white transition-colors"
-                >
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
-                  </svg>
-                  View on Basescan
-                </a>
-              </div>
-            </FadeIn>
-          </div>
-        </div>
-      </section>
-
-      {/* ── GET USDC GUIDE ───────────────────────────────────────── */}
-      <section className="py-24 border-t border-white/[0.05] relative">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-start">
-
-            {/* Left: heading + requirements */}
-            <FadeIn className="lg:sticky lg:top-24">
-              <div className="space-y-12">
-                <div className="space-y-5">
-                  <p className="text-zinc-600 text-[11px] uppercase tracking-[0.2em]">Before you mint</p>
-                  <h2 style={D} className="text-[clamp(2.2rem,4vw,3.2rem)] font-bold tracking-tight leading-[1.1]">
-                    Three things.<br />Under 60 seconds.
-                  </h2>
-                  <p className="text-zinc-500 text-sm leading-relaxed max-w-sm" style={{ fontFamily: "var(--font-display), system-ui, sans-serif" }}>
-                    No waitlists, no KYC, no gas surprises. Get these ready and you&apos;re good to go.
-                  </p>
-                </div>
-
-                {/* Clean numbered requirement list */}
-                <div>
-                  <p className="text-zinc-700 text-[10px] uppercase tracking-[0.2em] mb-5">What you need</p>
-                  <div className="divide-y divide-white/[0.04]">
-                    {[
-                      { n: "01", label: "A Base-compatible wallet", sub: "Coinbase Wallet, MetaMask, or Rainbow" },
-                      { n: "02", label: "$2 USDC on Base", sub: "Exactly $2 — see methods on the right" },
-                      { n: "03", label: "ETH for gas (~$0.01)", sub: "Base gas is near-zero — any small amount works" },
-                    ].map(({ n, label, sub }) => (
-                      <div key={n} className="flex items-start gap-6 py-5">
-                        <span className="font-mono text-zinc-700 text-[11px] flex-shrink-0 mt-0.5 w-5">{n}</span>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-white text-[15px] font-medium leading-snug">{label}</p>
-                          <p className="text-zinc-600 text-xs mt-1">{sub}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </FadeIn>
-
-            {/* Right: method cards */}
-            <FadeIn delay={0.08}>
-              <div className="space-y-3">
-                <p className="text-zinc-700 text-[10px] uppercase tracking-[0.2em] mb-5">How to get USDC on Base</p>
-                {[
-                  {
-                    step: "01",
-                    title: "Bridge from Ethereum",
-                    body: "Go to bridge.base.org, connect your wallet, and bridge USDC from Ethereum mainnet to Base. Takes ~1 minute.",
-                    tag: "Recommended",
-                    featured: true,
-                  },
-                  {
-                    step: "02",
-                    title: "Buy directly on Base",
-                    body: "Use Coinbase, Uniswap, or any DEX on Base to swap ETH → USDC. You'll need a small amount of ETH on Base for gas first.",
-                    tag: "Quick",
-                    featured: false,
-                  },
-                  {
-                    step: "03",
-                    title: "Withdraw from Coinbase",
-                    body: "If you have USDC on Coinbase, go to Send → select USDC → choose Base network → paste your wallet address.",
-                    tag: "Easiest for beginners",
-                    featured: false,
-                  },
-                ].map(({ step, title, body, tag, featured }) => (
-                  <div
-                    key={step}
-                    className="relative rounded-2xl border border-white/[0.06] p-6 overflow-hidden"
-                    style={featured ? { background: "rgba(255,255,255,0.02)" } : {}}
-                  >
-                    {/* Subtle left accent stripe on featured */}
-                    {featured && (
-                      <div className="absolute left-0 top-4 bottom-4 w-[2px] bg-blue-600/60 rounded-full" />
-                    )}
-                    <div className="flex items-start justify-between gap-4 mb-4">
-                      <span className="font-mono text-zinc-700 text-[11px] mt-0.5">{step}</span>
-                      <span className={`text-[10px] font-semibold uppercase tracking-[0.1em] px-2.5 py-1 rounded-md ${
-                        featured
-                          ? "text-blue-400 bg-blue-950/70 border border-blue-900/50"
-                          : "text-zinc-500 bg-zinc-900/60 border border-white/[0.05]"
-                      }`}>{tag}</span>
-                    </div>
-                    <p className="text-white font-semibold text-[15px] mb-2">{title}</p>
-                    <p className="text-zinc-500 text-sm leading-relaxed">{body}</p>
-                  </div>
-                ))}
-
-                {/* Gas note — inline, minimal */}
-                <p className="text-zinc-600 text-xs leading-relaxed pt-1 pl-1">
-                  <span className="text-zinc-400">Gas is less than $0.01 on Base.</span>{" "}
-                  Bridge a small amount of ETH alongside your USDC.
-                </p>
-              </div>
-            </FadeIn>
-          </div>
-        </div>
-      </section>
-
-      {/* ── FAQ ──────────────────────────────────────────────────── */}
-      <section id="faq" className="py-24 border-t border-white/[0.05] relative">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="grid grid-cols-1 lg:grid-cols-[1fr_2fr] gap-16 items-start">
-
-            {/* Left: sticky heading */}
-            <FadeIn className="lg:sticky lg:top-24">
-              <div className="space-y-6">
-                <div className="space-y-4">
-                  <p className="text-zinc-600 text-[11px] uppercase tracking-[0.2em]">FAQ</p>
-                  <h2 style={D} className="text-[clamp(2rem,4vw,3.5rem)] font-bold tracking-tight leading-tight">
-                    Everything<br />you need<br />to know.
-                  </h2>
-                </div>
-                <p className="text-zinc-500 text-sm leading-relaxed max-w-xs" style={{ fontFamily: "var(--font-display), system-ui, sans-serif" }}>
-                  Still have questions? Every rule is hardcoded in the contract — readable onchain, no trust required.
-                </p>
-                <a
-                  href={`${BASESCAN_URL}/address/${BASED_ID_ADDRESS}#code`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 text-xs text-zinc-500 hover:text-white transition-colors border border-white/[0.06] rounded-lg px-4 py-2.5"
-                >
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
-                  </svg>
-                  Read contract source ↗
-                </a>
-              </div>
-            </FadeIn>
-
-            {/* Right: accordion */}
-            <FadeIn delay={0.08}>
-              <div className="divide-y divide-white/[0.05] rounded-2xl border border-white/[0.06] overflow-hidden">
-                {[
-                  {
-                    q: "Can I mint more than one ID?",
-                    a: "Yes. There's no limit per wallet. Each ID earns $BASED separately in both snapshots — your lowest-numbered ID earns the most.",
-                  },
-                  {
-                    q: "What happens if I sell my ID before the snapshot?",
-                    a: "Whoever holds the ID at snapshot time earns the allocation. If you sell before Sep 30, the buyer gets the Snapshot #1 rewards.",
-                  },
-                  {
-                    q: "Is the $2 price permanent?",
-                    a: "Yes. The mint price is hardcoded in the contract at $2 USDC. It cannot be changed — not even by us.",
-                  },
-                  {
-                    q: "What is the Base Activity Score?",
-                    a: "Every Based ID profile automatically scores the holder's onchain history on Base — wallet age, transaction volume, and protocols used. Scores update continuously and are visible on your public profile. Partners use scores to identify real builders vs. new wallets. Your score has no effect on your $BASED airdrop allocation, which is determined solely by your ID number.",
-                  },
-                  {
-                    q: "What is $BASED? Is it tradeable?",
-                    a: "$BASED is a community token distributed to Based ID holders. It will be claimable in January 2027. No guaranteed value.",
-                  },
-                  {
-                    q: "How does the airdrop weight work?",
-                    a: "Weight = 1 / sqrt(your ID number). So #1 has weight 1.0, #4 has 0.5, #100 has 0.1. Lower ID = higher share of each snapshot pool.",
-                  },
-                  {
-                    q: "What are Genesis IDs (#1–#100)?",
-                    a: "They're held back from public minting and will be auctioned one-by-one before Snapshot #1 (Sep 30, 2026), starting from #100 down to #1. Winners earn $BASED at the highest weight.",
-                  },
-                  {
-                    q: "Is the contract verified and open source?",
-                    a: "Yes. The full contract source is verified on Basescan. You can read every line — mint price, snapshot logic, withdrawal rules.",
-                  },
-                  {
-                    q: "Do I need to do anything to receive the airdrop?",
-                    a: "No action needed before January 2027. Just hold your Based ID through both snapshots. A claim button will appear in your dashboard.",
-                  },
-                ].map(({ q, a }) => (
-                  <FaqItem key={q} q={q} a={a} />
-                ))}
-              </div>
-            </FadeIn>
-          </div>
-        </div>
-      </section>
-
-      {/* ── FINAL CTA ───────────────────────────────────────────── */}
-      <section className="border-t border-white/[0.05] py-32">
-        <div className="max-w-7xl mx-auto px-6 text-center space-y-8">
-          <FadeIn>
-            <p className="text-zinc-600 text-[11px] uppercase tracking-[0.2em]">Get started</p>
-            <h2 style={D} className="text-[clamp(2.5rem,6vw,5rem)] font-bold tracking-tight leading-tight mt-4">
+      {/* ── FINAL CTA ── */}
+      <section className="border-t border-white/[0.06] py-32">
+        <FadeIn>
+          <div className="max-w-7xl mx-auto px-6 text-center space-y-6">
+            <h2 style={D} className="text-[clamp(3rem,7vw,6rem)] font-black tracking-tight leading-[0.92] text-white">
               Your number<br />is waiting.
             </h2>
-            <p className="text-zinc-500 text-sm mt-6 max-w-sm mx-auto leading-relaxed">
-              Mint once for $2. Keep it forever. Every benefit activates automatically.
-            </p>
-          </FadeIn>
-          <FadeIn delay={0.1}>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
-              <a
-                href="#mint"
-                onClick={(e) => {
-                  e.preventDefault();
-                  document.getElementById("mint-card")?.scrollIntoView({ behavior: "smooth" });
-                }}
-                className="px-8 py-4 rounded-xl bg-white text-black font-bold text-sm hover:bg-zinc-100 transition-colors"
-              >
+            <p className="text-zinc-500 text-base max-w-sm mx-auto">Mint once for $2. Keep it forever. Auto-qualify for every drop on Base.</p>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-4">
+              <a href="#mint" onClick={e => { e.preventDefault(); document.getElementById("mint-card")?.scrollIntoView({ behavior: "smooth" }); }}
+                className="px-8 py-4 rounded-xl bg-white text-black font-bold text-sm hover:bg-zinc-100 transition-colors">
                 Mint Now — $2 USDC
               </a>
-              <Link href="/dashboard" className="px-8 py-4 rounded-xl border border-white/[0.08] text-zinc-400 font-medium text-sm hover:text-white hover:border-white/[0.15] transition-colors">
-                View Dashboard →
+              <Link href="/drops" className="px-8 py-4 rounded-xl border border-white/[0.08] text-zinc-400 text-sm font-medium hover:text-white hover:border-white/[0.15] transition-colors">
+                Browse drops →
               </Link>
             </div>
-            <p className="text-zinc-700 text-xs mt-6">Permanent · Onchain · No gas surprises</p>
-          </FadeIn>
-        </div>
+            <p className="text-zinc-700 text-xs">Permanent · Onchain · Open source</p>
+          </div>
+        </FadeIn>
       </section>
 
-      {/* ── FOOTER ──────────────────────────────────────────────── */}
-      <footer className="border-t border-white/[0.05] py-14">
-        <div className="max-w-7xl mx-auto px-6 space-y-8">
+      {/* ── FOOTER ── */}
+      <footer className="border-t border-white/[0.06] py-12">
+        <div className="max-w-7xl mx-auto px-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
-
-            {/* Wordmark */}
-            <div className="space-y-1.5">
-              <div className="flex items-center gap-1">
-                <span style={D} className="font-bold text-sm text-white tracking-tight">Based</span>
-                <span className="text-white/20 text-xs mx-1">·</span>
-                <span className="font-mono text-xs text-zinc-500 tracking-widest">ID</span>
-              </div>
+            <div className="space-y-1">
+              <span style={D} className="font-bold text-sm text-white">Based ID</span>
               <p className="text-zinc-700 text-xs">Built on Base · 2026</p>
             </div>
-
-            {/* Nav */}
-            <div className="flex items-center gap-6 text-[11px] text-zinc-600">
+            <div className="flex items-center gap-6 text-xs text-zinc-600 flex-wrap">
+              <Link href="/drops"       className="hover:text-zinc-300 transition-colors">Drops</Link>
+              <Link href="/projects"    className="hover:text-zinc-300 transition-colors">Projects</Link>
               <Link href="/leaderboard" className="hover:text-zinc-300 transition-colors">Leaderboard</Link>
               <Link href="/activity"    className="hover:text-zinc-300 transition-colors">Activity</Link>
               <Link href="/dashboard"   className="hover:text-zinc-300 transition-colors">Dashboard</Link>
+              <Link href="/partner"     className="hover:text-zinc-300 transition-colors">Partners</Link>
+              <a href="https://x.com/basedidofficial" target="_blank" rel="noopener noreferrer" className="hover:text-zinc-300 transition-colors">@basedidofficial</a>
             </div>
-
-            {/* Social */}
-            <a
-              href="https://x.com/basedidofficial"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-zinc-600 hover:text-white transition-colors text-sm font-bold"
-              aria-label="Based ID on X"
-            >
-              𝕏
-            </a>
           </div>
-
-          {/* Contract + disclaimer */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-6 border-t border-white/[0.05]">
-            <div className="flex items-center gap-2 text-[11px] text-zinc-700">
+          <div className="mt-6 pt-6 border-t border-white/[0.05] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <div className="flex items-center gap-2 text-xs text-zinc-700">
               <span>Contract:</span>
-              <a
-                href={`${BASESCAN_URL}/address/${BASED_ID_ADDRESS}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="font-mono hover:text-zinc-400 transition-colors"
-              >
-                {BASED_ID_ADDRESS.slice(0, 6)}…{BASED_ID_ADDRESS.slice(-4)}
+              <a href={`${BASESCAN_URL}/address/${BASED_ID_ADDRESS}`} target="_blank" rel="noopener noreferrer"
+                className="font-mono hover:text-zinc-400 transition-colors">
+                {BASED_ID_ADDRESS.slice(0,6)}…{BASED_ID_ADDRESS.slice(-4)}
               </a>
             </div>
-            <p className="text-zinc-700 text-[11px]">Minting open · No close date</p>
+            <p className="text-zinc-700 text-xs">Minting open · No close date · Fully open source</p>
           </div>
-
         </div>
       </footer>
 
@@ -1841,33 +553,24 @@ export default function Home() {
 
 // ─── Components ───────────────────────────────────────────────────────────────
 
-function MintAction({
-  label, sub, btnLabel, onClick, loading, primary = false,
-}: {
-  label: string; sub: string; btnLabel: string;
-  onClick: () => void; loading: boolean; primary?: boolean;
+function MintAction({ label, sub, btnLabel, onClick, loading, primary = false }: {
+  label: string; sub: string; btnLabel: string; onClick: () => void; loading: boolean; primary?: boolean;
 }) {
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-white font-semibold text-[15px]">{label}</p>
+          <p className="text-white font-semibold text-sm">{label}</p>
           <p className="text-zinc-600 text-xs mt-0.5">{sub}</p>
         </div>
-        {primary && (
-          <span className="text-[9px] px-2.5 py-1 rounded-full border border-green-900/40 bg-green-500/[0.05] text-green-400 uppercase tracking-[0.12em]">
-            Final step
-          </span>
-        )}
+        {primary && <span className="text-[9px] px-2 py-1 rounded-full border border-green-900/40 bg-green-500/[0.06] text-green-400 font-medium">Final step</span>}
       </div>
-      <button
-        onClick={onClick} disabled={loading}
-        className={`w-full py-4 rounded-xl font-bold text-sm tracking-wide transition-all disabled:opacity-30 disabled:cursor-not-allowed
-          ${primary
-            ? "bg-white text-black hover:bg-zinc-100 shadow-[0_2px_40px_rgba(255,255,255,0.07)] hover:shadow-[0_2px_40px_rgba(255,255,255,0.12)]"
-            : "bg-white/[0.05] border border-white/[0.1] text-white hover:bg-white/[0.09]"
-          }`}
-      >
+      <button onClick={onClick} disabled={loading}
+        className={`w-full py-4 rounded-xl font-bold text-sm transition-all disabled:opacity-30 disabled:cursor-not-allowed ${
+          primary
+            ? "bg-white text-black hover:bg-zinc-100"
+            : "bg-white/[0.05] border border-white/[0.08] text-white hover:bg-white/[0.09]"
+        }`}>
         {loading ? (
           <span className="flex items-center justify-center gap-2">
             <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
@@ -1884,109 +587,36 @@ function MintAction({
 
 function SuccessCard({ id, onMintAnother }: { id: bigint; onMintAnother: () => void }) {
   function shareOnX() {
-    const text = `Just minted Based ID #${id.toString()} on Base.\n\nLower number = earlier = bigger $BASED airdrop.\n$2 USDC flat. No phases. No price changes. Ever.\n\nMint yours → basedid.space\n\n@basedidofficial`;
+    const text = `Just minted Based ID #${id.toString()} on Base.\n\nLower number = earlier = bigger $BASED airdrop.\n$2 USDC flat.\n\nbasedid.space\n\n@basedidofficial`;
     window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`, "_blank");
   }
   return (
-    <div className="rounded-xl border border-white/[0.07] p-5 space-y-4">
-      <div className="text-center">
-        <p className="text-green-400 text-[11px] font-medium uppercase tracking-[0.15em] mb-1">Minted</p>
-        <p className="text-zinc-400 text-sm">Based ID #{id.toString()} is yours forever.</p>
+    <div className="rounded-xl border border-green-900/25 bg-green-950/[0.06] p-5 space-y-4">
+      <div className="text-center space-y-1">
+        <p className="text-green-400 text-sm font-bold">Minted ✓</p>
+        <p className="text-zinc-400 text-xs">Based ID #{id.toString()} is yours forever.</p>
       </div>
       <div className="grid grid-cols-3 gap-2">
-        <button onClick={shareOnX}
-          className="py-3 rounded-lg bg-zinc-900 border border-white/[0.07] hover:bg-zinc-800 text-white text-xs font-medium transition-colors">
-          Share on X
-        </button>
-        <Link href="/dashboard"
-          className="py-3 rounded-lg bg-zinc-900 border border-white/[0.07] hover:bg-zinc-800 text-white text-xs font-medium transition-colors text-center">
-          Dashboard
-        </Link>
-        <button onClick={onMintAnother}
-          className="py-3 rounded-lg bg-white text-black text-xs font-bold transition-colors hover:bg-zinc-100">
-          Mint Again
-        </button>
+        <button onClick={shareOnX} className="py-2.5 rounded-lg border border-white/[0.08] text-zinc-300 text-xs font-medium hover:bg-white/[0.04] transition-colors">Share</button>
+        <Link href="/dashboard" className="py-2.5 rounded-lg border border-white/[0.08] text-zinc-300 text-xs font-medium hover:bg-white/[0.04] transition-colors text-center">Dashboard</Link>
+        <button onClick={onMintAnother} className="py-2.5 rounded-lg bg-white text-black text-xs font-bold hover:bg-zinc-100 transition-colors">Mint again</button>
       </div>
     </div>
   );
 }
-
 
 function FaqItem({ q, a }: { q: string; a: string }) {
   const [open, setOpen] = useState(false);
   return (
-    <button
-      className="w-full text-left px-6 py-6 focus:outline-none group hover:bg-white/[0.015] transition-colors"
-      onClick={() => setOpen((o) => !o)}
-    >
+    <button className="w-full text-left px-6 py-5 focus:outline-none group hover:bg-white/[0.02] transition-colors" onClick={() => setOpen(o => !o)}>
       <div className="flex items-start justify-between gap-6">
-        <p className="text-white font-medium text-[15px] leading-snug flex-1">{q}</p>
-        <div className={`w-6 h-6 rounded-full border border-white/[0.1] flex items-center justify-center flex-shrink-0 mt-0.5 transition-all duration-200 group-hover:border-white/20 ${open ? "bg-white/[0.05]" : ""}`}>
-          <svg
-            width="10" height="6" viewBox="0 0 10 6" fill="none"
-            stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"
-            className={`text-zinc-500 transition-transform duration-200 group-hover:text-zinc-300 ${open ? "rotate-180 text-zinc-300" : ""}`}
-          >
-            <path d="M1 1l4 4 4-4"/>
-          </svg>
-        </div>
+        <p className="text-white text-sm font-medium leading-snug flex-1">{q}</p>
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"
+          className={`text-zinc-600 flex-shrink-0 mt-0.5 transition-transform duration-200 ${open ? "rotate-180" : ""}`}>
+          <path d="M3 5l5 5 5-5"/>
+        </svg>
       </div>
-      {open && (
-        <p className="text-zinc-400 text-sm leading-relaxed mt-4 pr-10">{a}</p>
-      )}
+      {open && <p className="text-zinc-500 text-sm leading-relaxed mt-3 pr-6">{a}</p>}
     </button>
-  );
-}
-
-function RoadmapCard({ date, title, body, status }: {
-  date: string; title: string; body: string; status: "now" | "upcoming" | "future";
-}) {
-  const isNow    = status === "now";
-  const isFuture = status === "future";
-  return (
-    <div className={`relative flex gap-4 ${isFuture ? "opacity-40" : ""}`}>
-      {/* Dot */}
-      <div className="flex-shrink-0 w-9 flex justify-center pt-5 relative z-10">
-        <div className={`w-2.5 h-2.5 rounded-full flex-shrink-0 relative ${
-          isNow
-            ? "bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.6)]"
-            : isFuture
-            ? "bg-zinc-800 border border-zinc-700"
-            : "bg-blue-500/30 border border-blue-500/50"
-        }`}>
-          {isNow && (
-            <span className="absolute inset-0 rounded-full bg-green-500 animate-ping opacity-30" />
-          )}
-        </div>
-      </div>
-
-      {/* Card */}
-      <div className={`flex-1 mb-3 rounded-2xl border px-5 py-4 transition-colors ${
-        isNow
-          ? "border-green-900/30 bg-green-950/[0.08]"
-          : isFuture
-          ? "border-white/[0.03] bg-transparent"
-          : "border-white/[0.05] bg-white/[0.01] hover:bg-white/[0.025]"
-      }`}>
-        <div className="flex items-start justify-between gap-4 mb-2">
-          <p className={`text-[10px] font-semibold uppercase tracking-[0.2em] ${
-            isNow ? "text-green-500" : isFuture ? "text-zinc-700" : "text-blue-400"
-          }`}>{date}</p>
-          <span className={`flex-shrink-0 text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-[0.1em] ${
-            isNow
-              ? "bg-green-900/40 text-green-400 border border-green-800/40"
-              : isFuture
-              ? "bg-white/[0.02] text-zinc-700 border border-white/[0.04]"
-              : "bg-blue-900/20 text-blue-400/80 border border-blue-900/20"
-          }`}>
-            {isNow ? "Live" : isFuture ? "Future" : "Upcoming"}
-          </span>
-        </div>
-        <p className={`font-bold text-base leading-snug mb-1.5 ${isFuture ? "text-zinc-600" : "text-white"}`}>
-          {title}
-        </p>
-        <p className="text-zinc-600 text-xs leading-relaxed">{body}</p>
-      </div>
-    </div>
   );
 }
