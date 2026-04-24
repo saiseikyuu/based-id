@@ -1,10 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useAccount } from "wagmi";
+import { useAccount, useReadContract } from "wagmi";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import Link from "next/link";
 import toast from "react-hot-toast";
+import { BASED_ID_ADDRESS, BASED_ID_ABI } from "@/lib/contracts";
 import type { Drop, Task } from "@/lib/supabase";
 
 type CompletedTask = { task_id: string; method: "self_attest" | "onchain" };
@@ -32,19 +33,22 @@ export function DropEntry({
   const [completed, setCompleted]   = useState<CompletedTask[]>([]);
   const [entering, setEntering]     = useState(false);
   const [entered, setEntered]       = useState(false);
-  const [checking, setChecking]     = useState(false);
-  const [holdsId, setHoldsId]       = useState<boolean | null>(null);
+  const [verifying, setVerifying]   = useState(false);
 
-  // Check if wallet holds a Based ID
-  useEffect(() => {
-    if (!address) { setHoldsId(null); return; }
-    setChecking(true);
-    fetch(`/api/check/${address}`)
-      .then((r) => r.json())
-      .then((d) => setHoldsId(d.holds === true))
-      .catch(() => setHoldsId(false))
-      .finally(() => setChecking(false));
-  }, [address]);
+  // Read balanceOf directly onchain via wagmi — no API call, no auth needed
+  const { data: balance, isLoading: checking } = useReadContract({
+    address: BASED_ID_ADDRESS,
+    abi: BASED_ID_ABI,
+    functionName: "balanceOf",
+    args: address ? [address] : undefined,
+    query: { enabled: !!address },
+  });
+
+  const holdsId = address
+    ? balance !== undefined
+      ? (balance as bigint) > BigInt(0)
+      : null          // still loading
+    : null;
 
   // Check if already entered
   useEffect(() => {
@@ -62,7 +66,7 @@ export function DropEntry({
 
   async function handleOnchainTask(task: Task) {
     if (!address) return;
-    setChecking(true);
+    setVerifying(true);
     try {
       const res  = await fetch("/api/tasks/verify-onchain", {
         method: "POST",
@@ -79,7 +83,7 @@ export function DropEntry({
     } catch {
       toast.error("Verification failed");
     } finally {
-      setChecking(false);
+      setVerifying(false);
     }
   }
 
@@ -172,11 +176,17 @@ export function DropEntry({
   if (holdsId === false) {
     return (
       <div className="rounded-2xl border border-red-900/30 bg-red-950/10 p-6 space-y-4">
-        <p className="text-red-300 font-medium text-sm">You need a Based ID to enter drops.</p>
-        <p className="text-zinc-500 text-xs leading-relaxed">Mint your permanent Based ID for $2 USDC on Base. One-time, forever.</p>
-        <Link href="/#mint-card" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white text-black text-sm font-bold hover:bg-zinc-100 transition-colors">
-          Mint Based ID — $2 →
-        </Link>
+        <p className="text-red-300 font-medium text-sm">No Based ID found on this wallet.</p>
+        <p className="text-zinc-500 text-xs leading-relaxed">
+          Make sure you&apos;re connected with the wallet that holds your Based ID.
+          If you minted from a different wallet, switch to it in your wallet app.
+        </p>
+        <div className="flex items-center gap-3 flex-wrap">
+          <Link href="/#mint-card" className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white text-black text-sm font-bold hover:bg-zinc-100 transition-colors">
+            Mint Based ID — $2 →
+          </Link>
+          <ConnectButton showBalance={false} chainStatus="none" label="Switch wallet" />
+        </div>
       </div>
     );
   }
@@ -230,10 +240,10 @@ export function DropEntry({
                 {!done && (
                   <button
                     onClick={() => action.onchain ? handleOnchainTask(task) : handleSelfAttest(task, action.url)}
-                    disabled={checking}
+                    disabled={verifying}
                     className="text-blue-400 text-[11px] font-medium hover:text-blue-300 transition-colors flex-shrink-0 disabled:opacity-50"
                   >
-                    {action.onchain ? "Verify" : "Complete"}
+                    {verifying && action.onchain ? "Verifying…" : action.onchain ? "Verify" : "Complete"}
                   </button>
                 )}
               </div>
