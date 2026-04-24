@@ -104,7 +104,7 @@ async function findAllTokens(
   return ids.sort((a, b) => (a < b ? -1 : 1));
 }
 
-type Tab = "ids" | "rewards" | "auctions" | "owner";
+type Tab = "ids" | "drops" | "entries" | "wins" | "rewards" | "auctions" | "owner";
 
 // ─── Tier system ─────────────────────────────────────────────────────────────
 
@@ -526,9 +526,12 @@ export default function Dashboard() {
 
   // ── Full dashboard ───────────────────────────────────────────────────────
   const tabs: { key: Tab; label: string; badge?: string; ownerOnly?: boolean }[] = [
-    { key: "ids",       label: "My IDs",    badge: tokenIds.length.toString() },
-    { key: "rewards",   label: "Rewards" },
-    { key: "auctions",  label: "Auctions",  badge: "Live" },
+    { key: "ids",      label: "My IDs",   badge: tokenIds.length.toString() },
+    { key: "drops",    label: "Drops",    badge: "New" },
+    { key: "entries",  label: "Entries" },
+    { key: "wins",     label: "Wins" },
+    { key: "rewards",  label: "Rewards" },
+    { key: "auctions", label: "Auctions", badge: "Live" },
     { key: "owner",     label: "Owner",     ownerOnly: true },
   ];
 
@@ -629,6 +632,38 @@ export default function Dashboard() {
             </div>
           ) : null;
         })()}
+
+        {/* ── Tab: Drops ── */}
+        {activeTab === "drops" && (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between gap-4 flex-wrap">
+              <div>
+                <h2 className="text-white font-bold text-xl" style={{ fontFamily: "var(--font-display), system-ui, sans-serif" }}>Live Drops</h2>
+                <p className="text-zinc-500 text-sm mt-1">Active drops you can enter now. Hold your Based ID to qualify.</p>
+              </div>
+              <Link href="/drops" className="text-blue-400 text-sm hover:text-blue-300 transition-colors">See all →</Link>
+            </div>
+            <div className="rounded-2xl border border-blue-900/25 bg-blue-950/[0.06] p-8 text-center space-y-4">
+              <p className="text-blue-400 text-sm font-medium">Drops portal launching May 15</p>
+              <p className="text-zinc-500 text-sm leading-relaxed max-w-sm mx-auto">
+                Airdrops, NFT drops, whitelists, and raffles — all in one place. Your Based ID auto-qualifies you.
+              </p>
+              <Link href="/drops" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl border border-blue-500/30 text-blue-300 text-sm font-medium hover:bg-blue-950/30 transition-colors">
+                Preview drops →
+              </Link>
+            </div>
+          </div>
+        )}
+
+        {/* ── Tab: My Entries ── */}
+        {activeTab === "entries" && (
+          <DashboardEntries address={address!} won={false} />
+        )}
+
+        {/* ── Tab: My Wins ── */}
+        {activeTab === "wins" && (
+          <DashboardEntries address={address!} won={true} />
+        )}
 
         {/* ── Tab: My IDs ── */}
         {activeTab === "ids" && (
@@ -2101,3 +2136,66 @@ function Shell({ children }: { children: React.ReactNode }) {
   );
 }
 
+
+
+// ─── Dashboard Entries / Wins tab ────────────────────────────────────────────
+
+function DashboardEntries({ address, won }: { address: string; won: boolean }) {
+  const [entries, setEntries] = useState<{ id: string; drop_id: string; status: string; created_at: string; drops?: { title: string } }[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch(`/api/entries?wallet=${address}&won=${won}`)
+      .then((r) => r.json())
+      .then((d) => setEntries(Array.isArray(d) ? d : []))
+      .catch(() => setEntries([]))
+      .finally(() => setLoading(false));
+  }, [address, won]);
+
+  if (loading) {
+    return <div className="text-center py-12"><p className="text-zinc-500 text-sm">Loading…</p></div>;
+  }
+
+  if (entries.length === 0) {
+    return (
+      <div className="rounded-2xl border border-white/[0.06] bg-white/[0.01] px-8 py-16 text-center space-y-4">
+        <p className="text-zinc-400 font-medium">{won ? "No wins yet" : "No entries yet"}</p>
+        <p className="text-zinc-600 text-sm max-w-sm mx-auto">
+          {won
+            ? "Keep entering drops — winners are drawn randomly. Your Based ID gets you in."
+            : "Browse active drops and enter to win airdrops, NFTs, and whitelists."}
+        </p>
+        <Link href="/drops" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white text-black text-sm font-bold hover:bg-zinc-100 transition-colors">
+          Browse drops →
+        </Link>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-3">
+      {entries.map((entry) => (
+        <div key={entry.id} className={`rounded-xl border px-5 py-4 flex items-center justify-between gap-4 flex-wrap ${
+          entry.status === "won" ? "border-green-900/25 bg-green-950/[0.06]" : "border-white/[0.06] bg-white/[0.01]"
+        }`}>
+          <div className="min-w-0 space-y-1">
+            <Link href={`/drops/${entry.drop_id}`} className="text-white font-medium text-sm hover:text-blue-300 transition-colors truncate block">
+              {entry.drops?.title ?? entry.drop_id}
+            </Link>
+            <p className="text-zinc-600 text-[11px]">
+              Entered {new Date(entry.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+            </p>
+          </div>
+          <span className={`text-[10px] font-bold uppercase tracking-[0.12em] px-2 py-0.5 rounded-full border flex-shrink-0 ${
+            entry.status === "won"          ? "text-green-400 bg-green-500/10 border-green-500/20" :
+            entry.status === "lost"         ? "text-zinc-500 bg-zinc-500/10 border-zinc-500/20" :
+            entry.status === "disqualified" ? "text-red-400 bg-red-500/10 border-red-500/20" :
+            "text-blue-400 bg-blue-500/10 border-blue-500/20"
+          }`}>
+            {entry.status}
+          </span>
+        </div>
+      ))}
+    </div>
+  );
+}
