@@ -43,44 +43,54 @@ const AMBER: React.CSSProperties = {
 async function findAllTokens(
   client: ReturnType<typeof usePublicClient>,
   address: string,
-  total: number
 ): Promise<bigint[]> {
   if (!client) return [];
 
+  // Read balance and total supply fresh — don't rely on stale props
   let targetCount = 0;
+  let total = 0;
   try {
-    const bal = await client.readContract({
-      address: BASED_ID_ADDRESS, abi: BASED_ID_ABI,
-      functionName: "balanceOf", args: [address as `0x${string}`],
-    }) as bigint;
+    const [bal, minted] = await Promise.all([
+      client.readContract({ address: BASED_ID_ADDRESS, abi: BASED_ID_ABI, functionName: "balanceOf", args: [address as `0x${string}`] }) as Promise<bigint>,
+      client.readContract({ address: BASED_ID_ADDRESS, abi: BASED_ID_ABI, functionName: "totalMinted" }) as Promise<bigint>,
+    ]);
     targetCount = Number(bal);
-  } catch { /* scan anyway */ }
+    total = Number(minted);
+  } catch { /* fall through */ }
 
   if (targetCount === 0) return [];
 
+  // Fast path: use Transfer events (captures both minted + received)
   try {
-    const logs = await client.getLogs({
-      address: BASED_ID_ADDRESS,
-      event: parseAbiItem("event Minted(address indexed to, uint256 indexed tokenId)"),
-      args: { to: address as `0x${string}` },
-      fromBlock: BigInt(0),
-      toBlock: "latest",
-    });
-    if (logs.length === targetCount) {
-      return logs
-        .map((l) => l.args.tokenId)
-        .filter((id): id is bigint => id !== undefined)
-        .sort((a, b) => (a < b ? -1 : 1));
-    }
-  } catch { /* RPC rejected large block range — fall through */ }
+    const [inLogs, outLogs] = await Promise.all([
+      client.getLogs({
+        address: BASED_ID_ADDRESS,
+        event: parseAbiItem("event Transfer(address indexed from, address indexed to, uint256 indexed tokenId)"),
+        args: { to: address as `0x${string}` },
+        fromBlock: BigInt(0), toBlock: "latest",
+      }),
+      client.getLogs({
+        address: BASED_ID_ADDRESS,
+        event: parseAbiItem("event Transfer(address indexed from, address indexed to, uint256 indexed tokenId)"),
+        args: { from: address as `0x${string}` },
+        fromBlock: BigInt(0), toBlock: "latest",
+      }),
+    ]);
+    const inIds  = new Set(inLogs.map((l) => l.args.tokenId?.toString()).filter(Boolean));
+    const outIds = new Set(outLogs.map((l) => l.args.tokenId?.toString()).filter(Boolean));
+    const held = [...inIds].filter((id): id is string => !!id && !outIds.has(id)).map(BigInt);
+    if (held.length === targetCount) return held.sort((a, b) => (a < b ? -1 : 1));
+  } catch { /* RPC rejected large block range — fall through to ownerOf scan */ }
 
+  // Fallback: ownerOf scan over all minted IDs
+  const scanMax = Math.max(total, targetCount);
   const ids: bigint[] = [];
   for (
     let start = 1;
-    start <= Math.max(total, targetCount) && ids.length < targetCount;
+    start <= scanMax && ids.length < targetCount;
     start += SCAN_BATCH
   ) {
-    const end = Math.min(start + SCAN_BATCH - 1, total);
+    const end = Math.min(start + SCAN_BATCH - 1, scanMax);
     const tokenRange = Array.from({ length: end - start + 1 }, (_, i) => BigInt(start + i));
     const owners = await Promise.all(
       tokenRange.map((id) =>
@@ -183,12 +193,14 @@ export default function Dashboard() {
     if (!isConnected || !address || !publicClient) {
       setTokenIds([]); setResolved(false); return;
     }
+    let cancelled = false;
     setLoading(true); setResolved(false);
-    const total = totalMinted !== undefined ? Number(totalMinted) : 0;
-    findAllTokens(publicClient, address, total).then((ids) => {
+    findAllTokens(publicClient, address).then((ids) => {
+      if (cancelled) return;
       setTokenIds(ids); setLoading(false); setResolved(true);
     });
-  }, [address, isConnected, publicClient, totalMinted]);
+    return () => { cancelled = true; };
+  }, [address, isConnected, publicClient]);
 
   const primaryId  = tokenIds.length > 0 ? tokenIds[0] : null;
   const totalPages = Math.ceil(tokenIds.length / PAGE_SIZE);
