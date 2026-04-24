@@ -276,26 +276,24 @@ export default function Home() {
 
             {/* Stats — 3-column metric panel */}
             <div className="grid grid-cols-3 border border-white/[0.06] rounded-2xl overflow-hidden divide-x divide-white/[0.06]">
-              <div className="px-5 py-5">
+              <div className="px-3 sm:px-5 py-4 sm:py-5">
                 <div className="flex items-center gap-1.5 mb-1.5">
                   {totalMinted !== undefined ? (
-                    <CountUp to={Number(totalMinted)} duration={1.8} className="text-[1.6rem] font-black tabular-nums leading-none" />
+                    <CountUp to={Number(totalMinted)} duration={1.8} className="text-2xl sm:text-[1.6rem] font-black tabular-nums leading-none" />
                   ) : (
-                    <span className="text-[1.6rem] font-black leading-none">—</span>
+                    <span className="text-2xl sm:text-[1.6rem] font-black leading-none">—</span>
                   )}
                   <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse flex-shrink-0" />
                 </div>
-                <Link href="/leaderboard" className="text-zinc-600 text-[10px] uppercase tracking-[0.18em] hover:text-zinc-400 transition-colors">
-                  Minted · Leaderboard →
-                </Link>
+                <p className="text-zinc-600 text-[9px] sm:text-[10px] uppercase tracking-[0.12em] sm:tracking-[0.18em]">Minted</p>
               </div>
-              <div className="px-5 py-5">
-                <p className="text-[1.6rem] font-black leading-none mb-1.5">$2</p>
-                <p className="text-zinc-600 text-[10px] uppercase tracking-[0.18em]">USDC flat</p>
+              <div className="px-3 sm:px-5 py-4 sm:py-5">
+                <p className="text-2xl sm:text-[1.6rem] font-black leading-none mb-1.5">$2</p>
+                <p className="text-zinc-600 text-[9px] sm:text-[10px] uppercase tracking-[0.12em] sm:tracking-[0.18em]">USDC flat</p>
               </div>
-              <div className="px-5 py-5">
-                <p className="text-[1.6rem] font-black leading-none mb-1.5" style={GRAD}>1B</p>
-                <p className="text-zinc-600 text-[10px] uppercase tracking-[0.18em]">$BASED supply</p>
+              <div className="px-3 sm:px-5 py-4 sm:py-5">
+                <p className="text-2xl sm:text-[1.6rem] font-black leading-none mb-1.5" style={GRAD}>1B</p>
+                <p className="text-zinc-600 text-[9px] sm:text-[10px] uppercase tracking-[0.12em] sm:tracking-[0.18em]">$BASED supply</p>
               </div>
             </div>
           </div>
@@ -313,7 +311,7 @@ export default function Home() {
                   <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse flex-shrink-0" />
                   Minting open
                 </div>
-                <span className="text-[10px] text-zinc-600 tabular-nums">Snapshot #1 — Sep 30, 2026</span>
+                <span className="text-[10px] text-zinc-600 tabular-nums hidden sm:block">Snapshot #1 — Sep 30, 2026</span>
               </div>
 
               {/* NFT card */}
@@ -325,11 +323,11 @@ export default function Home() {
               <div className="px-5 pb-5 space-y-4">
                 {/* Snapshot + price row */}
                 <div className="flex items-center justify-between text-[10px] text-zinc-700 uppercase tracking-[0.12em]">
-                  <div className="flex items-center gap-1.5">
-                    <span className="w-1 h-1 rounded-full bg-blue-600" />
-                    Snapshot #1 — Sep 30, 2026 (UTC)
+                  <div className="flex items-center gap-1.5 min-w-0">
+                    <span className="w-1 h-1 rounded-full bg-blue-600 flex-shrink-0" />
+                    <span className="truncate">Snapshot #1 — Sep 30, 2026</span>
                   </div>
-                  <span className="normal-case tracking-normal font-medium text-zinc-500">$2 USDC</span>
+                  <span className="normal-case tracking-normal font-medium text-zinc-500 flex-shrink-0 ml-2">$2 USDC</span>
                 </div>
 
                 {/* Mint states */}
@@ -614,7 +612,7 @@ export default function Home() {
                   </div>
 
                   {/* Score rings */}
-                  <div className="flex items-center gap-5 flex-shrink-0">
+                  <div className="hidden sm:flex items-center gap-5 flex-shrink-0">
                     {([["S", 88, "#f59e0b", "Elite"], ["A", 65, "#3b82f6", "Active"], ["B", 42, "#a1a1aa", "Regular"], ["C", 12, "#3f3f46", "New"]] as [string, number, string, string][]).map(([g, s, c, label]) => {
                       const r = 18, circ = 2 * Math.PI * r;
                       return (
@@ -632,7 +630,7 @@ export default function Home() {
                   </div>
                 </div>
 
-                <div className="mt-auto pt-5 border-t border-white/[0.05] grid grid-cols-3 gap-6">
+                <div className="mt-auto pt-5 border-t border-white/[0.05] grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-6">
                   {[
                     { label: "Wallet age", desc: "How long active on Base" },
                     { label: "Transactions", desc: "Volume of onchain activity" },
@@ -758,9 +756,9 @@ export default function Home() {
                   ))}
                 </div>
 
-                <div className="mt-8 inline-flex items-center gap-2.5 px-4 py-2.5 rounded-xl border border-amber-900/30 bg-amber-500/[0.04]">
+                <div className="mt-8 flex items-center gap-2.5 px-4 py-2.5 rounded-xl border border-amber-900/30 bg-amber-500/[0.04]">
                   <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse flex-shrink-0" />
-                  <span className="text-amber-500/75 text-[11px] uppercase tracking-[0.16em]">First auction · ~1,000 mints · Before Sep 30, 2026</span>
+                  <span className="text-amber-500/75 text-[11px] uppercase tracking-[0.12em]">First auction · ~1,000 mints · Before Sep 30</span>
                 </div>
               </FadeIn>
             </div>
@@ -812,15 +810,15 @@ export default function Home() {
                 </div>
 
                 {/* Caption row inside panel */}
-                <div className="mt-5 flex items-center justify-between">
-                  <p className="text-amber-900/70 text-[10px] uppercase tracking-[0.15em]">100 of 100 slots locked</p>
-                  <div className="flex items-center gap-4 text-[10px] uppercase tracking-[0.1em]">
+                <div className="mt-5 flex items-center justify-between gap-2 flex-wrap">
+                  <p className="text-amber-900/70 text-[10px] uppercase tracking-[0.12em]">100 of 100 locked</p>
+                  <div className="flex items-center gap-3 text-[10px] uppercase tracking-[0.08em]">
                     <span className="flex items-center gap-1.5 text-amber-600/60">
-                      <span className="w-3 h-[9px] rounded-[3px] inline-block" style={{ background: "rgba(245,158,11,0.55)", border: "1px solid rgba(217,119,6,0.8)" }} />
+                      <span className="w-3 h-[9px] rounded-[3px] inline-block flex-shrink-0" style={{ background: "rgba(245,158,11,0.55)", border: "1px solid rgba(217,119,6,0.8)" }} />
                       #1 — rarest
                     </span>
                     <span className="flex items-center gap-1.5 text-zinc-700">
-                      <span className="w-3 h-[9px] rounded-[3px] inline-block" style={{ background: "rgba(120,53,15,0.06)", border: "1px solid rgba(217,119,6,0.04)" }} />
+                      <span className="w-3 h-[9px] rounded-[3px] inline-block flex-shrink-0" style={{ background: "rgba(120,53,15,0.06)", border: "1px solid rgba(217,119,6,0.04)" }} />
                       #100
                     </span>
                   </div>
