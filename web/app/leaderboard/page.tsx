@@ -29,7 +29,7 @@ export const metadata: Metadata = {
 async function getLeaderboard(): Promise<HolderRow[]> {
   const client = createPublicClient({ chain, transport: http(rpcUrl, { timeout: 8_000 }) });
   try {
-    // All minted IDs (mint = Transfer from zero address), sorted ascending
+    // All minted IDs (Transfer from zero address = mint)
     const logs = await client.getLogs({
       address: BASED_ID_ADDRESS,
       event: parseAbiItem("event Transfer(address indexed from, address indexed to, uint256 indexed tokenId)"),
@@ -41,9 +41,9 @@ async function getLeaderboard(): Promise<HolderRow[]> {
       .filter((id) => !isNaN(id) && id > 0)
       .sort((a, b) => a - b);
 
-    // Fetch ownerOf in batches of 25 to avoid rate limiting
+    // Fetch current owners in batches of 25 to avoid rate limiting
     const BATCH = 25;
-    const ownerMap = new Map<number, string>(); // id → owner
+    const ownerMap = new Map<number, string>(); // id → owner (lowercase)
     for (let i = 0; i < allIds.length; i += BATCH) {
       const batch = allIds.slice(i, i + BATCH);
       const results = await Promise.allSettled(
@@ -51,31 +51,39 @@ async function getLeaderboard(): Promise<HolderRow[]> {
           client.readContract({ address: BASED_ID_ADDRESS, abi: BASED_ID_ABI, functionName: "ownerOf", args: [BigInt(id)] })
         )
       );
-      results.forEach((result, idx) => {
-        if (result.status === "fulfilled")
-          ownerMap.set(batch[idx], (result.value as string).toLowerCase());
+      results.forEach((r, idx) => {
+        if (r.status === "fulfilled")
+          ownerMap.set(batch[idx], (r.value as string).toLowerCase());
       });
     }
 
-    // One row per unique holder — show their lowest ID (best rank)
-    const holderBest = new Map<string, number>(); // holder → lowest id
+    // Aggregate per holder: collect all IDs, sum total weight, track best (lowest) ID
+    const holderData = new Map<string, { ids: number[]; totalWeight: number; bestId: number }>();
     for (const id of allIds) {
       const owner = ownerMap.get(id);
       if (!owner) continue;
-      if (!holderBest.has(owner) || id < holderBest.get(owner)!)
-        holderBest.set(owner, id);
+      const w = 1 / Math.sqrt(id);
+      if (!holderData.has(owner)) {
+        holderData.set(owner, { ids: [id], totalWeight: w, bestId: id });
+      } else {
+        const d = holderData.get(owner)!;
+        d.ids.push(id);
+        d.totalWeight += w;
+        if (id < d.bestId) d.bestId = id;
+      }
     }
 
-    // Sort holders by their best (lowest) ID
-    return [...holderBest.entries()]
-      .sort((a, b) => a[1] - b[1])
+    // Sort by total weight descending — this is the actual $BASED airdrop rank
+    return [...holderData.entries()]
+      .sort((a, b) => b[1].totalWeight - a[1].totalWeight)
       .slice(0, 100)
-      .map(([holder, id]) => ({
-        tokenId: id,
-        tier: getTier(id),
-        weight: 1 / Math.sqrt(id),
+      .map(([holder, { bestId, ids, totalWeight }]) => ({
+        tokenId: bestId,
+        tier: getTier(bestId),
+        weight: totalWeight,
+        idCount: ids.length,
         holder,
-        isAuction: isAuctionId(id),
+        isAuction: isAuctionId(bestId),
       }));
   } catch {
     return [];
@@ -220,7 +228,7 @@ export default async function LeaderboardPage() {
             Leaderboard
           </h1>
           <p className="text-zinc-600 text-sm leading-relaxed">
-            Top 100 holders ranked by lowest ID.<br className="sm:hidden" /> One row per wallet — lower ID = bigger airdrop share.
+            Top 100 wallets ranked by total $BASED weight.<br className="sm:hidden" /> Weight = sum of 1÷√id across all IDs held.
           </p>
         </div>
 
