@@ -1,6 +1,6 @@
 import { createPublicClient, http, parseAbiItem } from "viem";
 import { base, baseSepolia } from "viem/chains";
-import { BASED_ID_ADDRESS, DEPLOY_BLOCK } from "@/lib/contracts";
+import { BASED_ID_ADDRESS, BASED_ID_ABI, DEPLOY_BLOCK } from "@/lib/contracts";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { ActivityFeed, type ActivityEvent } from "./ActivityFeed";
@@ -28,17 +28,45 @@ function getTier(id: number) {
 
 const ZERO = "0x0000000000000000000000000000000000000000";
 
-async function getActivity(): Promise<ActivityEvent[]> {
+type ActivityResult = {
+  events: ActivityEvent[];
+  totalMints: number;
+  totalTransfers: number;
+  uniqueHolders: number;
+};
+
+async function getActivity(): Promise<ActivityResult> {
+  const empty = { events: [], totalMints: 0, totalTransfers: 0, uniqueHolders: 0 };
   try {
     const client = createPublicClient({ chain, transport: http(rpcUrl, { timeout: 8_000 }) });
+
+    // Accurate totals from contract — not affected by log truncation
+    const totalMinted = await client.readContract({
+      address: BASED_ID_ADDRESS, abi: BASED_ID_ABI, functionName: "totalMinted",
+    }) as bigint;
+    const totalMints = Number(totalMinted);
+    if (totalMints === 0) return empty;
+
+    // Recent transfer events for the feed (may be truncated by RPC — that's fine for a feed)
     const logs = await client.getLogs({
       address: BASED_ID_ADDRESS,
       event: parseAbiItem("event Transfer(address indexed from, address indexed to, uint256 indexed tokenId)"),
       fromBlock: DEPLOY_BLOCK,
       toBlock: "latest",
     });
-    if (logs.length === 0) return [];
 
+    // All non-mint transfers for transfer count
+    const transferLogs = logs.filter((l) =>
+      l.args.from?.toLowerCase() !== ZERO
+    );
+    const totalTransfers = transferLogs.length;
+
+    // Unique current-holder addresses from all logs we have
+    const uniqueHolders = new Set(
+      logs.map((l) => l.args.to?.toLowerCase()).filter(Boolean)
+    ).size;
+
+    // Feed: most recent 50 events
     const recent = [...logs]
       .sort((a, b) => (a.blockNumber > b.blockNumber ? -1 : 1))
       .slice(0, 50);
@@ -53,7 +81,7 @@ async function getActivity(): Promise<ActivityEvent[]> {
       if (r.status === "fulfilled") tsMap.set(bn, Number(r.value.timestamp));
     });
 
-    return recent.map((l) => {
+    const events: ActivityEvent[] = recent.map((l) => {
       const tokenId = Number(l.args.tokenId ?? 0);
       const from = (l.args.from ?? ZERO).toLowerCase();
       const to = (l.args.to ?? ZERO).toLowerCase();
@@ -68,18 +96,16 @@ async function getActivity(): Promise<ActivityEvent[]> {
         txHash: l.transactionHash ?? "",
       };
     });
+
+    return { events, totalMints, totalTransfers, uniqueHolders };
   } catch {
-    return [];
+    return empty;
   }
 }
 
 export default async function ActivityPage() {
-  const events = await getActivity();
-  const isEmpty = events.length === 0;
-
-  const mintCount = events.filter((e) => e.type === "mint").length;
-  const transferCount = events.filter((e) => e.type === "transfer").length;
-  const uniqueHolders = new Set(events.map((e) => e.to)).size;
+  const { events, totalMints, totalTransfers, uniqueHolders } = await getActivity();
+  const isEmpty = totalMints === 0;
 
   return (
     <div className="min-h-screen bg-background">
@@ -165,8 +191,8 @@ export default async function ActivityPage() {
               {/* Stats row */}
               <div className="grid grid-cols-3 gap-2 sm:gap-3">
                 {[
-                  { value: mintCount, label: "Mints", color: "text-green-500" },
-                  { value: transferCount, label: "Transfers", color: "text-blue-400" },
+                  { value: totalMints, label: "Mints", color: "text-green-500" },
+                  { value: totalTransfers, label: "Transfers", color: "text-blue-400" },
                   { value: uniqueHolders, label: "Wallets", color: "text-white" },
                 ].map((stat) => (
                   <div
@@ -188,7 +214,7 @@ export default async function ActivityPage() {
 
               {/* Footer CTA */}
               <div className="flex items-center justify-between pt-6 border-t border-white/[0.05]">
-                <p className="text-zinc-700 text-xs">Last {events.length} events on Base</p>
+                <p className="text-zinc-700 text-xs">Showing last {events.length} of {totalMints + totalTransfers} events on Base</p>
                 <Link
                   href="/"
                   className="px-5 py-2.5 rounded-xl bg-white text-black font-bold text-xs hover:bg-zinc-100 transition-colors"
