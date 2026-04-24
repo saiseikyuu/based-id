@@ -535,18 +535,18 @@ export default function Dashboard() {
         {(() => {
           const tier = primaryId ? getTier(primaryId) : null;
           return (
-            <div className="flex items-start justify-between mb-8">
-              <div>
+            <div className="flex items-start justify-between gap-3 mb-8">
+              <div className="min-w-0">
                 <p className="text-zinc-600 text-[11px] uppercase tracking-[0.2em] mb-2">Dashboard</p>
                 <div className="flex items-center gap-3 flex-wrap">
-                  <h1 style={D} className="text-3xl font-bold tracking-tight">
+                  <h1 style={D} className="text-2xl sm:text-3xl font-bold tracking-tight">
                     {tokenIds.length === 1
                       ? `Based ID #${primaryId!.toString()}`
                       : `${tokenIds.length} Based IDs`}
                   </h1>
                   {tier && (
                     <span
-                      className="text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-[0.12em]"
+                      className="text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-[0.12em] flex-shrink-0"
                       style={{ color: tier.color, backgroundColor: tier.bg, border: `1px solid ${tier.color}22` }}
                     >
                       {tier.label}
@@ -554,7 +554,7 @@ export default function Dashboard() {
                   )}
                 </div>
               </div>
-              <div className="flex items-center gap-2 text-[11px] text-green-500 pt-1">
+              <div className="flex items-center gap-2 text-[11px] text-green-500 pt-1 flex-shrink-0">
                 <span className="w-1 h-1 rounded-full bg-green-500 animate-pulse" />
                 <span className="uppercase tracking-[0.15em]">Live</span>
               </div>

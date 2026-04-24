@@ -160,20 +160,20 @@ export default async function ActivityPage() {
           ) : (
             <>
               {/* Stats row */}
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-3 gap-2 sm:gap-3">
                 {[
-                  { value: mintCount, label: "Recent Mints", color: "text-green-500" },
+                  { value: mintCount, label: "Mints", color: "text-green-500" },
                   { value: transferCount, label: "Transfers", color: "text-blue-400" },
-                  { value: uniqueHolders, label: "Unique Wallets", color: "text-white" },
+                  { value: uniqueHolders, label: "Wallets", color: "text-white" },
                 ].map((stat) => (
                   <div
                     key={stat.label}
-                    className="rounded-xl border border-white/[0.06] bg-white/[0.01] px-4 py-3.5"
+                    className="rounded-xl border border-white/[0.06] bg-white/[0.01] px-3 sm:px-4 py-3.5"
                   >
                     <p className={`${stat.color} font-bold text-2xl tabular-nums leading-none`}>
                       {stat.value}
                     </p>
-                    <p className="text-zinc-600 text-[10px] uppercase tracking-[0.15em] mt-2">
+                    <p className="text-zinc-600 text-[10px] uppercase tracking-[0.1em] sm:tracking-[0.15em] mt-2">
                       {stat.label}
                     </p>
                   </div>

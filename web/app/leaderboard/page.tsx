@@ -195,8 +195,8 @@ export default async function LeaderboardPage() {
           >
             Leaderboard
           </h1>
-          <p className="text-zinc-600 text-sm">
-            Top 100 Based IDs ranked by $BASED weight · Lower ID = earlier = bigger airdrop share
+          <p className="text-zinc-600 text-sm leading-relaxed">
+            Top 100 Based IDs ranked by $BASED weight.<br className="sm:hidden" /> Lower ID = bigger airdrop share.
           </p>
         </div>
 
@@ -234,21 +234,21 @@ export default async function LeaderboardPage() {
             <div className="border border-white/[0.06] rounded-2xl overflow-hidden">
               {/* Stat row */}
               <div className="grid grid-cols-3 divide-x divide-white/[0.05] border-b border-white/[0.05]">
-                <div className="px-6 py-5">
-                  <p className="text-[11px] text-zinc-600 uppercase tracking-[0.18em] mb-2">IDs Ranked</p>
+                <div className="px-3 sm:px-6 py-4 sm:py-5">
+                  <p className="text-[9px] sm:text-[11px] text-zinc-600 uppercase tracking-[0.12em] sm:tracking-[0.18em] mb-2">Ranked</p>
                   <p className="text-white font-black text-xl tabular-nums" style={{ fontFamily: "var(--font-display), system-ui, sans-serif" }}>
                     {rows.length}
                   </p>
                 </div>
-                <div className="px-6 py-5">
-                  <p className="text-[11px] text-zinc-600 uppercase tracking-[0.18em] mb-2">Genesis Holders</p>
+                <div className="px-3 sm:px-6 py-4 sm:py-5">
+                  <p className="text-[9px] sm:text-[11px] text-zinc-600 uppercase tracking-[0.12em] sm:tracking-[0.18em] mb-2">Genesis</p>
                   <p className="text-amber-400 font-black text-xl tabular-nums" style={{ fontFamily: "var(--font-display), system-ui, sans-serif" }}>
                     {genesisCount}
                     <span className="text-zinc-700 font-normal text-sm ml-1">/ 100</span>
                   </p>
                 </div>
-                <div className="px-6 py-5">
-                  <p className="text-[11px] text-zinc-600 uppercase tracking-[0.18em] mb-2">Combined Weight</p>
+                <div className="px-3 sm:px-6 py-4 sm:py-5">
+                  <p className="text-[9px] sm:text-[11px] text-zinc-600 uppercase tracking-[0.12em] sm:tracking-[0.18em] mb-2">Weight</p>
                   <p className="text-blue-400 font-black text-xl tabular-nums" style={{ fontFamily: "var(--font-display), system-ui, sans-serif" }}>
                     {totalWeight.toFixed(2)}
                     <span className="text-zinc-700 font-normal text-sm ml-1">×</span>
@@ -263,13 +263,13 @@ export default async function LeaderboardPage() {
               </div>
 
               {/* Chart legend */}
-              <div className="px-6 py-3 flex items-center gap-6">
+              <div className="px-4 sm:px-6 py-3 flex items-center flex-wrap gap-x-5 gap-y-2">
                 <div className="flex items-center gap-2">
-                  <div className="w-6 h-px bg-blue-500 opacity-70" />
+                  <div className="w-6 h-px bg-blue-500 opacity-70 flex-shrink-0" />
                   <span className="text-zinc-600 text-[10px]">Weight = 1 ÷ √ID</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-3 h-px border-t border-dashed border-amber-500/50" />
+                  <div className="w-3 h-px border-t border-dashed border-amber-500/50 flex-shrink-0" />
                   <span className="text-zinc-600 text-[10px]">Genesis boundary (#100)</span>
                 </div>
               </div>

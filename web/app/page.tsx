@@ -363,22 +363,22 @@ export default function Home() {
                       </div>
 
                       {/* Value props — 3-step mini flow */}
-                      <div className="grid grid-cols-3 gap-2 pt-2">
+                      <div className="grid grid-cols-3 gap-1.5 pt-2">
                         {[
                           { n: "1", label: "Connect" },
-                          { n: "2", label: "Approve $2" },
-                          { n: "3", label: "Mint ID" },
+                          { n: "2", label: "Approve" },
+                          { n: "3", label: "Mint" },
                         ].map((step, i) => (
                           <div
                             key={step.n}
-                            className={`flex items-center gap-2 rounded-lg border border-white/[0.05] bg-white/[0.015] px-2.5 py-2 ${
+                            className={`flex items-center gap-1.5 rounded-lg border border-white/[0.05] bg-white/[0.015] px-2 py-2 ${
                               i === 0 ? "" : "opacity-50"
                             }`}
                           >
-                            <span className="w-4 h-4 rounded-full border border-white/[0.1] flex items-center justify-center text-[9px] font-bold tabular-nums text-zinc-400">
+                            <span className="w-4 h-4 rounded-full border border-white/[0.1] flex items-center justify-center text-[9px] font-bold tabular-nums text-zinc-400 flex-shrink-0">
                               {step.n}
                             </span>
-                            <span className="text-zinc-500 text-[10px] uppercase tracking-[0.1em] font-medium">
+                            <span className="text-zinc-500 text-[10px] font-medium truncate">
                               {step.label}
                             </span>
                           </div>
@@ -487,10 +487,10 @@ export default function Home() {
                     key={i}
                     className={`rounded-2xl border p-5 space-y-5 ${soon ? "border-blue-900/25 bg-blue-950/[0.07]" : "border-white/[0.05] bg-white/[0.01]"}`}
                   >
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between gap-1">
                       <span className="font-mono text-zinc-700 text-[10px]">Project</span>
-                      <span className={`text-[9px] px-2 py-0.5 rounded-full border uppercase tracking-[0.1em] ${soon ? "border-blue-900/35 text-blue-600/60" : "border-white/[0.06] text-zinc-700"}`}>
-                        {soon ? "Coming soon" : "Unannounced"}
+                      <span className={`text-[9px] px-1.5 py-0.5 rounded-full border uppercase tracking-[0.06em] flex-shrink-0 ${soon ? "border-blue-900/35 text-blue-600/60" : "border-white/[0.06] text-zinc-700"}`}>
+                        {soon ? "Soon" : "TBA"}
                       </span>
                     </div>
                     <div className="w-10 h-10 rounded-xl bg-white/[0.05] blur-[4px]" />
