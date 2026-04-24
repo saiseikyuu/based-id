@@ -185,7 +185,7 @@ contract BasedID is ERC721, ERC2981, Ownable {
             '{"name":"Based ID",',
             '"description":"Your permanent sequential identity on Base. The lower the number, the earlier you were. $2 USDC flat. On-chain SVG art.",',
             '"image":"data:image/svg+xml;base64,', _collectionImage(), '",',
-            '"external_link":"https://basedid.xyz",',
+            '"external_link":"https://basedid.space",',
             '"seller_fee_basis_points":0}'
         );
         return string(abi.encodePacked(
