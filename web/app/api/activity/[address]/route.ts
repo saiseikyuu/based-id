@@ -61,7 +61,7 @@ export async function GET(
 
     return Response.json(
       { address, score, txCount, nftCount, ageDays, grade: grade(score) },
-      { headers: { "Cache-Control": "public, max-age=3600" } }
+      { headers: { "Cache-Control": "public, max-age=300, stale-while-revalidate=3600" } }
     );
   } catch {
     return Response.json({ error: "Failed to fetch activity" }, { status: 502 });
