@@ -4,8 +4,8 @@ import Link from "next/link";
 
 const links = [
   { href: "/drops",       label: "Drops"       },
+  { href: "/projects",    label: "Projects"    },
   { href: "/leaderboard", label: "Leaderboard" },
-  { href: "/activity",    label: "Activity"    },
   { href: "/dashboard",   label: "Dashboard"   },
 ];
 

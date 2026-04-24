@@ -57,6 +57,18 @@ export interface Entry {
   task_completions?: TaskCompletion[];
 }
 
+export interface Project {
+  address: string;
+  name: string;
+  description: string;
+  logo_url: string | null;
+  website: string | null;
+  twitter: string | null;
+  discord: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface TaskCompletion {
   id: string;
   entry_id: string;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useAccount, useSendTransaction, useWaitForTransactionReceipt } from "wagmi";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { parseUnits, encodeFunctionData } from "viem";
@@ -36,6 +36,8 @@ export function CreateDropWizard() {
   const [title,        setTitle]       = useState("");
   const [description,  setDesc]        = useState("");
   const [imageUrl,     setImageUrl]    = useState("");
+  const [imageUploading, setImageUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [dropType,     setDropType]    = useState<DropType>("raffle");
   const [tier,         setTier]        = useState<DropTier>("standard");
   const [winnerCount,  setWinnerCount] = useState(1);
@@ -51,6 +53,25 @@ export function CreateDropWizard() {
   const { isLoading: txLoading, isSuccess: txSuccess } = useWaitForTransactionReceipt({ hash: txHash });
 
   const feeAmount = tier === "featured" ? 200 : 0;
+
+  async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setImageUploading(true);
+    try {
+      const form = new FormData();
+      form.append("file", file);
+      const res  = await fetch("/api/upload", { method: "POST", body: form });
+      const data = await res.json();
+      if (!res.ok) { toast.error(data.error ?? "Upload failed"); return; }
+      setImageUrl(data.url);
+      toast.success("Image uploaded");
+    } catch {
+      toast.error("Upload failed");
+    } finally {
+      setImageUploading(false);
+    }
+  }
 
   function addTask(type: TaskType) {
     if (type === "hold_based_id") return; // always required, not manually added
@@ -237,17 +258,59 @@ export function CreateDropWizard() {
               </div>
             </div>
 
-            {/* Basic fields */}
-            {[
-              { label: "Title *", value: title,       onChange: setTitle,    placeholder: "e.g. Early Holder Whitelist" },
-              { label: "Image URL", value: imageUrl,  onChange: setImageUrl, placeholder: "https://…" },
-            ].map((f) => (
-              <div key={f.label} className="space-y-1.5">
-                <label className="text-zinc-400 text-sm font-medium">{f.label}</label>
-                <input value={f.value} onChange={(e) => f.onChange(e.target.value)} placeholder={f.placeholder}
-                  className="w-full bg-white/[0.03] border border-white/[0.08] rounded-xl px-4 py-3 text-white text-sm placeholder-zinc-600 outline-none focus:border-blue-500/50 transition-colors" />
-              </div>
-            ))}
+            {/* Title */}
+            <div className="space-y-1.5">
+              <label className="text-zinc-400 text-sm font-medium">Title *</label>
+              <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Early Holder Whitelist"
+                className="w-full bg-white/[0.03] border border-white/[0.08] rounded-xl px-4 py-3 text-white text-sm placeholder-zinc-600 outline-none focus:border-blue-500/50 transition-colors" />
+            </div>
+
+            {/* Image upload */}
+            <div className="space-y-1.5">
+              <label className="text-zinc-400 text-sm font-medium">Drop image <span className="text-zinc-600">(optional, max 5 MB)</span></label>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp,image/gif"
+                onChange={handleImageUpload}
+                className="hidden"
+              />
+              {imageUrl ? (
+                <div className="relative rounded-xl overflow-hidden h-36 group">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={imageUrl} alt="Drop image" className="w-full h-full object-cover" />
+                  <button
+                    type="button"
+                    onClick={() => { setImageUrl(""); if (fileInputRef.current) fileInputRef.current.value = ""; }}
+                    className="absolute top-2 right-2 w-7 h-7 rounded-full bg-black/70 text-white flex items-center justify-center text-sm hover:bg-black transition-colors opacity-0 group-hover:opacity-100"
+                  >
+                    ×
+                  </button>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={imageUploading}
+                  className="w-full h-32 rounded-xl border-2 border-dashed border-white/[0.1] bg-white/[0.01] flex flex-col items-center justify-center gap-2 hover:border-white/[0.2] hover:bg-white/[0.03] transition-colors disabled:opacity-50"
+                >
+                  {imageUploading ? (
+                    <>
+                      <div className="w-5 h-5 rounded-full border-2 border-white/20 border-t-white animate-spin" />
+                      <span className="text-zinc-500 text-xs">Uploading…</span>
+                    </>
+                  ) : (
+                    <>
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-zinc-500">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+                      </svg>
+                      <span className="text-zinc-500 text-xs">Click to upload image</span>
+                      <span className="text-zinc-700 text-[10px]">JPEG · PNG · WebP · GIF</span>
+                    </>
+                  )}
+                </button>
+              )}
+            </div>
 
             <div className="space-y-1.5">
               <label className="text-zinc-400 text-sm font-medium">Description</label>

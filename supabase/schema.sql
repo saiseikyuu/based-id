@@ -100,3 +100,33 @@ create policy "entries_service_all" on entries
 alter table task_completions enable row level security;
 create policy "tc_service_all" on task_completions
   for all using (true) with check (true);
+
+-- ─── projects ─────────────────────────────────────────────────────────────────
+-- Run this block if you already applied the initial schema above
+create table if not exists projects (
+  address      text primary key,           -- partner wallet address (lowercase)
+  name         text not null default '',
+  description  text not null default '',
+  logo_url     text,
+  website      text,
+  twitter      text,
+  discord      text,
+  created_at   timestamptz not null default now(),
+  updated_at   timestamptz not null default now()
+);
+
+alter table projects enable row level security;
+create policy "projects_public_read" on projects for select using (true);
+create policy "projects_service_all" on projects for all using (true) with check (true);
+
+-- ─── Supabase Storage bucket ──────────────────────────────────────────────────
+-- Run this in Storage → New bucket → name: drop-images → Public: ON
+-- OR run via SQL:
+insert into storage.buckets (id, name, public)
+values ('drop-images', 'drop-images', true)
+on conflict (id) do nothing;
+
+create policy "drop_images_public_read" on storage.objects
+  for select using (bucket_id = 'drop-images');
+create policy "drop_images_authenticated_upload" on storage.objects
+  for insert with check (bucket_id = 'drop-images');
