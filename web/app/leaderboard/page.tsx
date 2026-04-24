@@ -1,6 +1,6 @@
-import { createPublicClient, http, parseAbiItem } from "viem";
+import { createPublicClient, http } from "viem";
 import { base, baseSepolia } from "viem/chains";
-import { BASED_ID_ADDRESS, BASED_ID_ABI, isAuctionId, DEPLOY_BLOCK } from "@/lib/contracts";
+import { BASED_ID_ADDRESS, BASED_ID_ABI, isAuctionId } from "@/lib/contracts";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { IdSearch } from "./IdSearch";
@@ -29,19 +29,16 @@ export const metadata: Metadata = {
 async function getLeaderboard(): Promise<HolderRow[]> {
   const client = createPublicClient({ chain, transport: http(rpcUrl, { timeout: 8_000 }) });
   try {
-    // All minted IDs (Transfer from zero address = mint)
-    const logs = await client.getLogs({
-      address: BASED_ID_ADDRESS,
-      event: parseAbiItem("event Transfer(address indexed from, address indexed to, uint256 indexed tokenId)"),
-      args: { from: "0x0000000000000000000000000000000000000000" },
-      fromBlock: DEPLOY_BLOCK,
-    });
-    const allIds = logs
-      .map((log) => Number(log.args.tokenId))
-      .filter((id) => !isNaN(id) && id > 0)
-      .sort((a, b) => a - b);
+    // Use totalMinted() — reliable, no log truncation issues
+    const total = await client.readContract({
+      address: BASED_ID_ADDRESS, abi: BASED_ID_ABI, functionName: "totalMinted",
+    }) as bigint;
+    const totalNum = Number(total);
+    if (totalNum === 0) return [];
 
-    // Fetch current owners in batches of 25 to avoid rate limiting
+    const allIds = Array.from({ length: totalNum }, (_, i) => i + 1); // [1, 2, ..., totalMinted]
+
+    // Fetch ownerOf in batches of 25 to stay within public RPC limits
     const BATCH = 25;
     const ownerMap = new Map<number, string>(); // id → owner (lowercase)
     for (let i = 0; i < allIds.length; i += BATCH) {
@@ -57,31 +54,31 @@ async function getLeaderboard(): Promise<HolderRow[]> {
       });
     }
 
-    // Aggregate per holder: collect all IDs, sum total weight, track best (lowest) ID
-    const holderData = new Map<string, { ids: number[]; totalWeight: number; bestId: number }>();
+    // Aggregate per holder: sum weight, count IDs, track best (lowest) ID
+    const holderData = new Map<string, { totalWeight: number; idCount: number; bestId: number }>();
     for (const id of allIds) {
       const owner = ownerMap.get(id);
       if (!owner) continue;
       const w = 1 / Math.sqrt(id);
       if (!holderData.has(owner)) {
-        holderData.set(owner, { ids: [id], totalWeight: w, bestId: id });
+        holderData.set(owner, { totalWeight: w, idCount: 1, bestId: id });
       } else {
         const d = holderData.get(owner)!;
-        d.ids.push(id);
         d.totalWeight += w;
+        d.idCount += 1;
         if (id < d.bestId) d.bestId = id;
       }
     }
 
-    // Sort by total weight descending — this is the actual $BASED airdrop rank
+    // Sort by total weight descending = actual $BASED airdrop rank
     return [...holderData.entries()]
       .sort((a, b) => b[1].totalWeight - a[1].totalWeight)
       .slice(0, 100)
-      .map(([holder, { bestId, ids, totalWeight }]) => ({
+      .map(([holder, { bestId, idCount, totalWeight }]) => ({
         tokenId: bestId,
         tier: getTier(bestId),
         weight: totalWeight,
-        idCount: ids.length,
+        idCount,
         holder,
         isAuction: isAuctionId(bestId),
       }));
