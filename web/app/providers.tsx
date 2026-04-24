@@ -4,10 +4,30 @@ import { RainbowKitProvider, darkTheme, useChainModal } from "@rainbow-me/rainbo
 import { WagmiProvider, useAccount, useChainId } from "wagmi";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "react-hot-toast";
+import { useEffect } from "react";
 import { config } from "@/lib/wagmi";
 import "@rainbow-me/rainbowkit/styles.css";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: { queries: { retry: false } },
+});
+
+// Swallows MetaMask auto-reconnect rejections that wagmi surfaces as
+// unhandled promise rejections — they appear as red overlays in dev
+// but are harmless (user just needs to click Connect Wallet manually).
+function MetaMaskErrorSuppressor() {
+  useEffect(() => {
+    const handler = (e: PromiseRejectionEvent) => {
+      const msg: string = e.reason?.message ?? String(e.reason ?? "");
+      if (msg.includes("MetaMask") || msg.includes("Failed to connect")) {
+        e.preventDefault();
+      }
+    };
+    window.addEventListener("unhandledrejection", handler);
+    return () => window.removeEventListener("unhandledrejection", handler);
+  }, []);
+  return null;
+}
 
 const EXPECTED_CHAIN_ID = parseInt(process.env.NEXT_PUBLIC_CHAIN_ID || "84532");
 
@@ -51,6 +71,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
             borderRadius: "medium",
           })}
         >
+          <MetaMaskErrorSuppressor />
           <WrongNetworkBanner />
           {children}
           <Toaster
