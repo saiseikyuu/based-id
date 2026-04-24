@@ -85,25 +85,22 @@ async function findAllTokens(
     if (held.length === targetCount) return held.sort((a, b) => (a < b ? -1 : 1));
   } catch { /* RPC log range error — fall through */ }
 
-  // Fallback: ownerOf scan (one large batch to minimise round-trips)
+  // Fallback: multicall ownerOf — all calls in one HTTP request, no rate limiting
   const scanMax = Math.max(total, targetCount);
-  const ids: bigint[] = [];
-  for (let start = 1; start <= scanMax && ids.length < targetCount; start += SCAN_BATCH) {
-    const end = Math.min(start + SCAN_BATCH - 1, scanMax);
-    const tokenRange = Array.from({ length: end - start + 1 }, (_, i) => BigInt(start + i));
-    const results = await Promise.allSettled(
-      tokenRange.map((id) =>
-        client.readContract({
-          address: BASED_ID_ADDRESS, abi: BASED_ID_ABI,
-          functionName: "ownerOf", args: [id],
-        }) as Promise<string>
-      )
-    );
-    results.forEach((r, i) => {
-      if (r.status === "fulfilled" && r.value.toLowerCase() === address.toLowerCase())
-        ids.push(tokenRange[i]);
-    });
-  }
+  const tokenRange = Array.from({ length: scanMax }, (_, i) => BigInt(i + 1));
+  const results = await client.multicall({
+    contracts: tokenRange.map((id) => ({
+      address: BASED_ID_ADDRESS as `0x${string}`,
+      abi: BASED_ID_ABI,
+      functionName: "ownerOf" as const,
+      args: [id] as [bigint],
+    })),
+    allowFailure: true,
+  });
+  const ids = tokenRange.filter((id, i) =>
+    results[i].status === "success" &&
+    (results[i].result as string).toLowerCase() === address.toLowerCase()
+  );
   return ids.sort((a, b) => (a < b ? -1 : 1));
 }
 

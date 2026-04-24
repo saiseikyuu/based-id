@@ -27,38 +27,35 @@ export const metadata: Metadata = {
 };
 
 async function getLeaderboard(): Promise<HolderRow[]> {
-  const client = createPublicClient({ chain, transport: http(rpcUrl, { timeout: 8_000 }) });
+  const client = createPublicClient({ chain, transport: http(rpcUrl, { timeout: 10_000 }) });
   try {
-    // Use totalMinted() — reliable, no log truncation issues
+    // totalMinted() is authoritative — no log truncation risk
     const total = await client.readContract({
       address: BASED_ID_ADDRESS, abi: BASED_ID_ABI, functionName: "totalMinted",
     }) as bigint;
     const totalNum = Number(total);
     if (totalNum === 0) return [];
 
-    const allIds = Array.from({ length: totalNum }, (_, i) => i + 1); // [1, 2, ..., totalMinted]
+    const allIds = Array.from({ length: totalNum }, (_, i) => i + 1);
 
-    // Fetch ownerOf in batches of 25 to stay within public RPC limits
-    const BATCH = 25;
-    const ownerMap = new Map<number, string>(); // id → owner (lowercase)
-    for (let i = 0; i < allIds.length; i += BATCH) {
-      const batch = allIds.slice(i, i + BATCH);
-      const results = await Promise.allSettled(
-        batch.map((id) =>
-          client.readContract({ address: BASED_ID_ADDRESS, abi: BASED_ID_ABI, functionName: "ownerOf", args: [BigInt(id)] })
-        )
-      );
-      results.forEach((r, idx) => {
-        if (r.status === "fulfilled")
-          ownerMap.set(batch[idx], (r.value as string).toLowerCase());
-      });
-    }
+    // multicall — all ownerOf calls in ONE HTTP request via Multicall3
+    // No rate limiting, no partial results, ~1-2s for any number of IDs
+    const results = await client.multicall({
+      contracts: allIds.map((id) => ({
+        address: BASED_ID_ADDRESS as `0x${string}`,
+        abi: BASED_ID_ABI,
+        functionName: "ownerOf" as const,
+        args: [BigInt(id)] as [bigint],
+      })),
+      allowFailure: true,
+    });
 
-    // Aggregate per holder: sum weight, count IDs, track best (lowest) ID
+    // Aggregate per holder
     const holderData = new Map<string, { totalWeight: number; idCount: number; bestId: number }>();
-    for (const id of allIds) {
-      const owner = ownerMap.get(id);
-      if (!owner) continue;
+    results.forEach((result, idx) => {
+      if (result.status !== "success") return;
+      const owner = (result.result as string).toLowerCase();
+      const id = allIds[idx];
       const w = 1 / Math.sqrt(id);
       if (!holderData.has(owner)) {
         holderData.set(owner, { totalWeight: w, idCount: 1, bestId: id });
@@ -68,7 +65,7 @@ async function getLeaderboard(): Promise<HolderRow[]> {
         d.idCount += 1;
         if (id < d.bestId) d.bestId = id;
       }
-    }
+    });
 
     // Sort by total weight descending = actual $BASED airdrop rank
     return [...holderData.entries()]
