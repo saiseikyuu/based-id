@@ -18,12 +18,12 @@ export async function POST(
 ) {
   const { id } = await params;
   const { tx_hash, partner_address } = await req.json() as {
-    tx_hash: string;
+    tx_hash?: string;
     partner_address: string;
   };
 
-  if (!tx_hash || !partner_address) {
-    return Response.json({ error: "tx_hash and partner_address required" }, { status: 400 });
+  if (!partner_address) {
+    return Response.json({ error: "partner_address required" }, { status: 400 });
   }
 
   const db = createServerClient();
@@ -49,7 +49,12 @@ export async function POST(
     return Response.json({ success: true, message: "Drop is now active (free tier)" });
   }
 
-  // Verify tx onchain (featured drops only)
+  // Paid tier — tx_hash required
+  if (!tx_hash) {
+    return Response.json({ error: "tx_hash required for paid drops" }, { status: 400 });
+  }
+
+  // Verify tx onchain
   try {
     const client = createPublicClient({ chain, transport: http(rpcUrl) });
     const receipt = await client.getTransactionReceipt({ hash: tx_hash as `0x${string}` });

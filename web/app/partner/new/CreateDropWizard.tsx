@@ -134,7 +134,7 @@ export function CreateDropWizard() {
   }
 
   async function handleActivate() {
-    if (!txHash || !createdDrop || !address) return;
+    if (!createdDrop || !address) return;
     setActivating(true);
     try {
       const res = await fetch(`/api/drops/${createdDrop.id}/activate`, {
