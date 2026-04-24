@@ -22,7 +22,7 @@ import { MobileNav } from "../components/MobileNav";
 
 const SNAPSHOT_DATE   = new Date("2026-09-30T00:00:00Z");
 const SNAPSHOT_2_DATE = new Date("2026-12-31T23:59:59Z");
-const SCAN_BATCH = 30;
+const SCAN_BATCH = 100;
 
 const D: React.CSSProperties = {
   fontFamily: "var(--font-display), system-ui, sans-serif",
@@ -60,7 +60,7 @@ async function findAllTokens(
 
   if (targetCount === 0) return [];
 
-  // Fast path: use Transfer events (captures both minted + received)
+  // Fast path: Transfer event log scan (narrow block range since deploy)
   try {
     const [inLogs, outLogs] = await Promise.all([
       client.getLogs({
@@ -76,32 +76,32 @@ async function findAllTokens(
         fromBlock: DEPLOY_BLOCK, toBlock: "latest",
       }),
     ]);
-    const inIds  = new Set(inLogs.map((l) => l.args.tokenId?.toString()).filter(Boolean));
     const outIds = new Set(outLogs.map((l) => l.args.tokenId?.toString()).filter(Boolean));
-    const held = [...inIds].filter((id): id is string => !!id && !outIds.has(id)).map(BigInt);
+    const held = inLogs
+      .map((l) => l.args.tokenId?.toString())
+      .filter((id): id is string => !!id && !outIds.has(id))
+      .map(BigInt);
+    // Accept if counts match — otherwise fall through to ownerOf scan
     if (held.length === targetCount) return held.sort((a, b) => (a < b ? -1 : 1));
-  } catch { /* RPC rejected large block range — fall through to ownerOf scan */ }
+  } catch { /* RPC log range error — fall through */ }
 
-  // Fallback: ownerOf scan over all minted IDs
+  // Fallback: ownerOf scan (one large batch to minimise round-trips)
   const scanMax = Math.max(total, targetCount);
   const ids: bigint[] = [];
-  for (
-    let start = 1;
-    start <= scanMax && ids.length < targetCount;
-    start += SCAN_BATCH
-  ) {
+  for (let start = 1; start <= scanMax && ids.length < targetCount; start += SCAN_BATCH) {
     const end = Math.min(start + SCAN_BATCH - 1, scanMax);
     const tokenRange = Array.from({ length: end - start + 1 }, (_, i) => BigInt(start + i));
-    const owners = await Promise.all(
+    const results = await Promise.allSettled(
       tokenRange.map((id) =>
         client.readContract({
           address: BASED_ID_ADDRESS, abi: BASED_ID_ABI,
           functionName: "ownerOf", args: [id],
-        }).then((o) => o as string).catch(() => null)
+        }) as Promise<string>
       )
     );
-    owners.forEach((owner, i) => {
-      if (owner && owner.toLowerCase() === address.toLowerCase()) ids.push(tokenRange[i]);
+    results.forEach((r, i) => {
+      if (r.status === "fulfilled" && r.value.toLowerCase() === address.toLowerCase())
+        ids.push(tokenRange[i]);
     });
   }
   return ids.sort((a, b) => (a < b ? -1 : 1));
