@@ -3,19 +3,36 @@
 import { useAccount } from "wagmi";
 import Link from "next/link";
 import { motion, AnimatePresence } from "motion/react";
+import { useEffect, useState } from "react";
 import { BASESCAN_URL } from "@/lib/contracts";
 
 export type HolderRow = {
-  tokenId: number;   // best (lowest) ID this holder owns
-  tier: string;      // tier of their best ID
-  weight: number;    // total weight across ALL their IDs
-  idCount: number;   // how many IDs they hold
+  tokenId: number;
+  tier: string;
+  weight: number;
+  idCount: number;
   holder: string;
   isAuction: boolean;
 };
 
+type ScoreMap = Record<string, { score: number; grade: string }>;
+
 function addressToHue(address: string): number {
   return parseInt(address.slice(2, 6), 16) % 360;
+}
+
+function GradeBadge({ grade }: { grade: string }) {
+  const colors: Record<string, string> = {
+    S: "text-amber-400 border-amber-400/30 bg-amber-400/10",
+    A: "text-blue-400 border-blue-400/30 bg-blue-400/10",
+    B: "text-zinc-300 border-zinc-500/30 bg-zinc-500/10",
+    C: "text-zinc-600 border-zinc-700/30 bg-zinc-700/10",
+  };
+  return (
+    <span className={`inline-flex items-center justify-center w-5 h-5 rounded text-[10px] font-black border ${colors[grade] ?? colors.C}`}>
+      {grade}
+    </span>
+  );
 }
 
 export function LeaderboardTable({ rows }: { rows: HolderRow[] }) {
@@ -24,6 +41,39 @@ export function LeaderboardTable({ rows }: { rows: HolderRow[] }) {
 
   const myRow = lower ? rows.find((r) => r.holder.toLowerCase() === lower) : undefined;
   const myRank = myRow ? rows.findIndex((r) => r.holder === myRow.holder) + 1 : 0;
+
+  // Fetch activity scores client-side in batches of 5
+  const [scores, setScores] = useState<ScoreMap>({});
+  const [scoresLoaded, setScoresLoaded] = useState(false);
+
+  useEffect(() => {
+    if (rows.length === 0) return;
+    let cancelled = false;
+    const BATCH = 5;
+
+    async function fetchAll() {
+      const result: ScoreMap = {};
+      for (let i = 0; i < rows.length; i += BATCH) {
+        if (cancelled) return;
+        const batch = rows.slice(i, i + BATCH);
+        await Promise.allSettled(
+          batch.map(async (row) => {
+            try {
+              const res = await fetch(`/api/activity/${row.holder}`);
+              if (!res.ok) return;
+              const data = await res.json();
+              if (data.score !== undefined) result[row.holder] = { score: data.score, grade: data.grade };
+            } catch { /* skip */ }
+          })
+        );
+        if (!cancelled) setScores((prev) => ({ ...prev, ...result }));
+      }
+      if (!cancelled) setScoresLoaded(true);
+    }
+
+    fetchAll();
+    return () => { cancelled = true; };
+  }, [rows]);
 
   return (
     <>
@@ -64,8 +114,17 @@ export function LeaderboardTable({ rows }: { rows: HolderRow[] }) {
                     </span>
                     <span className="text-zinc-600 text-[11px]">·</span>
                     <span className="text-blue-300 text-xs font-mono font-semibold tabular-nums">
-                      {myRow.weight.toFixed(4)}× total
+                      {myRow.weight.toFixed(4)}× weight
                     </span>
+                    {scores[myRow.holder] && (
+                      <>
+                        <span className="text-zinc-600 text-[11px]">·</span>
+                        <span className="text-xs font-mono text-zinc-400">
+                          Score <span className="text-white font-bold">{scores[myRow.holder].score}</span>
+                          <span className="text-zinc-600"> ({scores[myRow.holder].grade})</span>
+                        </span>
+                      </>
+                    )}
                   </div>
                 </div>
                 <Link href="/dashboard" className="text-blue-400 text-[11px] font-medium hover:text-blue-300 transition-colors flex-shrink-0">
@@ -77,7 +136,7 @@ export function LeaderboardTable({ rows }: { rows: HolderRow[] }) {
                 <div className="flex items-center gap-3 min-w-0">
                   <span className="w-1.5 h-1.5 rounded-full bg-zinc-600" />
                   <span className="text-zinc-500 text-xs">
-                    Not on the leaderboard yet — mint a Based ID to earn $BASED weight.
+                    Not on the leaderboard — mint a Based ID to earn $BASED weight.
                   </span>
                 </div>
                 <Link href="/" className="text-white text-[11px] font-bold hover:text-zinc-300 transition-colors flex-shrink-0">
@@ -92,13 +151,17 @@ export function LeaderboardTable({ rows }: { rows: HolderRow[] }) {
       {/* Table */}
       <div className="rounded-2xl border border-white/[0.06] overflow-hidden">
 
-        {/* Column headers — mobile: 4 cols, sm+: 5 cols */}
-        <div className="grid grid-cols-[40px_minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)] sm:grid-cols-[48px_minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)] px-4 sm:px-5 py-3 border-b border-white/[0.05] bg-white/[0.015]">
+        {/* Column headers */}
+        <div className="grid grid-cols-[40px_minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)] sm:grid-cols-[48px_minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_80px] px-4 sm:px-5 py-3 border-b border-white/[0.05] bg-white/[0.015]">
           <span className="text-[10px] text-zinc-700 uppercase tracking-[0.18em]">Rank</span>
           <span className="text-[10px] text-zinc-700 uppercase tracking-[0.18em]">Holder</span>
           <span className="text-[10px] text-zinc-700 uppercase tracking-[0.18em]">Best ID</span>
           <span className="hidden sm:block text-[10px] text-zinc-700 uppercase tracking-[0.18em]">IDs</span>
-          <span className="text-[10px] text-zinc-700 uppercase tracking-[0.18em] text-right">Total Weight</span>
+          <span className="text-[10px] text-zinc-700 uppercase tracking-[0.18em] text-right">Weight</span>
+          <span className="hidden sm:block text-[10px] text-zinc-700 uppercase tracking-[0.18em] text-right">
+            Score
+            {!scoresLoaded && <span className="ml-1 inline-block w-1.5 h-1.5 rounded-full bg-zinc-700 animate-pulse align-middle" />}
+          </span>
         </div>
 
         {rows.map((row, i) => {
@@ -106,6 +169,7 @@ export function LeaderboardTable({ rows }: { rows: HolderRow[] }) {
           const isTop = i < 3;
           const isYou = lower ? row.holder.toLowerCase() === lower : false;
           const rankColors = ["text-amber-400", "text-zinc-300", "text-amber-700/80"];
+          const rowScore = scores[row.holder];
 
           const leftBorder = isYou
             ? "border-l-2 border-l-blue-400"
@@ -121,7 +185,7 @@ export function LeaderboardTable({ rows }: { rows: HolderRow[] }) {
           return (
             <div
               key={row.holder}
-              className={`grid grid-cols-[40px_minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)] sm:grid-cols-[48px_minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)] px-4 sm:px-5 py-3.5 border-b border-white/[0.03] last:border-0 transition-colors items-center ${leftBorder} ${rowBg}`}
+              className={`grid grid-cols-[40px_minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)] sm:grid-cols-[48px_minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_80px] px-4 sm:px-5 py-3.5 border-b border-white/[0.03] last:border-0 transition-colors items-center ${leftBorder} ${rowBg}`}
             >
               {/* Rank */}
               <span className={`text-sm font-mono font-bold tabular-nums ${isTop ? rankColors[i] : "text-zinc-700"}`}>
@@ -178,6 +242,18 @@ export function LeaderboardTable({ rows }: { rows: HolderRow[] }) {
                   {row.weight.toFixed(4)}
                 </span>
                 <span className="text-zinc-600 text-xs ml-0.5">×</span>
+              </div>
+
+              {/* Activity Score */}
+              <div className="hidden sm:flex items-center justify-end gap-1.5">
+                {rowScore ? (
+                  <>
+                    <span className="text-zinc-400 text-xs font-mono tabular-nums">{rowScore.score}</span>
+                    <GradeBadge grade={rowScore.grade} />
+                  </>
+                ) : (
+                  <span className="w-6 h-2 rounded bg-white/[0.04] animate-pulse" />
+                )}
               </div>
             </div>
           );
