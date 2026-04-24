@@ -10,6 +10,9 @@ import { MobileNav } from "@/app/components/MobileNav";
 export const revalidate = 30;
 
 const chain = process.env.NEXT_PUBLIC_CHAIN_ID === "8453" ? base : baseSepolia;
+const rpcUrl = process.env.NEXT_PUBLIC_CHAIN_ID === "8453"
+  ? "https://mainnet.base.org"
+  : "https://sepolia.base.org";
 
 export const metadata: Metadata = {
   title: "Activity — Based ID",
@@ -27,7 +30,7 @@ const ZERO = "0x0000000000000000000000000000000000000000";
 
 async function getActivity(): Promise<ActivityEvent[]> {
   try {
-    const client = createPublicClient({ chain, transport: http() });
+    const client = createPublicClient({ chain, transport: http(rpcUrl, { timeout: 8_000 }) });
     const logs = await client.getLogs({
       address: BASED_ID_ADDRESS,
       event: parseAbiItem("event Transfer(address indexed from, address indexed to, uint256 indexed tokenId)"),

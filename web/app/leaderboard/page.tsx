@@ -10,6 +10,9 @@ import { MobileNav } from "@/app/components/MobileNav";
 export const revalidate = 60;
 
 const chain = process.env.NEXT_PUBLIC_CHAIN_ID === "8453" ? base : baseSepolia;
+const rpcUrl = process.env.NEXT_PUBLIC_CHAIN_ID === "8453"
+  ? "https://mainnet.base.org"
+  : "https://sepolia.base.org";
 
 function getTier(id: number) {
   if (id <= 100) return "GENESIS";
@@ -24,7 +27,7 @@ export const metadata: Metadata = {
 };
 
 async function getLeaderboard(): Promise<HolderRow[]> {
-  const client = createPublicClient({ chain, transport: http() });
+  const client = createPublicClient({ chain, transport: http(rpcUrl, { timeout: 8_000 }) });
   try {
     const logs = await client.getLogs({
       address: BASED_ID_ADDRESS,
@@ -38,20 +41,17 @@ async function getLeaderboard(): Promise<HolderRow[]> {
       .sort((a, b) => a - b)
       .slice(0, 100);
 
-    const rows: HolderRow[] = [];
-    for (let i = 0; i < ids.length; i += 10) {
-      const batch = ids.slice(i, i + 10);
-      const results = await Promise.allSettled(
-        batch.map((id) =>
-          client.readContract({ address: BASED_ID_ADDRESS, abi: BASED_ID_ABI, functionName: "ownerOf", args: [BigInt(id)] })
-        )
-      );
-      results.forEach((result, idx) => {
-        const id = batch[idx];
-        const holder = result.status === "fulfilled" ? (result.value as string) : "—";
-        rows.push({ tokenId: id, tier: getTier(id), weight: 1 / Math.sqrt(id), holder, isAuction: isAuctionId(id) });
-      });
-    }
+    // Fetch all ownerOf in one parallel batch — server-side RPC can handle it
+    const results = await Promise.allSettled(
+      ids.map((id) =>
+        client.readContract({ address: BASED_ID_ADDRESS, abi: BASED_ID_ABI, functionName: "ownerOf", args: [BigInt(id)] })
+      )
+    );
+    const rows: HolderRow[] = results.map((result, idx) => {
+      const id = ids[idx];
+      const holder = result.status === "fulfilled" ? (result.value as string) : "—";
+      return { tokenId: id, tier: getTier(id), weight: 1 / Math.sqrt(id), holder, isAuction: isAuctionId(id) };
+    });
     return rows;
   } catch {
     return [];
