@@ -53,12 +53,28 @@ export function DropCard({ drop, featured = false }: { drop: Drop; featured?: bo
             {drop.title}
           </h3>
           {drop.description && <p className="text-zinc-500 text-xs leading-relaxed line-clamp-2">{drop.description}</p>}
-          <div className="flex items-center justify-between mt-auto pt-3 border-t border-white/[0.05]">
-            <div className="flex items-center gap-3 text-xs text-zinc-600">
-              <span>{drop.winner_count} winner{drop.winner_count !== 1 ? "s" : ""}</span>
-              {taskCount > 0 && <><span>·</span><span>{taskCount} task{taskCount !== 1 ? "s" : ""}</span></>}
+          <div className="mt-auto pt-3 border-t border-white/[0.05] space-y-2.5">
+            {/* Project attribution */}
+            {drop.project && (
+              <div className="flex items-center gap-2">
+                {drop.project.logo_url ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={drop.project.logo_url} alt={drop.project.name} className="w-4 h-4 rounded-md object-cover flex-shrink-0" />
+                ) : (
+                  <div className="w-4 h-4 rounded-md bg-zinc-800 flex items-center justify-center flex-shrink-0">
+                    <span className="text-zinc-500 text-[8px] font-bold">{drop.project.name.slice(0, 1).toUpperCase()}</span>
+                  </div>
+                )}
+                <span className="text-zinc-500 text-xs truncate">{drop.project.name}</span>
+              </div>
+            )}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3 text-xs text-zinc-600">
+                <span>{drop.winner_count} winner{drop.winner_count !== 1 ? "s" : ""}</span>
+                {taskCount > 0 && <><span>·</span><span>{taskCount} task{taskCount !== 1 ? "s" : ""}</span></>}
+              </div>
+              <span className="text-blue-400 text-xs font-medium group-hover:text-blue-300 transition-colors">Enter →</span>
             </div>
-            <span className="text-blue-400 text-xs font-medium group-hover:text-blue-300 transition-colors">Enter →</span>
           </div>
         </div>
       </div>

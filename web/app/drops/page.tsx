@@ -19,12 +19,17 @@ const DISPLAY = { fontFamily: "var(--font-display), system-ui, sans-serif" };
 async function getDrops(): Promise<Drop[]> {
   try {
     const db = createServerClient();
-    const { data } = await db
+    const { data: drops } = await db
       .from("drops").select("*, tasks(*)")
       .eq("status", "active")
       .order("tier", { ascending: false })
       .order("created_at", { ascending: false });
-    return (data ?? []) as Drop[];
+    if (!drops?.length) return [];
+
+    const addresses = [...new Set(drops.map((d: Drop) => d.partner_address))];
+    const { data: projects } = await db.from("projects").select("*").in("address", addresses);
+    const pm = Object.fromEntries((projects ?? []).map((p) => [p.address, p]));
+    return drops.map((d: Drop) => ({ ...d, project: pm[d.partner_address] ?? null })) as Drop[];
   } catch { return []; }
 }
 

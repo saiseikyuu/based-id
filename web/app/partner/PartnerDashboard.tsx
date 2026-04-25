@@ -2,10 +2,9 @@
 
 import { useAccount } from "wagmi";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import type { Drop, Project } from "@/lib/supabase";
-import toast from "react-hot-toast";
 
 const DISPLAY = { fontFamily: "var(--font-display), system-ui, sans-serif" };
 
@@ -22,7 +21,6 @@ export function PartnerDashboard({ infoContent }: { infoContent: React.ReactNode
   const [drops,   setDrops]   = useState<Drop[] | null>(null);
   const [project, setProject] = useState<Project | null>(null);
   const [loading, setLoading] = useState(false);
-  const [showProfileEditor, setShowProfileEditor] = useState(false);
 
   useEffect(() => {
     if (!address) { setDrops(null); setProject(null); return; }
@@ -148,15 +146,6 @@ export function PartnerDashboard({ infoContent }: { infoContent: React.ReactNode
         </div>
       )}
 
-      {/* Inline profile editor (kept for quick edits) */}
-      {showProfileEditor && address && (
-        <ProjectProfileEditor
-          address={address}
-          existing={project}
-          onSaved={(updated) => { setProject(updated); setShowProfileEditor(false); }}
-        />
-      )}
-
       {/* Stats */}
       {drops && (
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -207,6 +196,7 @@ function PartnerDropRow({ drop }: { drop: Drop }) {
         <p className="text-zinc-600 text-xs">
           {drop.type.replace("_", " ")} · {drop.winner_count} winner{drop.winner_count !== 1 ? "s" : ""} ·
           {" "}{isEnded ? "Ended" : "Ends"} {endsAt.toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+          {drop.entry_count !== undefined && <> · <span className="text-zinc-400">{drop.entry_count.toLocaleString()} entr{drop.entry_count !== 1 ? "ies" : "y"}</span></>}
         </p>
       </div>
 
@@ -257,150 +247,3 @@ function DrawButton({ dropId }: { dropId: string }) {
   );
 }
 
-function ProjectProfileEditor({
-  address,
-  existing,
-  onSaved,
-}: {
-  address: string;
-  existing: Project | null;
-  onSaved: (p: Project) => void;
-}) {
-  const [name,        setName]      = useState(existing?.name ?? "");
-  const [description, setDesc]      = useState(existing?.description ?? "");
-  const [twitter,     setTwitter]   = useState(existing?.twitter ?? "");
-  const [discord,     setDiscord]   = useState(existing?.discord ?? "");
-  const [website,     setWebsite]   = useState(existing?.website ?? "");
-  const [logoUrl,     setLogoUrl]   = useState(existing?.logo_url ?? "");
-  const [bannerUrl,   setBannerUrl] = useState(existing?.banner_url ?? "");
-  const [uploading,   setUploading] = useState<"logo" | "banner" | null>(null);
-  const [saving,      setSaving]    = useState(false);
-  const logoRef   = useRef<HTMLInputElement>(null);
-  const bannerRef = useRef<HTMLInputElement>(null);
-
-  async function handleUpload(e: React.ChangeEvent<HTMLInputElement>, type: "logo" | "banner") {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setUploading(type);
-    try {
-      const form = new FormData();
-      form.append("file", file);
-      const res  = await fetch("/api/upload", { method: "POST", body: form });
-      const data = await res.json();
-      if (res.ok) {
-        if (type === "logo") setLogoUrl(data.url);
-        else setBannerUrl(data.url);
-        toast.success(`${type === "logo" ? "Logo" : "Banner"} uploaded`);
-      } else toast.error(data.error ?? "Upload failed");
-    } catch { toast.error("Upload failed"); }
-    finally { setUploading(null); }
-  }
-
-  async function handleSave() {
-    if (!name.trim()) { toast.error("Project name is required"); return; }
-    setSaving(true);
-    try {
-      const res = await fetch("/api/projects", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ address, name, description, twitter, discord, website, logo_url: logoUrl || null, banner_url: bannerUrl || null }),
-      });
-      const data = await res.json();
-      if (res.ok) { toast.success("Profile saved"); onSaved(data); }
-      else toast.error(data.error ?? "Save failed");
-    } catch { toast.error("Save failed"); }
-    finally { setSaving(false); }
-  }
-
-  return (
-    <div className="rounded-2xl border border-white/[0.08] p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <p className="text-white font-semibold text-sm">Project profile</p>
-        <p className="text-zinc-600 text-xs">/projects/{address.slice(0, 6)}…</p>
-      </div>
-
-      {/* Banner upload */}
-      <div className="space-y-2">
-        <p className="text-zinc-500 text-xs font-medium">Banner image <span className="text-zinc-700">(1500×500px recommended)</span></p>
-        <input ref={bannerRef} type="file" accept="image/*" onChange={e => handleUpload(e, "banner")} className="hidden" />
-        <button type="button" onClick={() => bannerRef.current?.click()} disabled={uploading !== null}
-          className="w-full h-32 rounded-xl border border-white/[0.08] overflow-hidden relative hover:border-white/[0.16] transition-colors disabled:opacity-50 group">
-          {bannerUrl ? (
-            <>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={bannerUrl} alt="Banner" className="w-full h-full object-cover" />
-              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                <span className="text-white text-xs font-medium">Change banner</span>
-              </div>
-            </>
-          ) : (
-            <div className="w-full h-full bg-zinc-950 flex flex-col items-center justify-center gap-1.5">
-              {uploading === "banner"
-                ? <div className="w-5 h-5 rounded-full border-2 border-white/20 border-t-white animate-spin" />
-                : <>
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-zinc-600"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                    <span className="text-zinc-600 text-xs">Upload banner</span>
-                  </>}
-            </div>
-          )}
-        </button>
-      </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-[80px_1fr] gap-5 items-start">
-        {/* Logo upload */}
-        <div className="space-y-2">
-          <p className="text-zinc-500 text-xs font-medium">Logo</p>
-          <input ref={logoRef} type="file" accept="image/*" onChange={e => handleUpload(e, "logo")} className="hidden" />
-          <button type="button" onClick={() => logoRef.current?.click()} disabled={uploading !== null}
-            className="w-20 h-20 rounded-xl border border-white/[0.08] overflow-hidden hover:border-white/[0.2] transition-colors disabled:opacity-50 group relative">
-            {logoUrl ? (
-              <>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={logoUrl} alt="Logo" className="w-full h-full object-cover" />
-                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-white"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                </div>
-              </>
-            ) : (
-              <div className="w-full h-full bg-zinc-950 flex items-center justify-center">
-                {uploading === "logo"
-                  ? <div className="w-4 h-4 rounded-full border-2 border-white/20 border-t-white animate-spin" />
-                  : <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-zinc-600"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>}
-              </div>
-            )}
-          </button>
-        </div>
-
-        {/* Fields */}
-        <div className="space-y-3">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {[
-              { label: "Project name *", value: name,    onChange: setName,    placeholder: "Your project name" },
-              { label: "Twitter / X",    value: twitter, onChange: setTwitter, placeholder: "@handle" },
-              { label: "Discord invite", value: discord, onChange: setDiscord, placeholder: "https://discord.gg/…" },
-              { label: "Website",        value: website, onChange: setWebsite, placeholder: "https://…" },
-            ].map(f => (
-              <div key={f.label} className="space-y-1">
-                <label className="text-zinc-500 text-xs">{f.label}</label>
-                <input value={f.value} onChange={e => f.onChange(e.target.value)} placeholder={f.placeholder}
-                  className="w-full bg-white/[0.02] border border-white/[0.08] rounded-lg px-3 py-2 text-white text-sm placeholder-zinc-700 outline-none focus:border-white/20 transition-colors" />
-              </div>
-            ))}
-          </div>
-          <div className="space-y-1">
-            <label className="text-zinc-500 text-xs">Description</label>
-            <textarea value={description} onChange={e => setDesc(e.target.value)} rows={2} placeholder="What does your project do?"
-              className="w-full bg-white/[0.02] border border-white/[0.08] rounded-lg px-3 py-2 text-white text-sm placeholder-zinc-700 outline-none focus:border-white/20 transition-colors resize-none" />
-          </div>
-        </div>
-      </div>
-
-      <div className="flex justify-end">
-        <button onClick={handleSave} disabled={saving || !name.trim()}
-          className="px-5 py-2.5 rounded-xl bg-white text-black text-sm font-bold hover:bg-zinc-100 transition-colors disabled:opacity-30">
-          {saving ? "Saving…" : "Save profile"}
-        </button>
-      </div>
-    </div>
-  );
-}

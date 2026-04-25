@@ -29,7 +29,19 @@ export async function GET(req: Request) {
 
   const { data, error } = await query;
   if (error) return Response.json({ error: error.message }, { status: 500 });
-  return Response.json(data ?? [], { headers: { "Cache-Control": "no-store" } });
+  if (!data?.length) return Response.json([], { headers: { "Cache-Control": "no-store" } });
+
+  // Attach entry counts for all drops in one batch query
+  const ids = data.map((d) => d.id);
+  const { data: counts } = await db
+    .from("entries")
+    .select("drop_id")
+    .in("drop_id", ids)
+    .eq("status", "entered");
+  const countMap: Record<string, number> = {};
+  for (const row of counts ?? []) countMap[row.drop_id] = (countMap[row.drop_id] ?? 0) + 1;
+  const enriched = data.map((d) => ({ ...d, entry_count: countMap[d.id] ?? 0 }));
+  return Response.json(enriched, { headers: { "Cache-Control": "no-store" } });
 }
 
 // POST /api/drops — create a new drop (status: pending_payment)

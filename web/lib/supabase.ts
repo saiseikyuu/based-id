@@ -39,6 +39,8 @@ export interface Drop {
   winners: string[];
   created_at: string;
   tasks?: Task[];
+  project?: Project | null;
+  entry_count?: number;
 }
 
 export interface Task {

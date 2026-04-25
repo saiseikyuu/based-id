@@ -22,7 +22,10 @@ async function getDrop(id: string) {
       .eq("id", id)
       .in("status", ["active", "ended", "drawn"])
       .single();
-    return data;
+    if (!data) return null;
+    const { data: project } = await db
+      .from("projects").select("*").eq("address", data.partner_address).single();
+    return { ...data, project: project ?? null };
   } catch { return null; }
 }
 
@@ -140,6 +143,21 @@ export default async function DropPage({ params }: { params: Promise<{ id: strin
                 </h1>
                 {drop.description && (
                   <p className="text-zinc-400 text-base leading-relaxed">{drop.description}</p>
+                )}
+                {/* Project attribution */}
+                {drop.project && (
+                  <Link href={`/projects/${drop.partner_address}`} className="inline-flex items-center gap-2 group mt-1">
+                    {drop.project.logo_url ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={drop.project.logo_url} alt={drop.project.name} className="w-5 h-5 rounded-md object-cover" />
+                    ) : (
+                      <div className="w-5 h-5 rounded-md bg-zinc-800 flex items-center justify-center">
+                        <span className="text-zinc-400 text-[9px] font-bold">{drop.project.name.slice(0, 1).toUpperCase()}</span>
+                      </div>
+                    )}
+                    <span className="text-zinc-500 text-xs group-hover:text-zinc-300 transition-colors">{drop.project.name}</span>
+                    <span className="text-zinc-700 text-[10px] group-hover:text-zinc-500 transition-colors">↗</span>
+                  </Link>
                 )}
               </div>
 
