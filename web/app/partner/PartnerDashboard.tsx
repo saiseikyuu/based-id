@@ -54,18 +54,29 @@ export function PartnerDashboard({ infoContent }: { infoContent: React.ReactNode
   // Connected + no drops yet
   if (drops !== null && drops.length === 0) {
     return (
-      <div className="flex-1 flex items-center justify-center px-6">
-        <div className="text-center space-y-6 max-w-sm">
-          <div className="w-12 h-12 rounded-2xl border border-white/[0.08] bg-white/[0.02] flex items-center justify-center mx-auto">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-zinc-400">
-              <path d="M12 5v14M5 12h14"/>
-            </svg>
+      <div className="flex-1 max-w-3xl mx-auto px-6 py-12 w-full space-y-8">
+        {/* Profile setup prompt */}
+        {!project && (
+          <div className="rounded-2xl border border-amber-900/30 bg-amber-950/[0.06] p-6 flex items-start gap-4">
+            <div className="w-8 h-8 rounded-full bg-amber-500/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+              <span className="text-amber-400 text-sm font-bold">!</span>
+            </div>
+            <div className="flex-1 space-y-3">
+              <div>
+                <p className="text-white font-semibold text-sm">Set up your project profile first</p>
+                <p className="text-zinc-500 text-xs mt-0.5">Add your project name, logo, and banner before creating drops.</p>
+              </div>
+              <Link href="/partner/settings" className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white text-black text-xs font-bold hover:bg-zinc-100 transition-colors">
+                Set up project profile →
+              </Link>
+            </div>
           </div>
+        )}
+
+        <div className="text-center space-y-6 py-8">
           <div className="space-y-2">
             <h2 className="text-white font-bold text-xl" style={DISPLAY}>No drops yet</h2>
-            <p className="text-zinc-500 text-sm leading-relaxed">
-              Create your first drop and start reaching verified Based ID holders on Base.
-            </p>
+            <p className="text-zinc-500 text-sm">Create your first drop to start reaching verified Based ID holders.</p>
           </div>
           <Link href="/partner/new" className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-white text-black text-sm font-bold hover:bg-zinc-100 transition-colors">
             Create your first drop →
@@ -93,22 +104,25 @@ export function PartnerDashboard({ infoContent }: { infoContent: React.ReactNode
             </div>
           )}
           <div>
-            <p className="text-zinc-500 text-[11px] uppercase tracking-[0.2em] mb-0.5">Partner Dashboard</p>
+            <p className="text-zinc-500 text-xs mb-0.5">Partner Dashboard</p>
             <h1 className="text-white font-black text-2xl sm:text-3xl" style={DISPLAY}>
               {project?.name || "Your Project"}
             </h1>
           </div>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
-          <button
-            onClick={() => setShowProfileEditor(!showProfileEditor)}
-            className="px-3.5 py-2 rounded-xl border border-white/[0.08] text-zinc-400 text-[11px] font-medium hover:bg-white/[0.04] hover:text-white transition-colors"
+          <Link
+            href="/partner/settings"
+            className="px-3.5 py-2 rounded-xl border border-white/[0.08] text-zinc-400 text-sm font-medium hover:bg-white/[0.04] hover:text-white transition-colors flex items-center gap-1.5"
           >
-            {project ? "Edit profile" : "Set up profile"}
-          </button>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+            </svg>
+            Settings
+          </Link>
           {project && (
-            <Link href={`/projects/${address?.toLowerCase()}`} className="px-3.5 py-2 rounded-xl border border-white/[0.08] text-zinc-400 text-[11px] font-medium hover:bg-white/[0.04] hover:text-white transition-colors">
-              Public page →
+            <Link href={`/projects/${address?.toLowerCase()}`} className="px-3.5 py-2 rounded-xl border border-white/[0.08] text-zinc-400 text-sm font-medium hover:bg-white/[0.04] hover:text-white transition-colors">
+              Public page ↗
             </Link>
           )}
           <ConnectButton showBalance={false} chainStatus="icon" />
@@ -118,7 +132,23 @@ export function PartnerDashboard({ infoContent }: { infoContent: React.ReactNode
         </div>
       </div>
 
-      {/* Profile editor */}
+      {/* Profile setup prompt if no project yet */}
+      {!project && (
+        <div className="rounded-2xl border border-amber-900/30 bg-amber-950/[0.06] p-5 flex items-center justify-between gap-4 flex-wrap">
+          <div className="flex items-center gap-3">
+            <span className="text-amber-400 text-lg">!</span>
+            <div>
+              <p className="text-white text-sm font-semibold">Set up your project profile</p>
+              <p className="text-zinc-500 text-xs">Add your name, logo, and banner so holders can find you.</p>
+            </div>
+          </div>
+          <Link href="/partner/settings" className="px-4 py-2 rounded-xl bg-amber-400 text-black text-sm font-bold hover:bg-amber-300 transition-colors flex-shrink-0">
+            Set up profile →
+          </Link>
+        </div>
+      )}
+
+      {/* Inline profile editor (kept for quick edits) */}
       {showProfileEditor && address && (
         <ProjectProfileEditor
           address={address}
