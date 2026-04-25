@@ -102,7 +102,14 @@ function HunterCard({ rankIdx, tokenId }: { rankIdx: number; tokenId?: string })
   );
 }
 
-type XpData = { totalXp: number; breakdown: { entriesXp: number; winsXp: number; checkinXp: number }; rank: number; xpToNext: number | null; lastCheckin: string | null; streak: number } | null;
+type XpData = {
+  totalXp: number;
+  breakdown: { entriesXp: number; winsXp: number; checkinXp: number; entryCount: number; winCount: number };
+  rank: number;
+  xpToNext: number | null;
+  lastCheckin: string | null;
+  streak: number;
+} | null;
 
 export function HuntersClaim() {
   const { address, isConnected } = useAccount();
@@ -380,11 +387,11 @@ export function HuntersClaim() {
                   {/* XP breakdown */}
                   {xpData && (
                     <div className="rounded-xl border border-white/[0.06] bg-white/[0.01] p-4 space-y-3">
+                      {/* Total XP + bar */}
                       <div className="flex items-center justify-between">
                         <span className="text-zinc-500 text-xs uppercase tracking-[0.15em]">Total XP</span>
                         <span className="text-white font-black text-lg" style={D}>{xpData.totalXp.toLocaleString()}</span>
                       </div>
-                      {/* XP bar */}
                       {xpData.xpToNext !== null && (
                         <div className="space-y-1">
                           <div className="h-1.5 rounded-full bg-white/[0.06] overflow-hidden">
@@ -394,16 +401,39 @@ export function HuntersClaim() {
                           <p className="text-zinc-600 text-xs">{xpData.xpToNext.toLocaleString()} XP to next rank</p>
                         </div>
                       )}
-                      <div className="grid grid-cols-3 gap-2 pt-1 border-t border-white/[0.05]">
+
+                      {/* Activity breakdown — show counts + XP earned */}
+                      <div className="space-y-1.5 pt-1 border-t border-white/[0.05]">
                         {[
-                          { label: "Drops entered", value: xpData.breakdown.entriesXp, sub: "+10 each" },
-                          { label: "Wins",           value: xpData.breakdown.winsXp,   sub: "+50 each" },
-                          { label: "Check-ins",      value: xpData.breakdown.checkinXp,sub: "+5/day" },
-                        ].map(({ label, value, sub }) => (
-                          <div key={label} className="text-center">
-                            <p className="text-white font-bold text-sm">{value}</p>
-                            <p className="text-zinc-600 text-[10px]">{label}</p>
-                            <p className="text-zinc-700 text-[9px]">{sub}</p>
+                          {
+                            label: "Drops entered",
+                            count: xpData.breakdown.entryCount,
+                            xp:    xpData.breakdown.entriesXp,
+                            unit:  "entry",
+                            rate:  "+10 XP each",
+                          },
+                          {
+                            label: "Drops won",
+                            count: xpData.breakdown.winCount,
+                            xp:    xpData.breakdown.winsXp,
+                            unit:  "win",
+                            rate:  "+50 XP each",
+                          },
+                          {
+                            label: "Daily check-ins",
+                            count: Math.floor(xpData.breakdown.checkinXp / 5) || (xpData.breakdown.checkinXp > 0 ? 1 : 0),
+                            xp:    xpData.breakdown.checkinXp,
+                            unit:  "day",
+                            rate:  "+5 XP/day",
+                          },
+                        ].map(({ label, count, xp, rate }) => (
+                          <div key={label} className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <span className="text-white text-sm font-semibold tabular-nums w-6 text-right">{count}</span>
+                              <span className="text-zinc-500 text-xs">{label}</span>
+                              <span className="text-zinc-700 text-[10px]">{rate}</span>
+                            </div>
+                            <span className="text-zinc-400 text-xs font-mono tabular-nums">+{xp} XP</span>
                           </div>
                         ))}
                       </div>
@@ -411,10 +441,28 @@ export function HuntersClaim() {
                   )}
 
                   {/* Daily check-in */}
-                  <button onClick={handleCheckin} disabled={checkinLoading}
-                    className="w-full py-3 rounded-xl border border-white/[0.08] text-zinc-300 text-sm font-medium hover:bg-white/[0.04] transition-colors disabled:opacity-40 flex items-center justify-center gap-2">
-                    {checkinLoading ? "Checking in…" : <><span>☀️</span> Daily check-in  <span className="text-zinc-600 text-xs">(+5 XP)</span></>}
-                  </button>
+                  {(() => {
+                    const lastCheckin = xpData?.lastCheckin ? new Date(xpData.lastCheckin) : null;
+                    const hoursSince  = lastCheckin ? (Date.now() - lastCheckin.getTime()) / 3600000 : 99;
+                    const canCheckin  = hoursSince >= 20;
+                    const hoursLeft   = canCheckin ? 0 : Math.ceil(20 - hoursSince);
+                    return (
+                      <button onClick={canCheckin ? handleCheckin : undefined}
+                        disabled={checkinLoading || !canCheckin}
+                        className={`w-full py-3 rounded-xl border text-sm font-medium transition-colors flex items-center justify-center gap-2 ${
+                          canCheckin
+                            ? "border-white/[0.08] text-zinc-300 hover:bg-white/[0.04] cursor-pointer"
+                            : "border-white/[0.04] text-zinc-600 cursor-not-allowed"
+                        }`}>
+                        {checkinLoading
+                          ? "Checking in…"
+                          : canCheckin
+                          ? <><span>☀️</span> Daily check-in <span className="text-zinc-600 text-xs">(+5 XP{xpData?.streak && xpData.streak > 0 ? ` · ${xpData.streak}-day streak` : ""})</span></>
+                          : <><span>✓</span> Checked in today <span className="text-zinc-700 text-xs">(next in {hoursLeft}h)</span></>
+                        }
+                      </button>
+                    );
+                  })()}
 
                   {/* Sync rank */}
                   {xpData && xpData.rank > currentRank && (
