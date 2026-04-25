@@ -149,3 +149,19 @@ create table if not exists twitter_verifications (
 );
 alter table twitter_verifications enable row level security;
 create policy "tv_service_all" on twitter_verifications for all using (true) with check (true);
+
+-- ─── Hunter XP ────────────────────────────────────────────────────────────────
+-- Tracks XP from all sources per wallet. One row per wallet.
+create table if not exists hunter_xp (
+  id               uuid        primary key default uuid_generate_v4(),
+  wallet_address   text        not null unique,
+  total_xp         int         not null default 0,
+  entries_xp       int         not null default 0,   -- 10 XP per drop entered
+  wins_xp          int         not null default 0,   -- 50 XP per drop won
+  checkin_xp       int         not null default 0,   -- 5 XP/day + streak bonuses
+  last_checkin_at  timestamptz,
+  checkin_streak   int         not null default 0,
+  updated_at       timestamptz not null default now()
+);
+alter table hunter_xp enable row level security;
+create policy "hxp_service_all" on hunter_xp for all using (true) with check (true);

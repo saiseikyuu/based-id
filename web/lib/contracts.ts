@@ -343,6 +343,9 @@ export const AUCTION_HOUSE_ABI = [
 export const HUNTERS_ADDRESS = (process.env.NEXT_PUBLIC_HUNTERS_ADDRESS ||
   "0x0000000000000000000000000000000000000000") as `0x${string}`;
 
+export const RANK_XP_THRESHOLDS = [0, 100, 300, 700, 1500, 3000, 6000] as const;
+export const RANK_COSTS_USDC    = [0,   2,   2,   2,    5,   10,   20] as const;
+
 export const HUNTERS_ABI = [
   {
     type: "function",
@@ -362,6 +365,13 @@ export const HUNTERS_ABI = [
     ],
     outputs: [],
     stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    name: "rankCost",
+    inputs: [{ name: "rank", type: "uint8" }],
+    outputs: [{ name: "", type: "uint256" }],
+    stateMutability: "view",
   },
   {
     type: "function",

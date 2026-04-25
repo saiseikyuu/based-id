@@ -8,19 +8,22 @@ import toast from "react-hot-toast";
 import {
   HUNTERS_ADDRESS, HUNTERS_ABI,
   BASED_ID_ADDRESS, BASED_ID_ABI,
+  USDC_ADDRESS, ERC20_ABI,
+  RANK_XP_THRESHOLDS, RANK_COSTS_USDC,
 } from "@/lib/contracts";
+import { parseUnits } from "viem";
 
 const D = { fontFamily: "var(--font-display), system-ui, sans-serif" };
 const DEPLOYED = HUNTERS_ADDRESS !== "0x0000000000000000000000000000000000000000";
 
 const RANK_DATA = [
-  { label: "E", color: "#94a3b8", name: "E-Rank Hunter",   cls: "E-CLASS",  d1: "#1a1c26", d2: "#030508", threshold: 0 },
-  { label: "D", color: "#a3e635", name: "D-Rank Hunter",   cls: "D-CLASS",  d1: "#141d09", d2: "#030508", threshold: 20 },
-  { label: "C", color: "#34d399", name: "C-Rank Hunter",   cls: "C-CLASS",  d1: "#071a13", d2: "#030508", threshold: 35 },
-  { label: "B", color: "#60a5fa", name: "B-Rank Hunter",   cls: "B-CLASS",  d1: "#071528", d2: "#030508", threshold: 50 },
-  { label: "A", color: "#c084fc", name: "A-Rank Hunter",   cls: "A-CLASS",  d1: "#160826", d2: "#030508", threshold: 65 },
-  { label: "S", color: "#f97316", name: "S-Rank Hunter",   cls: "S-CLASS",  d1: "#1e0d04", d2: "#030508", threshold: 80 },
-  { label: "N", color: "#fcd34d", name: "National Hunter", cls: "NATIONAL", d1: "#1a1404", d2: "#030508", threshold: 95 },
+  { label: "E", color: "#94a3b8", name: "E-Rank Hunter",   cls: "E-CLASS",  d1: "#1a1c26", d2: "#030508", xp: RANK_XP_THRESHOLDS[0], cost: RANK_COSTS_USDC[0] },
+  { label: "D", color: "#a3e635", name: "D-Rank Hunter",   cls: "D-CLASS",  d1: "#141d09", d2: "#030508", xp: RANK_XP_THRESHOLDS[1], cost: RANK_COSTS_USDC[1] },
+  { label: "C", color: "#34d399", name: "C-Rank Hunter",   cls: "C-CLASS",  d1: "#071a13", d2: "#030508", xp: RANK_XP_THRESHOLDS[2], cost: RANK_COSTS_USDC[2] },
+  { label: "B", color: "#60a5fa", name: "B-Rank Hunter",   cls: "B-CLASS",  d1: "#071528", d2: "#030508", xp: RANK_XP_THRESHOLDS[3], cost: RANK_COSTS_USDC[3] },
+  { label: "A", color: "#c084fc", name: "A-Rank Hunter",   cls: "A-CLASS",  d1: "#160826", d2: "#030508", xp: RANK_XP_THRESHOLDS[4], cost: RANK_COSTS_USDC[4] },
+  { label: "S", color: "#f97316", name: "S-Rank Hunter",   cls: "S-CLASS",  d1: "#1e0d04", d2: "#030508", xp: RANK_XP_THRESHOLDS[5], cost: RANK_COSTS_USDC[5] },
+  { label: "N", color: "#fcd34d", name: "National Hunter", cls: "NATIONAL", d1: "#1a1404", d2: "#030508", xp: RANK_XP_THRESHOLDS[6], cost: RANK_COSTS_USDC[6] },
 ];
 
 function HunterCard({ rankIdx, tokenId }: { rankIdx: number; tokenId?: string }) {
@@ -99,10 +102,15 @@ function HunterCard({ rankIdx, tokenId }: { rankIdx: number; tokenId?: string })
   );
 }
 
+type XpData = { totalXp: number; breakdown: { entriesXp: number; winsXp: number; checkinXp: number }; rank: number; xpToNext: number | null; lastCheckin: string | null; streak: number } | null;
+
 export function HuntersClaim() {
   const { address, isConnected } = useAccount();
   const [updatingRank, setUpdatingRank] = useState(false);
   const [previewRank,  setPreviewRank]  = useState(0);
+  const [xpData,       setXpData]       = useState<XpData>(null);
+  const [checkinLoading, setCheckinLoading] = useState(false);
+  const [needsApproval, setNeedsApproval]   = useState(false);
 
   const { data: idBalance } = useReadContract({
     address: BASED_ID_ADDRESS, abi: BASED_ID_ABI, functionName: "balanceOf",
@@ -130,13 +138,34 @@ export function HuntersClaim() {
     query: { enabled: DEPLOYED },
   });
 
+  // Read XP when wallet connected
+  const loadXp = async (addr: string) => {
+    const res = await fetch(`/api/hunters/rank?wallet=${addr}`).then(r => r.json()).catch(() => null);
+    if (res) setXpData(res);
+  };
+  if (address && !xpData) loadXp(address);
+
   const { writeContract, data: claimTxHash, isPending: claimPending } = useWriteContract();
   const { isLoading: claimConfirming, isSuccess: claimConfirmed } = useWaitForTransactionReceipt({ hash: claimTxHash });
   if (claimConfirmed && !hasClaimed) { refetchToken(); toast.success("Based Hunter claimed!"); }
 
+  const { writeContract: writeApprove, data: approveTxHash, isPending: approvePending } = useWriteContract();
+  const { isLoading: approveConfirming, isSuccess: approveConfirmed } = useWaitForTransactionReceipt({ hash: approveTxHash });
+
   const { writeContract: writeRank, data: rankTxHash, isPending: rankPending } = useWriteContract();
   const { isLoading: rankConfirming, isSuccess: rankConfirmed } = useWaitForTransactionReceipt({ hash: rankTxHash });
-  if (rankConfirmed) { refetchRank(); toast.success("Rank updated on-chain!"); }
+  if (rankConfirmed) { refetchRank(); setNeedsApproval(false); toast.success("Rank updated on-chain!"); loadXp(address!); }
+
+  // After USDC approved, trigger the rank update
+  const [pendingRankData, setPendingRankData] = useState<{ newRank: number; nonce: string; sig: string } | null>(null);
+  if (approveConfirmed && pendingRankData && address) {
+    writeRank(
+      { address: HUNTERS_ADDRESS, abi: HUNTERS_ABI, functionName: "updateRank",
+        args: [address, pendingRankData.newRank, BigInt(pendingRankData.nonce), pendingRankData.sig as `0x${string}`] },
+      { onError: (e) => toast.error(e.message.split("\n")[0]) }
+    );
+    setPendingRankData(null);
+  }
 
   function handleClaim() {
     writeContract(
@@ -152,13 +181,39 @@ export function HuntersClaim() {
       const res  = await fetch("/api/hunters/rank", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ wallet: address }) });
       const data = await res.json();
       if (!res.ok) { toast.error(data.error ?? "Failed"); return; }
-      if (data.newRank === currentRank) { toast("Keep entering drops to level up!"); return; }
-      writeRank(
-        { address: HUNTERS_ADDRESS, abi: HUNTERS_ABI, functionName: "updateRank", args: [address, data.newRank, BigInt(data.nonce), data.sig as `0x${string}`] },
-        { onError: (e) => toast.error(e.message.split("\n")[0]) }
-      );
+      if (data.newRank <= currentRank) { toast("Your rank is already synced — enter more drops to level up!"); return; }
+
+      const costUsd = RANK_COSTS_USDC[data.newRank];
+      if (costUsd > 0) {
+        // Need USDC approval first
+        const amount = parseUnits(String(costUsd), 6);
+        setPendingRankData({ newRank: data.newRank, nonce: data.nonce, sig: data.sig });
+        setNeedsApproval(true);
+        writeApprove(
+          { address: USDC_ADDRESS, abi: ERC20_ABI, functionName: "approve", args: [HUNTERS_ADDRESS, amount] },
+          { onError: (e) => { toast.error(e.message.split("\n")[0]); setNeedsApproval(false); setPendingRankData(null); } }
+        );
+      } else {
+        writeRank(
+          { address: HUNTERS_ADDRESS, abi: HUNTERS_ABI, functionName: "updateRank",
+            args: [address, data.newRank, BigInt(data.nonce), data.sig as `0x${string}`] },
+          { onError: (e) => toast.error(e.message.split("\n")[0]) }
+        );
+      }
     } catch { toast.error("Something went wrong"); }
     finally { setUpdatingRank(false); }
+  }
+
+  async function handleCheckin() {
+    if (!address) return;
+    setCheckinLoading(true);
+    try {
+      const res  = await fetch("/api/hunters/checkin", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ wallet: address }) });
+      const data = await res.json();
+      if (res.ok) { toast.success(data.message ?? `+${data.earned} XP`); loadXp(address); }
+      else toast.error(data.error ?? "Check-in failed");
+    } catch { toast.error("Something went wrong"); }
+    finally { setCheckinLoading(false); }
   }
 
   const displayRank  = hasClaimed ? currentRank : previewRank;
@@ -288,7 +343,7 @@ export function HuntersClaim() {
                 </div>
               ) : hasClaimed ? (
                 <div className="space-y-4">
-                  {/* Current rank display */}
+                  {/* Current rank */}
                   <div className="flex items-center gap-4 p-4 rounded-xl border" style={{ borderColor: activeColor + "30", background: activeColor + "08" }}>
                     <div className="w-12 h-12 rounded-xl flex items-center justify-center border flex-shrink-0"
                       style={{ borderColor: activeColor + "40", background: activeColor + "12" }}>
@@ -299,15 +354,75 @@ export function HuntersClaim() {
                       <p className="text-sm" style={{ color: activeColor }}>{RANK_DATA[currentRank].name}</p>
                     </div>
                     <div className="ml-auto text-right">
-                      <p className="text-zinc-600 text-xs">License</p>
-                      <p className="text-zinc-400 text-xs font-mono mt-0.5">HA-2026-{tokenIdStr?.padStart(4,"0")}</p>
+                      <p className="text-zinc-500 text-xs font-mono">HA-2026-{tokenIdStr?.padStart(4,"0")}</p>
                     </div>
                   </div>
-                  <button onClick={handleUpdateRank} disabled={updatingRank || rankPending || rankConfirming}
-                    className="w-full py-3.5 rounded-xl border border-white/[0.1] text-white text-sm font-bold hover:bg-white/[0.05] transition-colors disabled:opacity-40">
-                    {updatingRank || rankPending || rankConfirming ? "Syncing rank…" : "Sync rank on-chain"}
+
+                  {/* XP breakdown */}
+                  {xpData && (
+                    <div className="rounded-xl border border-white/[0.06] bg-white/[0.01] p-4 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-zinc-500 text-xs uppercase tracking-[0.15em]">Total XP</span>
+                        <span className="text-white font-black text-lg" style={D}>{xpData.totalXp.toLocaleString()}</span>
+                      </div>
+                      {/* XP bar */}
+                      {xpData.xpToNext !== null && (
+                        <div className="space-y-1">
+                          <div className="h-1.5 rounded-full bg-white/[0.06] overflow-hidden">
+                            <div className="h-full rounded-full transition-all duration-500"
+                              style={{ width: `${Math.min(100, (xpData.totalXp / (RANK_XP_THRESHOLDS[currentRank + 1] ?? 1)) * 100)}%`, background: activeColor }} />
+                          </div>
+                          <p className="text-zinc-600 text-xs">{xpData.xpToNext.toLocaleString()} XP to next rank</p>
+                        </div>
+                      )}
+                      <div className="grid grid-cols-3 gap-2 pt-1 border-t border-white/[0.05]">
+                        {[
+                          { label: "Drops entered", value: xpData.breakdown.entriesXp, sub: "+10 each" },
+                          { label: "Wins",           value: xpData.breakdown.winsXp,   sub: "+50 each" },
+                          { label: "Check-ins",      value: xpData.breakdown.checkinXp,sub: "+5/day" },
+                        ].map(({ label, value, sub }) => (
+                          <div key={label} className="text-center">
+                            <p className="text-white font-bold text-sm">{value}</p>
+                            <p className="text-zinc-600 text-[10px]">{label}</p>
+                            <p className="text-zinc-700 text-[9px]">{sub}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Daily check-in */}
+                  <button onClick={handleCheckin} disabled={checkinLoading}
+                    className="w-full py-3 rounded-xl border border-white/[0.08] text-zinc-300 text-sm font-medium hover:bg-white/[0.04] transition-colors disabled:opacity-40 flex items-center justify-center gap-2">
+                    {checkinLoading ? "Checking in…" : <><span>☀️</span> Daily check-in  <span className="text-zinc-600 text-xs">(+5 XP)</span></>}
                   </button>
-                  <p className="text-zinc-700 text-xs text-center">Enter more drops to increase your score, then sync</p>
+
+                  {/* Sync rank */}
+                  {xpData && xpData.rank > currentRank && (
+                    <div className="space-y-2">
+                      <div className="rounded-xl border border-white/[0.08] bg-white/[0.02] px-4 py-3 flex items-center justify-between">
+                        <div>
+                          <p className="text-white text-sm font-semibold">New rank available!</p>
+                          <p className="text-zinc-500 text-xs">{RANK_DATA[xpData.rank].name}</p>
+                        </div>
+                        <span className="font-black text-lg" style={{ color: RANK_DATA[xpData.rank].color }}>{RANK_DATA[xpData.rank].label}</span>
+                      </div>
+                      <button onClick={handleUpdateRank}
+                        disabled={updatingRank || rankPending || rankConfirming || approvePending || approveConfirming}
+                        className="w-full py-3.5 rounded-xl bg-white text-black text-sm font-bold hover:bg-zinc-100 transition-colors disabled:opacity-40">
+                        {approvePending || approveConfirming ? "Approving USDC…" :
+                         rankPending || rankConfirming ? "Syncing…" :
+                         updatingRank ? "Computing…" :
+                         `Sync rank — $${RANK_COSTS_USDC[xpData.rank]} USDC`}
+                      </button>
+                    </div>
+                  )}
+                  {(!xpData || xpData.rank <= currentRank) && (
+                    <button onClick={handleUpdateRank} disabled={updatingRank}
+                      className="w-full py-3 rounded-xl border border-white/[0.07] text-zinc-500 text-sm hover:text-zinc-300 transition-colors disabled:opacity-40">
+                      {updatingRank ? "Checking…" : "Check rank progress"}
+                    </button>
+                  )}
                 </div>
               ) : (
                 <div className="space-y-4">
@@ -347,7 +462,8 @@ export function HuntersClaim() {
                 </div>
                 <div>
                   <p className="text-white text-xs font-semibold">{r.name}</p>
-                  <p className="text-zinc-600 text-[10px] mt-0.5">{r.threshold}+ score</p>
+                  <p className="text-zinc-600 text-[10px] mt-0.5">{r.xp.toLocaleString()} XP</p>
+                  <p className="text-zinc-700 text-[10px]">{r.cost === 0 ? "Free" : `$${r.cost} USDC`} to sync</p>
                 </div>
               </div>
             ))}

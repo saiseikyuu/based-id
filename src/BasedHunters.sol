@@ -12,6 +12,10 @@ interface IBasedID {
     function balanceOf(address owner) external view returns (uint256);
 }
 
+interface IERC20 {
+    function transferFrom(address from, address to, uint256 amount) external returns (bool);
+}
+
 /// @title BasedHunters
 /// @notice Soulbound ERC721 Hunter License. One per wallet. Rank updates via oracle signature.
 contract BasedHunters is ERC721, Ownable {
@@ -21,6 +25,8 @@ contract BasedHunters is ERC721, Ownable {
     enum Rank { E, D, C, B, A, S, National }
 
     IBasedID public immutable basedID;
+    IERC20   public immutable usdc;
+    address  public treasury;
     address  public rankOracle;
 
     uint256 private _nextId = 1;
@@ -29,9 +35,13 @@ contract BasedHunters is ERC721, Ownable {
     mapping(uint256 => Rank)    public rankOf;
     mapping(address => uint256) public nonces;
 
+    // Rank sync costs in USDC (6 decimals): D/C/B=$2, A=$5, S=$10, N=$20
+    mapping(Rank => uint256) public rankCost;
+
     event Claimed(address indexed wallet, uint256 indexed tokenId);
-    event RankUpdated(address indexed wallet, uint256 indexed tokenId, Rank newRank);
+    event RankUpdated(address indexed wallet, uint256 indexed tokenId, Rank newRank, uint256 cost);
     event OracleUpdated(address newOracle);
+    event TreasuryUpdated(address newTreasury);
 
     error AlreadyClaimed();
     error NoBasedID();
@@ -39,12 +49,23 @@ contract BasedHunters is ERC721, Ownable {
     error StaleNonce();
     error InvalidSignature();
     error SoulboundToken();
+    error InsufficientAllowance();
 
-    constructor(address _basedID, address _oracle, address _owner)
+    constructor(address _basedID, address _usdc, address _treasury, address _oracle, address _owner)
         ERC721("Based Hunters", "HUNTER") Ownable(_owner)
     {
-        basedID    = IBasedID(_basedID);
+        basedID  = IBasedID(_basedID);
+        usdc     = IERC20(_usdc);
+        treasury = _treasury;
         rankOracle = _oracle;
+
+        // Set rank costs (USDC has 6 decimals)
+        rankCost[Rank.D]        = 2_000_000;  // $2
+        rankCost[Rank.C]        = 2_000_000;  // $2
+        rankCost[Rank.B]        = 2_000_000;  // $2
+        rankCost[Rank.A]        = 5_000_000;  // $5
+        rankCost[Rank.S]        = 10_000_000; // $10
+        rankCost[Rank.National] = 20_000_000; // $20
     }
 
     // ── Claiming ──────────────────────────────────────────────────────────────
@@ -65,17 +86,35 @@ contract BasedHunters is ERC721, Ownable {
         uint256 tokenId = tokenOf[wallet];
         if (tokenId == 0)            revert NoHunter();
         if (nonce <= nonces[wallet]) revert StaleNonce();
+
         bytes32 hash    = keccak256(abi.encodePacked(block.chainid, address(this), wallet, uint8(newRank), nonce));
         bytes32 ethHash = MessageHashUtils.toEthSignedMessageHash(hash);
         if (ECDSA.recover(ethHash, sig) != rankOracle) revert InvalidSignature();
+
+        // Collect USDC fee (caller must have approved this contract)
+        uint256 cost = rankCost[newRank];
+        if (cost > 0) {
+            bool ok = usdc.transferFrom(msg.sender, treasury, cost);
+            if (!ok) revert InsufficientAllowance();
+        }
+
         nonces[wallet]  = nonce;
         rankOf[tokenId] = newRank;
-        emit RankUpdated(wallet, tokenId, newRank);
+        emit RankUpdated(wallet, tokenId, newRank, cost);
     }
 
     function setOracle(address _oracle) external onlyOwner {
         rankOracle = _oracle;
         emit OracleUpdated(_oracle);
+    }
+
+    function setTreasury(address _treasury) external onlyOwner {
+        treasury = _treasury;
+        emit TreasuryUpdated(_treasury);
+    }
+
+    function setRankCost(Rank rank, uint256 costUsdc6) external onlyOwner {
+        rankCost[rank] = costUsdc6;
     }
 
     // ── Soulbound ─────────────────────────────────────────────────────────────
