@@ -18,6 +18,8 @@ import { NftCard } from "../NftCard";
 import CountUp from "../components/CountUp";
 import SpotlightCard from "../components/SpotlightCard";
 import { MobileNav } from "../components/MobileNav";
+import { DropCard } from "../drops/DropCard";
+import type { Drop } from "@/lib/supabase";
 
 const SNAPSHOT_DATE   = new Date("2026-09-30T00:00:00Z");
 const SNAPSHOT_2_DATE = new Date("2026-12-31T23:59:59Z");
@@ -180,6 +182,7 @@ export default function Dashboard() {
   const [activeTab, setActiveTab] = useState<Tab>("ids");
   const [page, setPage] = useState(0);
   const [previewId, setPreviewId] = useState<bigint | null>(null);
+  const [liveDrops, setLiveDrops] = useState<Drop[] | null>(null);
   const PAGE_SIZE = 12;
 
   const snapshot  = useCountdown(SNAPSHOT_DATE);
@@ -197,6 +200,14 @@ export default function Dashboard() {
     });
     return () => { cancelled = true; };
   }, [address, isConnected, publicClient]);
+
+  useEffect(() => {
+    if (activeTab !== "drops" || liveDrops !== null) return;
+    fetch("/api/drops")
+      .then((r) => r.json())
+      .then((d) => setLiveDrops(Array.isArray(d) ? d : []))
+      .catch(() => setLiveDrops([]));
+  }, [activeTab, liveDrops]);
 
   const primaryId  = tokenIds.length > 0 ? tokenIds[0] : null;
   const totalPages = Math.ceil(tokenIds.length / PAGE_SIZE);
@@ -526,7 +537,7 @@ export default function Dashboard() {
   // ── Full dashboard ───────────────────────────────────────────────────────
   const tabs: { key: Tab; label: string; badge?: string; ownerOnly?: boolean }[] = [
     { key: "ids",      label: "My IDs",   badge: tokenIds.length.toString() },
-    { key: "drops",    label: "Drops",    badge: "New" },
+    { key: "drops",    label: "Drops",    badge: liveDrops?.length ? liveDrops.length.toString() : undefined },
     { key: "entries",  label: "Entries" },
     { key: "wins",     label: "Wins" },
     { key: "rewards",  label: "Rewards" },
@@ -642,15 +653,21 @@ export default function Dashboard() {
               </div>
               <Link href="/drops" className="text-blue-400 text-sm hover:text-blue-300 transition-colors">See all →</Link>
             </div>
-            <div className="rounded-2xl border border-blue-900/25 bg-blue-950/[0.06] p-8 text-center space-y-4">
-              <p className="text-blue-400 text-sm font-medium">Drops portal launching May 15</p>
-              <p className="text-zinc-500 text-sm leading-relaxed max-w-sm mx-auto">
-                Airdrops, NFT drops, whitelists, and raffles — all in one place. Your Based ID auto-qualifies you.
-              </p>
-              <Link href="/drops" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl border border-blue-500/30 text-blue-300 text-sm font-medium hover:bg-blue-950/30 transition-colors">
-                Preview drops →
-              </Link>
-            </div>
+            {liveDrops === null ? (
+              <div className="py-8 text-center"><div className="w-5 h-5 rounded-full border-2 border-white/20 border-t-white animate-spin mx-auto" /></div>
+            ) : liveDrops.length === 0 ? (
+              <div className="rounded-2xl border border-white/[0.06] bg-white/[0.01] p-8 text-center space-y-3">
+                <p className="text-zinc-400 text-sm font-medium">No drops live right now</p>
+                <p className="text-zinc-600 text-sm">Check back soon — new drops from Base projects launch weekly.</p>
+                <Link href="/drops" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl border border-white/[0.08] text-zinc-400 text-sm font-medium hover:text-white transition-colors">
+                  Browse all drops →
+                </Link>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {liveDrops.map((drop) => <DropCard key={drop.id} drop={drop} featured={drop.tier === "featured"} />)}
+              </div>
+            )}
           </div>
         )}
 
