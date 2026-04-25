@@ -136,3 +136,16 @@ alter table projects add column if not exists banner_url text;
 
 -- ─── Add email to projects (for winner notification emails) ──────────────────
 alter table projects add column if not exists email text;
+
+-- ─── Twitter OAuth verifications ──────────────────────────────────────────────
+-- Stores confirmed follows (wallet verified they follow a Twitter handle)
+create table if not exists twitter_verifications (
+  id              uuid primary key default uuid_generate_v4(),
+  wallet_address  text not null,
+  twitter_handle  text not null,           -- lowercase, no @
+  twitter_user_id text,
+  verified_at     timestamptz not null default now(),
+  unique (wallet_address, twitter_handle)
+);
+alter table twitter_verifications enable row level security;
+create policy "tv_service_all" on twitter_verifications for all using (true) with check (true);
