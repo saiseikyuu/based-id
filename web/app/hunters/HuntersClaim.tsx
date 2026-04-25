@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import Link from "next/link";
@@ -138,34 +138,53 @@ export function HuntersClaim() {
     query: { enabled: DEPLOYED },
   });
 
-  // Read XP when wallet connected
-  const loadXp = async (addr: string) => {
+  const loadXp = useCallback(async (addr: string) => {
     const res = await fetch(`/api/hunters/rank?wallet=${addr}`).then(r => r.json()).catch(() => null);
     if (res) setXpData(res);
-  };
-  if (address && !xpData) loadXp(address);
+  }, []);
+
+  // Load XP when wallet connects
+  useEffect(() => {
+    if (address) loadXp(address);
+  }, [address, loadXp]);
 
   const { writeContract, data: claimTxHash, isPending: claimPending } = useWriteContract();
   const { isLoading: claimConfirming, isSuccess: claimConfirmed } = useWaitForTransactionReceipt({ hash: claimTxHash });
-  if (claimConfirmed && !hasClaimed) { refetchToken(); toast.success("Based Hunter claimed!"); }
 
   const { writeContract: writeApprove, data: approveTxHash, isPending: approvePending } = useWriteContract();
   const { isLoading: approveConfirming, isSuccess: approveConfirmed } = useWaitForTransactionReceipt({ hash: approveTxHash });
 
+  const [pendingRankData, setPendingRankData] = useState<{ newRank: number; nonce: string; sig: string } | null>(null);
+
   const { writeContract: writeRank, data: rankTxHash, isPending: rankPending } = useWriteContract();
   const { isLoading: rankConfirming, isSuccess: rankConfirmed } = useWaitForTransactionReceipt({ hash: rankTxHash });
-  if (rankConfirmed) { refetchRank(); setNeedsApproval(false); toast.success("Rank updated on-chain!"); loadXp(address!); }
+
+  // Handle claim confirmation
+  useEffect(() => {
+    if (claimConfirmed) { refetchToken(); toast.success("Based Hunter claimed!"); }
+  }, [claimConfirmed, refetchToken]);
 
   // After USDC approved, trigger the rank update
-  const [pendingRankData, setPendingRankData] = useState<{ newRank: number; nonce: string; sig: string } | null>(null);
-  if (approveConfirmed && pendingRankData && address) {
-    writeRank(
-      { address: HUNTERS_ADDRESS, abi: HUNTERS_ABI, functionName: "updateRank",
-        args: [address, pendingRankData.newRank, BigInt(pendingRankData.nonce), pendingRankData.sig as `0x${string}`] },
-      { onError: (e) => toast.error(e.message.split("\n")[0]) }
-    );
-    setPendingRankData(null);
-  }
+  useEffect(() => {
+    if (approveConfirmed && pendingRankData && address) {
+      writeRank(
+        { address: HUNTERS_ADDRESS, abi: HUNTERS_ABI, functionName: "updateRank",
+          args: [address, pendingRankData.newRank, BigInt(pendingRankData.nonce), pendingRankData.sig as `0x${string}`] },
+        { onError: (e) => toast.error(e.message.split("\n")[0]) }
+      );
+      setPendingRankData(null);
+    }
+  }, [approveConfirmed, pendingRankData, address, writeRank]);
+
+  // Handle rank update confirmation
+  useEffect(() => {
+    if (rankConfirmed && address) {
+      refetchRank();
+      setNeedsApproval(false);
+      toast.success("Rank updated on-chain!");
+      loadXp(address);
+    }
+  }, [rankConfirmed, address, refetchRank, loadXp]);
 
   function handleClaim() {
     writeContract(
