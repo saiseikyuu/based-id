@@ -339,6 +339,106 @@ export const AUCTION_HOUSE_ABI = [
   },
 ] as const;
 
+// Based Hunters — soulbound leveling NFT
+export const HUNTERS_ADDRESS = (process.env.NEXT_PUBLIC_HUNTERS_ADDRESS ||
+  "0x0000000000000000000000000000000000000000") as `0x${string}`;
+
+export const HUNTERS_ABI = [
+  {
+    type: "function",
+    name: "claim",
+    inputs: [],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    name: "updateRank",
+    inputs: [
+      { name: "wallet",   type: "address" },
+      { name: "newRank",  type: "uint8"   },
+      { name: "nonce",    type: "uint256" },
+      { name: "sig",      type: "bytes"   },
+    ],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    name: "tokenOf",
+    inputs: [{ name: "wallet", type: "address" }],
+    outputs: [{ name: "", type: "uint256" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "rankOf",
+    inputs: [{ name: "tokenId", type: "uint256" }],
+    outputs: [{ name: "", type: "uint8" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "nonces",
+    inputs: [{ name: "wallet", type: "address" }],
+    outputs: [{ name: "", type: "uint256" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "totalSupply",
+    inputs: [],
+    outputs: [{ name: "", type: "uint256" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "balanceOf",
+    inputs: [{ name: "owner", type: "address" }],
+    outputs: [{ name: "", type: "uint256" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "tokenURI",
+    inputs: [{ name: "tokenId", type: "uint256" }],
+    outputs: [{ name: "", type: "string" }],
+    stateMutability: "view",
+  },
+  {
+    type: "event",
+    name: "Claimed",
+    inputs: [
+      { name: "wallet",  type: "address", indexed: true  },
+      { name: "tokenId", type: "uint256", indexed: true  },
+    ],
+  },
+  {
+    type: "event",
+    name: "RankUpdated",
+    inputs: [
+      { name: "wallet",  type: "address", indexed: true  },
+      { name: "tokenId", type: "uint256", indexed: true  },
+      { name: "newRank", type: "uint8",   indexed: false },
+    ],
+  },
+] as const;
+
+export const RANK_LABELS = ["E", "D", "C", "B", "A", "S", "N"] as const;
+export const RANK_NAMES  = [
+  "E-Rank Hunter", "D-Rank Hunter", "C-Rank Hunter",
+  "B-Rank Hunter", "A-Rank Hunter", "S-Rank Hunter", "National Hunter",
+] as const;
+export const RANK_COLORS = [
+  "#71717a", // E — zinc
+  "#84cc16", // D — lime
+  "#22c55e", // C — green
+  "#3b82f6", // B — blue
+  "#a855f7", // A — purple
+  "#f97316", // S — orange
+  "#fbbf24", // N — gold
+] as const;
+
 export const ERC20_ABI = [
   {
     type: "function",

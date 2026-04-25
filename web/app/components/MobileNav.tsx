@@ -3,10 +3,10 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 
 const links = [
-  { href: "/drops",       label: "Drops"    },
-  { href: "/projects",    label: "Projects" },
-  { href: "/leaderboard", label: "Leaders"  },
-  { href: "/dashboard",   label: "Dashboard"},
+  { href: "/drops",    label: "Drops"    },
+  { href: "/projects", label: "Projects" },
+  { href: "/hunters",  label: "Hunters"  },
+  { href: "/dashboard",label: "Dashboard"},
 ];
 
 export function MobileNav() {

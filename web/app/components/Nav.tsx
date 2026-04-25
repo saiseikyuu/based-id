@@ -6,8 +6,8 @@ export function Nav({ active }: { active?: string }) {
   const links = [
     { href: "/drops",       label: "Drops"       },
     { href: "/projects",    label: "Projects"    },
+    { href: "/hunters",     label: "Hunters"     },
     { href: "/leaderboard", label: "Leaderboard" },
-    { href: "/activity",    label: "Activity"    },
     { href: "/dashboard",   label: "Dashboard"   },
   ];
 
