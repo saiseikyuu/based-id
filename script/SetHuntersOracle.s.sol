@@ -12,7 +12,7 @@ contract SetHuntersOracle is Script {
         uint256 pk   = vm.envUint("PRIVATE_KEY");
         address oracle = 0x97D8023288548f73d191e58Da81ff4eE58E47eF7;
         vm.startBroadcast(pk);
-        IHunters(0xbD550795D6a3461c1D1BfB89eBE00a752a8B48ad).setOracle(oracle);
+        IHunters(0x9948275197eF91168def6Da11140A9Da0855603B).setOracle(oracle);
         vm.stopBroadcast();
         console.log("Oracle updated to:", oracle);
     }
