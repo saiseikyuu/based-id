@@ -22,6 +22,8 @@ import { NftCard } from "./NftCard";
 import CountUp from "./components/CountUp";
 import RotatingText from "./components/RotatingText";
 import { motion } from "motion/react";
+import { DropCard } from "./drops/DropCard";
+import type { Drop } from "@/lib/supabase";
 
 type MintState = "idle" | "approving" | "approved" | "minting" | "success";
 
@@ -47,6 +49,7 @@ export default function Home() {
   const [mintedId, setMintedId]   = useState<bigint | null>(null);
   const [errorMsg, setErrorMsg]   = useState("");
   const [menuOpen, setMenuOpen]   = useState(false);
+  const [liveDrops, setLiveDrops] = useState<Drop[]>([]);
 
   const { data: totalMinted, refetch: refetchTotal } = useReadContract({
     address: BASED_ID_ADDRESS, abi: BASED_ID_ABI, functionName: "totalMinted",
@@ -87,6 +90,13 @@ export default function Home() {
       toast.success(newId ? `Based ID #${newId.toString()} minted!` : "Minted successfully!");
     }
   }, [isConfirmed, receipt, mintState, refetchAllowance, refetchTotal, refetchNext]);
+
+  useEffect(() => {
+    fetch("/api/drops")
+      .then((r) => r.json())
+      .then((d) => { if (Array.isArray(d)) setLiveDrops(d.slice(0, 6)); })
+      .catch(() => {});
+  }, []);
 
   const handleApprove = useCallback(() => {
     setErrorMsg(""); setMintState("approving");
@@ -312,20 +322,26 @@ export default function Home() {
           </FadeIn>
 
           <FadeIn delay={0.1}>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {[
-                { label: "Token Drop",  title: "Airdrops",   desc: "New Base tokens drop to holders first." },
-                { label: "Whitelist",   title: "WL Access",  desc: "Auto-qualify for partner launches." },
-                { label: "Raffle",      title: "Raffles",    desc: "Enter with one click, onchain draw." },
-              ].map(({ label, title, desc }) => (
-                <Link key={title} href="/drops" className="group block rounded-2xl border border-white/[0.08] bg-white/[0.02] p-6 hover:border-white/[0.14] hover:bg-white/[0.03] transition-all">
-                  <p className="text-xs text-zinc-600 font-medium mb-3">{label}</p>
-                  <p className="text-white font-bold text-lg mb-1" style={D}>{title}</p>
-                  <p className="text-zinc-500 text-sm">{desc}</p>
-                  <p className="text-blue-400 text-xs mt-4 group-hover:text-blue-300 transition-colors">Browse {label}s →</p>
-                </Link>
-              ))}
-            </div>
+            {liveDrops.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {liveDrops.map((drop) => <DropCard key={drop.id} drop={drop} featured={drop.tier === "featured"} />)}
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {[
+                  { label: "Token Drop",  title: "Airdrops",   desc: "New Base tokens drop to holders first." },
+                  { label: "Whitelist",   title: "WL Access",  desc: "Auto-qualify for partner launches." },
+                  { label: "Raffle",      title: "Raffles",    desc: "Enter with one click, onchain draw." },
+                ].map(({ label, title, desc }) => (
+                  <Link key={title} href="/drops" className="group block rounded-2xl border border-white/[0.08] bg-white/[0.02] p-6 hover:border-white/[0.14] hover:bg-white/[0.03] transition-all">
+                    <p className="text-xs text-zinc-600 font-medium mb-3">{label}</p>
+                    <p className="text-white font-bold text-lg mb-1" style={D}>{title}</p>
+                    <p className="text-zinc-500 text-sm">{desc}</p>
+                    <p className="text-blue-400 text-xs mt-4 group-hover:text-blue-300 transition-colors">Browse {label}s →</p>
+                  </Link>
+                ))}
+              </div>
+            )}
           </FadeIn>
 
           {/* Partner CTA */}
