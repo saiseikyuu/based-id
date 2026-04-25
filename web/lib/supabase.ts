@@ -68,6 +68,7 @@ export interface Project {
   website: string | null;
   twitter: string | null;
   discord: string | null;
+  email: string | null;
   created_at: string;
   updated_at: string;
 }

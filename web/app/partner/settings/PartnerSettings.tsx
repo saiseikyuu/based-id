@@ -20,6 +20,7 @@ export function PartnerSettings() {
   const [twitter,     setTwitter]   = useState("");
   const [discord,     setDiscord]   = useState("");
   const [website,     setWebsite]   = useState("");
+  const [email,       setEmail]     = useState("");
   const [logoUrl,     setLogoUrl]   = useState("");
   const [bannerUrl,   setBannerUrl] = useState("");
   const [uploading,   setUploading] = useState<"logo" | "banner" | null>(null);
@@ -40,6 +41,7 @@ export function PartnerSettings() {
           setTwitter(p.twitter ?? "");
           setDiscord(p.discord ?? "");
           setWebsite(p.website ?? "");
+          setEmail(p.email ?? "");
           setLogoUrl(p.logo_url ?? "");
           setBannerUrl(p.banner_url ?? "");
         }
@@ -75,7 +77,7 @@ export function PartnerSettings() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          address, name, description, twitter, discord, website,
+          address, name, description, twitter, discord, website, email: email || null,
           logo_url: logoUrl || null, banner_url: bannerUrl || null,
         }),
       });
@@ -192,6 +194,7 @@ export function PartnerSettings() {
             { label: "Twitter / X",   value: twitter,  onChange: setTwitter, placeholder: "@yourhandle" },
             { label: "Discord",       value: discord,  onChange: setDiscord, placeholder: "https://discord.gg/…" },
             { label: "Website",       value: website,  onChange: setWebsite, placeholder: "https://yourproject.xyz" },
+            { label: "Notification email", value: email, onChange: setEmail, placeholder: "you@project.xyz" },
           ].map(f => (
             <div key={f.label} className="space-y-1.5">
               <label className="text-zinc-400 text-sm">{f.label}</label>
@@ -212,7 +215,10 @@ export function PartnerSettings() {
 
       {/* Save */}
       <div className="flex items-center justify-between gap-4 pt-2 border-t border-white/[0.06]">
-        <p className="text-zinc-600 text-xs">Wallet: <span className="font-mono">{address?.slice(0, 6)}…{address?.slice(-4)}</span></p>
+        <div className="space-y-0.5">
+          <p className="text-zinc-600 text-xs">Wallet: <span className="font-mono">{address?.slice(0, 6)}…{address?.slice(-4)}</span></p>
+          <p className="text-zinc-700 text-[11px]">Notification email receives winner lists when draws happen.</p>
+        </div>
         <button onClick={handleSave} disabled={saving || !name.trim()}
           className="px-6 py-3 rounded-xl bg-white text-black text-sm font-bold hover:bg-zinc-100 transition-colors disabled:opacity-30">
           {saving ? "Saving…" : project ? "Save changes" : "Create project profile"}

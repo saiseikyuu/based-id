@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { createServerClient } from "@/lib/supabase";
 import { MobileNav } from "@/app/components/MobileNav";
 import { DropEntry } from "./DropEntry";
+import { ShareBar } from "./ShareBar";
 
 export const revalidate = 30;
 
@@ -41,7 +42,7 @@ async function getEntryCount(id: string) {
   } catch { return 0; }
 }
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://basedid.space";
+const SITE_URL  = process.env.NEXT_PUBLIC_SITE_URL ?? "https://basedid.space";
 
 export async function generateMetadata(
   { params }: { params: Promise<{ id: string }> }
@@ -204,6 +205,9 @@ export default async function DropPage({ params }: { params: Promise<{ id: strin
                   </div>
                 ))}
               </div>
+
+              {/* Share bar */}
+              <ShareBar title={drop.title} dropUrl={`${SITE_URL}/drops/${drop.id}`} />
 
               {/* Prize details */}
               {Object.keys(drop.prize_details ?? {}).length > 0 && (

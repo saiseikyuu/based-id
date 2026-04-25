@@ -25,6 +25,7 @@ export async function POST(req: Request) {
     website?: string;
     twitter?: string;
     discord?: string;
+    email?: string;
   };
 
   if (!isAddress(body.address)) {
@@ -46,6 +47,7 @@ export async function POST(req: Request) {
       website:     body.website?.trim() ?? null,
       twitter:     body.twitter?.trim() ?? null,
       discord:     body.discord?.trim() ?? null,
+      email:       body.email?.trim() ?? null,
       updated_at:  new Date().toISOString(),
     }, { onConflict: "address" })
     .select()

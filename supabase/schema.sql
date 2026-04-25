@@ -133,3 +133,6 @@ create policy "drop_images_authenticated_upload" on storage.objects
 
 -- ─── Add banner_url to projects (run if projects table already exists) ────────
 alter table projects add column if not exists banner_url text;
+
+-- ─── Add email to projects (for winner notification emails) ──────────────────
+alter table projects add column if not exists email text;
