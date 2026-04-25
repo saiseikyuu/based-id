@@ -41,15 +41,45 @@ async function getEntryCount(id: string) {
   } catch { return 0; }
 }
 
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://basedid.space";
+
 export async function generateMetadata(
   { params }: { params: Promise<{ id: string }> }
 ): Promise<Metadata> {
   const { id } = await params;
   const drop = await getDrop(id);
   if (!drop) return { title: "Drop not found" };
+  const title = `${drop.title} — Based ID Drops`;
+  const description = drop.description || `${TYPE_LABELS[drop.type] ?? "Drop"} on Based ID. Hold a Based ID to enter.`;
+  const dropUrl   = `${SITE_URL}/drops/${id}`;
+  const frameImg  = `${SITE_URL}/api/frames/drops/${id}/image`;
+
   return {
-    title: `${drop.title} — Based ID Drops`,
-    description: drop.description || `${TYPE_LABELS[drop.type] ?? "Drop"} on Based ID. Hold a Based ID to enter.`,
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      images: [{ url: frameImg, width: 1200, height: 630 }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [frameImg],
+    },
+    other: {
+      // Farcaster frame meta tags (v1 compatible)
+      "fc:frame":                     "vNext",
+      "fc:frame:image":               frameImg,
+      "fc:frame:image:aspect_ratio":  "1.91:1",
+      "fc:frame:button:1":            "Enter Drop →",
+      "fc:frame:button:1:action":     "link",
+      "fc:frame:button:1:target":     dropUrl,
+      "fc:frame:button:2":            `${drop.winner_count} winner${drop.winner_count !== 1 ? "s" : ""} · ${TYPE_LABELS[drop.type] ?? drop.type}`,
+      "fc:frame:button:2:action":     "link",
+      "fc:frame:button:2:target":     dropUrl,
+    },
   };
 }
 

@@ -5,9 +5,9 @@ const DISPLAY = { fontFamily: "var(--font-display), system-ui, sans-serif" };
 export function Nav({ active }: { active?: string }) {
   const links = [
     { href: "/drops",       label: "Drops"       },
+    { href: "/calendar",    label: "Calendar"    },
     { href: "/projects",    label: "Projects"    },
     { href: "/hunters",     label: "Hunters"     },
-    { href: "/leaderboard", label: "Leaderboard" },
     { href: "/dashboard",   label: "Dashboard"   },
   ];
 
