@@ -104,7 +104,7 @@ function HunterCard({ rankIdx, tokenId }: { rankIdx: number; tokenId?: string })
 
 type XpData = {
   totalXp: number;
-  breakdown: { entriesXp: number; winsXp: number; checkinXp: number; entryCount: number; winCount: number };
+  breakdown: { entriesXp: number; winsXp: number; checkinXp: number; questXp: number; entryCount: number; winCount: number };
   rank: number;
   xpToNext: number | null;
   lastCheckin: string | null;
@@ -411,27 +411,30 @@ export function HuntersClaim() {
                             label: "Drops entered",
                             count: xpData.breakdown.entryCount,
                             xp:    xpData.breakdown.entriesXp,
-                            unit:  "entry",
                             rate:  "+10 XP each",
                           },
                           {
                             label: "Drops won",
                             count: xpData.breakdown.winCount,
                             xp:    xpData.breakdown.winsXp,
-                            unit:  "win",
                             rate:  "+50 XP each",
                           },
                           {
                             label: "Daily check-ins",
                             count: Math.floor(xpData.breakdown.checkinXp / 5) || (xpData.breakdown.checkinXp > 0 ? 1 : 0),
                             xp:    xpData.breakdown.checkinXp,
-                            unit:  "day",
                             rate:  "+5 XP/day",
                           },
-                        ].map(({ label, count, xp, rate }) => (
+                          {
+                            label: "Quests completed",
+                            count: null,
+                            xp:    xpData.breakdown.questXp ?? 0,
+                            rate:  "bonus XP",
+                          },
+                        ].filter(row => row.count !== 0 && row.xp !== 0 || row.count === null).map(({ label, count, xp, rate }) => (
                           <div key={label} className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
-                              <span className="text-white text-sm font-semibold tabular-nums w-6 text-right">{count}</span>
+                              {count !== null && <span className="text-white text-sm font-semibold tabular-nums w-6 text-right">{count}</span>}
                               <span className="text-zinc-500 text-xs">{label}</span>
                               <span className="text-zinc-700 text-[10px]">{rate}</span>
                             </div>
