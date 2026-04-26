@@ -356,6 +356,46 @@ function CreateAuctionForm({ onCreated }: { onCreated: () => void }) {
   );
 }
 
+function WithdrawPanel({ ownerAddress }: { ownerAddress: string }) {
+  const { data: balance, refetch } = useReadContract({
+    address: USDC_ADDRESS, abi: ERC20_ABI, functionName: "balanceOf",
+    args: [BASED_ID_ADDRESS],
+    query: { refetchInterval: 15000 },
+  });
+  const { writeContract, data: txHash, isPending } = useWriteContract();
+  const { isLoading: confirming, isSuccess: confirmed } = useWaitForTransactionReceipt({ hash: txHash });
+  useEffect(() => { if (confirmed) refetch(); }, [confirmed, refetch]);
+
+  const balanceUsdc = balance !== undefined ? Number(balance as bigint) / 1_000_000 : null;
+  const isEmpty = balanceUsdc === 0;
+
+  return (
+    <div className="rounded-2xl border border-white/[0.08] bg-white/[0.02] p-5 space-y-4">
+      <div className="flex items-center justify-between gap-4">
+        <div>
+          <p className="text-white font-semibold text-sm">Treasury</p>
+          <p className="text-zinc-500 text-xs mt-0.5">USDC collected from mints and auction proceeds.</p>
+        </div>
+        <div className="text-right flex-shrink-0">
+          {balanceUsdc !== null ? (
+            <p className="text-white font-black text-2xl tabular-nums">${balanceUsdc.toFixed(2)}</p>
+          ) : (
+            <p className="text-zinc-700 font-black text-2xl">—</p>
+          )}
+          <p className="text-zinc-600 text-[10px] uppercase tracking-[0.15em] mt-0.5">USDC</p>
+        </div>
+      </div>
+      <button
+        onClick={() => writeContract({ address: BASED_ID_ADDRESS, abi: BASED_ID_ABI, functionName: "withdraw" })}
+        disabled={isPending || confirming || isEmpty || balanceUsdc === null}
+        className="w-full py-3 rounded-xl font-bold text-sm transition-all disabled:opacity-30 disabled:cursor-not-allowed bg-white text-black hover:bg-zinc-100">
+        {confirming ? "Confirming…" : isPending ? "Confirm in wallet…" : isEmpty ? "Nothing to withdraw" : `Withdraw $${balanceUsdc?.toFixed(2)} USDC`}
+      </button>
+      {confirmed && <p className="text-green-400 text-xs text-center">Withdrawn successfully ✓</p>}
+    </div>
+  );
+}
+
 function ApproveAuctionHouseCard({ ownerAddress }: { ownerAddress: string }) {
   const { data: isApproved, refetch } = useReadContract({
     address: BASED_ID_ADDRESS, abi: BASED_ID_ABI, functionName: "isApprovedForAll",
@@ -495,6 +535,7 @@ export function AuctionsSection() {
               </div>
             ))}
           </div>
+          <WithdrawPanel ownerAddress={address ?? ""} />
           <ApproveAuctionHouseCard ownerAddress={address ?? ""} />
           <CreateAuctionForm onCreated={reload} />
           {!loading && auctions.length > 0 && (
