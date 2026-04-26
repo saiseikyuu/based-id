@@ -14,7 +14,7 @@ export async function GET(req: Request) {
 
   let query = db
     .from("entries")
-    .select("id, drop_id, status, created_at, drops(title)")
+    .select("id, drop_id, status, created_at, drops(title, image_url, type, ends_at, status)")
     .eq("wallet_address", wallet.toLowerCase())
     .order("created_at", { ascending: false })
     .limit(50);

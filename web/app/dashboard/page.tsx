@@ -183,6 +183,8 @@ export default function Dashboard() {
   const [page, setPage] = useState(0);
   const [previewId, setPreviewId] = useState<bigint | null>(null);
   const [liveDrops, setLiveDrops] = useState<Drop[] | null>(null);
+  const [entryCounts, setEntryCounts] = useState<{ total: number; wins: number } | null>(null);
+  const [hunterXp, setHunterXp] = useState<{ totalXp: number; rank: number; xpToNext: number | null } | null>(null);
   const PAGE_SIZE = 12;
 
   const snapshot  = useCountdown(SNAPSHOT_DATE);
@@ -200,6 +202,26 @@ export default function Dashboard() {
     });
     return () => { cancelled = true; };
   }, [address, isConnected, publicClient]);
+
+  // Fetch entry counts for tab badges
+  useEffect(() => {
+    if (!address) return;
+    Promise.all([
+      fetch(`/api/entries?wallet=${address}&won=false`).then(r => r.json()).catch(() => []),
+      fetch(`/api/entries?wallet=${address}&won=true`).then(r => r.json()).catch(() => []),
+    ]).then(([all, wins]) => {
+      setEntryCounts({ total: Array.isArray(all) ? all.length : 0, wins: Array.isArray(wins) ? wins.length : 0 });
+    });
+  }, [address]);
+
+  // Fetch Hunter XP for dashboard panel
+  useEffect(() => {
+    if (!address) return;
+    fetch(`/api/hunters/rank?wallet=${address}`)
+      .then(r => r.json())
+      .then(d => { if (d?.totalXp !== undefined) setHunterXp({ totalXp: d.totalXp, rank: d.rank, xpToNext: d.xpToNext }); })
+      .catch(() => {});
+  }, [address]);
 
   useEffect(() => {
     if (activeTab !== "drops" || liveDrops !== null) return;
@@ -538,8 +560,8 @@ export default function Dashboard() {
   const tabs: { key: Tab; label: string; badge?: string; ownerOnly?: boolean }[] = [
     { key: "ids",      label: "My IDs",   badge: tokenIds.length.toString() },
     { key: "drops",    label: "Drops",    badge: liveDrops?.length ? liveDrops.length.toString() : undefined },
-    { key: "entries",  label: "Entries" },
-    { key: "wins",     label: "Wins" },
+    { key: "entries",  label: "Entries",  badge: entryCounts?.total ? entryCounts.total.toString() : undefined },
+    { key: "wins",     label: "Wins",     badge: entryCounts?.wins  ? entryCounts.wins.toString()  : undefined },
     { key: "rewards",  label: "Rewards" },
     { key: "auctions", label: "Auctions", badge: "Live" },
     { key: "owner",     label: "Owner",     ownerOnly: true },
@@ -642,6 +664,58 @@ export default function Dashboard() {
             </div>
           ) : null;
         })()}
+
+        {/* ── Hunter XP panel ── */}
+        {hunterXp && (
+          <div className="mb-8 rounded-2xl border border-white/[0.06] bg-white/[0.01] px-5 py-4 flex items-center gap-5 flex-wrap">
+            {(() => {
+              const RANK_DATA = [
+                { label: "E", color: "#94a3b8" },
+                { label: "D", color: "#a3e635" },
+                { label: "C", color: "#34d399" },
+                { label: "B", color: "#60a5fa" },
+                { label: "A", color: "#c084fc" },
+                { label: "S", color: "#f97316" },
+                { label: "N", color: "#fcd34d" },
+              ];
+              const RANK_XP_THRESHOLDS = [0, 100, 300, 700, 1500, 3000, 6000];
+              const r = RANK_DATA[hunterXp.rank] ?? RANK_DATA[0];
+              const nextXp = RANK_XP_THRESHOLDS[hunterXp.rank + 1];
+              const prevXp = RANK_XP_THRESHOLDS[hunterXp.rank] ?? 0;
+              const pct = nextXp ? Math.min(100, ((hunterXp.totalXp - prevXp) / (nextXp - prevXp)) * 100) : 100;
+              return (
+                <>
+                  {/* Rank badge */}
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center border flex-shrink-0"
+                    style={{ borderColor: r.color + "40", background: r.color + "12" }}>
+                    <span className="font-black text-xl" style={{ color: r.color }}>{r.label}</span>
+                  </div>
+
+                  {/* XP info */}
+                  <div className="flex-1 min-w-[160px] space-y-1.5">
+                    <div className="flex items-center justify-between gap-4">
+                      <span className="text-white text-sm font-semibold">Based Hunter</span>
+                      <span className="text-zinc-400 text-sm font-mono tabular-nums">{hunterXp.totalXp.toLocaleString()} XP</span>
+                    </div>
+                    <div className="h-1.5 rounded-full bg-white/[0.06] overflow-hidden">
+                      <div className="h-full rounded-full transition-all duration-500"
+                        style={{ width: `${pct}%`, background: r.color }} />
+                    </div>
+                    {hunterXp.xpToNext !== null && (
+                      <p className="text-zinc-600 text-[11px]">{hunterXp.xpToNext.toLocaleString()} XP to {RANK_DATA[hunterXp.rank + 1]?.label ?? "max"}-Rank</p>
+                    )}
+                  </div>
+
+                  {/* Links */}
+                  <div className="flex items-center gap-3 flex-shrink-0">
+                    <Link href="/quests" className="text-amber-400 text-xs font-semibold hover:text-amber-300 transition-colors">Quests →</Link>
+                    <Link href="/hunters" className="text-zinc-400 text-xs font-medium hover:text-white transition-colors">Hunter →</Link>
+                  </div>
+                </>
+              );
+            })()}
+          </div>
+        )}
 
         {/* ── Tab: Drops ── */}
         {activeTab === "drops" && (
@@ -2147,8 +2221,21 @@ function Shell({ children }: { children: React.ReactNode }) {
 
 // ─── Dashboard Entries / Wins tab ────────────────────────────────────────────
 
+const ENTRY_TYPE_LABELS: Record<string, string> = {
+  whitelist:  "Whitelist",
+  raffle:     "Raffle",
+  token_drop: "Token Drop",
+  nft_mint:   "NFT Mint",
+};
+
 function DashboardEntries({ address, won }: { address: string; won: boolean }) {
-  const [entries, setEntries] = useState<{ id: string; drop_id: string; status: string; created_at: string; drops?: { title: string } }[]>([]);
+  const [entries, setEntries] = useState<{
+    id: string;
+    drop_id: string;
+    status: string;
+    created_at: string;
+    drops?: { title: string; image_url: string | null; type: string; ends_at: string; status: string } | null;
+  }[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -2160,7 +2247,20 @@ function DashboardEntries({ address, won }: { address: string; won: boolean }) {
   }, [address, won]);
 
   if (loading) {
-    return <div className="text-center py-12"><p className="text-zinc-500 text-sm">Loading…</p></div>;
+    return (
+      <div className="rounded-2xl border border-white/[0.06] overflow-hidden">
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="flex items-center gap-4 px-5 py-4 border-b border-white/[0.04] last:border-0">
+            <div className="w-10 h-10 rounded-xl bg-white/[0.04] flex-shrink-0 animate-pulse" />
+            <div className="flex-1 space-y-2">
+              <div className="h-3 w-48 rounded bg-white/[0.04] animate-pulse" />
+              <div className="h-2.5 w-24 rounded bg-white/[0.03] animate-pulse" />
+            </div>
+            <div className="h-5 w-16 rounded-full bg-white/[0.04] animate-pulse" />
+          </div>
+        ))}
+      </div>
+    );
   }
 
   if (entries.length === 0) {
@@ -2180,29 +2280,79 @@ function DashboardEntries({ address, won }: { address: string; won: boolean }) {
   }
 
   return (
-    <div className="space-y-3">
-      {entries.map((entry) => (
-        <div key={entry.id} className={`rounded-xl border px-5 py-4 flex items-center justify-between gap-4 flex-wrap ${
-          entry.status === "won" ? "border-green-900/25 bg-green-950/[0.06]" : "border-white/[0.06] bg-white/[0.01]"
-        }`}>
-          <div className="min-w-0 space-y-1">
-            <Link href={`/drops/${entry.drop_id}`} className="text-white font-medium text-sm hover:text-blue-300 transition-colors truncate block">
-              {entry.drops?.title ?? entry.drop_id}
-            </Link>
-            <p className="text-zinc-600 text-[11px]">
-              Entered {new Date(entry.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
-            </p>
+    <div className="rounded-2xl border border-white/[0.07] overflow-hidden">
+      {/* Header */}
+      <div className="grid grid-cols-[40px_1fr_90px_80px] gap-4 px-5 py-2.5 border-b border-white/[0.07] bg-white/[0.02]">
+        <div />
+        <span className="text-zinc-600 text-[10px] font-bold uppercase tracking-[0.15em]">Drop</span>
+        <span className="text-zinc-600 text-[10px] font-bold uppercase tracking-[0.15em] hidden sm:block">Type</span>
+        <span className="text-zinc-600 text-[10px] font-bold uppercase tracking-[0.15em] text-right">Status</span>
+      </div>
+
+      {entries.map((entry, i) => {
+        const drop = entry.drops;
+        const isWon = entry.status === "won";
+        const dropActive = drop?.status === "active";
+
+        return (
+          <div key={entry.id}
+            className={`grid grid-cols-[40px_1fr_90px_80px] gap-4 px-5 py-3.5 items-center border-b border-white/[0.03] last:border-0 hover:bg-white/[0.02] transition-colors ${
+              isWon ? "bg-green-950/[0.04]" : ""
+            }`}>
+
+            {/* Thumbnail */}
+            <div className="w-10 h-10 rounded-xl overflow-hidden border border-white/[0.07] bg-zinc-900 flex items-center justify-center flex-shrink-0">
+              {drop?.image_url ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={drop.image_url} alt={drop.title} className="w-full h-full object-cover" />
+              ) : (
+                <span className="text-zinc-500 font-black text-xs" style={D}>
+                  {drop?.title?.slice(0, 1) ?? "?"}
+                </span>
+              )}
+            </div>
+
+            {/* Title + date */}
+            <div className="min-w-0">
+              <Link href={`/drops/${entry.drop_id}`}
+                className="text-white text-sm font-medium hover:text-blue-300 transition-colors truncate block">
+                {drop?.title ?? entry.drop_id}
+              </Link>
+              <div className="flex items-center gap-2 mt-0.5">
+                <span className="text-zinc-600 text-[11px]">
+                  {new Date(entry.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                </span>
+                {dropActive && (
+                  <>
+                    <span className="text-zinc-700 text-[10px]">·</span>
+                    <span className="text-green-500 text-[10px] font-medium">Live</span>
+                  </>
+                )}
+              </div>
+            </div>
+
+            {/* Type */}
+            <span className="text-zinc-500 text-xs font-mono hidden sm:block">
+              {ENTRY_TYPE_LABELS[drop?.type ?? ""] ?? drop?.type ?? "—"}
+            </span>
+
+            {/* Entry status */}
+            <div className="text-right">
+              <span className={`text-[10px] font-bold uppercase tracking-[0.1em] px-2 py-0.5 rounded-full border ${
+                entry.status === "won"          ? "text-green-400 bg-green-500/10 border-green-500/20" :
+                entry.status === "lost"         ? "text-zinc-600 bg-zinc-700/10 border-zinc-700/20" :
+                entry.status === "disqualified" ? "text-red-400 bg-red-500/10 border-red-500/20" :
+                "text-blue-400 bg-blue-500/10 border-blue-500/20"
+              }`}>
+                {entry.status === "entered" ? "Entered" :
+                 entry.status === "won"     ? "Won 🏆" :
+                 entry.status === "lost"    ? "Lost" :
+                 entry.status}
+              </span>
+            </div>
           </div>
-          <span className={`text-[10px] font-bold uppercase tracking-[0.12em] px-2 py-0.5 rounded-full border flex-shrink-0 ${
-            entry.status === "won"          ? "text-green-400 bg-green-500/10 border-green-500/20" :
-            entry.status === "lost"         ? "text-zinc-500 bg-zinc-500/10 border-zinc-500/20" :
-            entry.status === "disqualified" ? "text-red-400 bg-red-500/10 border-red-500/20" :
-            "text-blue-400 bg-blue-500/10 border-blue-500/20"
-          }`}>
-            {entry.status}
-          </span>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }
