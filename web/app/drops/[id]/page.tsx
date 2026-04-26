@@ -84,6 +84,15 @@ export async function generateMetadata(
   };
 }
 
+function StatPill({ label, value, color }: { label: string; value: string; color?: string }) {
+  return (
+    <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-white/[0.07] bg-white/[0.03]">
+      <span className="text-zinc-600 text-[10px] font-bold uppercase tracking-[0.12em]">{label}</span>
+      <span className={`text-xs font-bold tabular-nums ${color ?? "text-white"}`}>{value}</span>
+    </div>
+  );
+}
+
 export default async function DropPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const [drop, entryCount] = await Promise.all([getDrop(id), getEntryCount(id)]);
@@ -96,6 +105,7 @@ export default async function DropPage({ params }: { params: Promise<{ id: strin
   const typeLabel = TYPE_LABELS[drop.type] ?? drop.type;
   const tasks     = drop.tasks ?? [];
   const winners   = drop.winners ?? [];
+  const endsAtFmt = new Date(drop.ends_at).toLocaleDateString("en-US", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit", timeZone: "UTC" }) + " UTC";
 
   const endsAt = new Date(drop.ends_at);
   const timeStr = endsAt.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit", timeZone: "UTC" }) + " UTC";
@@ -103,158 +113,139 @@ export default async function DropPage({ params }: { params: Promise<{ id: strin
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {/* Nav */}
-      <header className="sticky top-0 z-50 border-b border-white/[0.04] bg-black/70 backdrop-blur-xl">
-        <div className="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between gap-6">
-          <Link href="/" className="flex items-center gap-2 flex-shrink-0 hover:opacity-80 transition-opacity">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo.svg" alt="Based ID" className="w-7 h-7 rounded-lg" />
-            <div className="flex items-center gap-1">
-              <span style={DISPLAY} className="font-bold text-sm text-white tracking-tight">Based</span>
-              <span className="font-mono text-[11px] text-zinc-500 tracking-widest ml-0.5">ID</span>
-            </div>
+      <header className="sticky top-0 z-50 border-b border-white/[0.05] bg-black/80 backdrop-blur-xl">
+        <div className="max-w-5xl mx-auto px-6 h-14 flex items-center justify-between gap-6">
+          <Link href="/drops" className="flex items-center gap-2 text-zinc-500 hover:text-white transition-colors text-sm">
+            ← Drops
           </Link>
-          <nav className="hidden md:flex items-center gap-7">
-            <Link href="/drops"       className="text-[13px] text-white font-medium flex items-center gap-1.5">Drops<span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" /></Link>
-            <Link href="/leaderboard" className="text-[13px] text-zinc-400 hover:text-white transition-colors">Leaderboard</Link>
-            <Link href="/activity"    className="text-[13px] text-zinc-400 hover:text-white transition-colors">Activity</Link>
-            <Link href="/dashboard"   className="text-[13px] text-zinc-400 hover:text-white transition-colors">Dashboard</Link>
-          </nav>
-          <div className={`flex items-center gap-2 flex-shrink-0 ${isActive ? "text-green-400" : "text-zinc-500"}`}>
+          <div className="flex items-center gap-2">
             <div className={`w-1.5 h-1.5 rounded-full ${isActive ? "bg-green-500 animate-pulse" : "bg-zinc-600"}`} />
-            <span className="text-[11px] tracking-wide">{isDrawn ? "Drawn" : isEnded ? "Ended" : "Live"}</span>
+            <span className={`text-[11px] font-medium ${isActive ? "text-green-400" : "text-zinc-500"}`}>
+              {isDrawn ? "Drawn" : isEnded ? "Ended" : "Live"}
+            </span>
           </div>
         </div>
       </header>
-
       <MobileNav />
 
-      <div className="relative flex-1 overflow-hidden">
-        <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse 50% 40% at 50% 0%, rgba(37,99,235,0.07), transparent 70%)" }} />
+      <div className="flex-1">
 
-        <div className="relative max-w-5xl mx-auto px-6 pt-10 pb-20">
-          {/* Breadcrumb */}
-          <div className="flex items-center gap-2 text-[11px] text-zinc-600 mb-8">
-            <Link href="/drops" className="hover:text-zinc-400 transition-colors">Drops</Link>
-            <span>/</span>
-            <span className="text-zinc-400 truncate max-w-[200px]">{drop.title}</span>
+        {/* ── Full-bleed banner ── */}
+        <div className="relative w-full h-56 sm:h-72 bg-zinc-950 overflow-hidden">
+          {drop.image_url ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={drop.image_url} alt={drop.title} className="w-full h-full object-cover" />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center"
+              style={{ background: "linear-gradient(135deg, #0f1729 0%, #0a0d1a 100%)" }}>
+              <span className="text-zinc-800 font-black text-[120px] leading-none select-none" style={DISPLAY}>
+                {drop.title.slice(0,1).toUpperCase()}
+              </span>
+            </div>
+          )}
+          {/* Bottom fade */}
+          <div className="absolute inset-x-0 bottom-0 h-24"
+            style={{ background: "linear-gradient(to bottom, transparent, #000)" }} />
+        </div>
+
+        {/* ── Centered content ── */}
+        <div className="max-w-3xl mx-auto px-6 pb-20 -mt-12 space-y-6">
+
+          {/* Logo + title block */}
+          <div className="flex flex-col items-center text-center space-y-4">
+            {/* Logo — overlaps banner */}
+            <div className="w-20 h-20 rounded-2xl border-4 border-black overflow-hidden bg-zinc-900 flex items-center justify-center flex-shrink-0 shadow-xl">
+              {drop.project?.logo_url ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={drop.project.logo_url} alt={drop.project.name} className="w-full h-full object-cover" />
+              ) : drop.image_url ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={drop.image_url} alt={drop.title} className="w-full h-full object-cover" />
+              ) : (
+                <span className="text-white font-black text-2xl" style={DISPLAY}>{drop.title.slice(0,1)}</span>
+              )}
+            </div>
+
+            {/* Title + badges */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-center gap-2 flex-wrap">
+                <span className="text-[10px] font-bold uppercase tracking-[0.15em] px-2 py-0.5 rounded-full bg-blue-900/25 text-blue-300 border border-blue-900/30">
+                  {typeLabel}
+                </span>
+                {drop.tier === "featured" && (
+                  <span className="text-[9px] font-bold uppercase tracking-[0.15em] px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/25">
+                    Featured
+                  </span>
+                )}
+              </div>
+              <h1 className="text-white font-black text-2xl sm:text-3xl leading-tight" style={DISPLAY}>{drop.title}</h1>
+              {drop.project && (
+                <Link href={`/projects/${drop.partner_address}`}
+                  className="inline-flex items-center gap-1.5 text-zinc-500 text-xs hover:text-zinc-300 transition-colors">
+                  {drop.project.name}
+                  <span className="text-zinc-700">↗</span>
+                </Link>
+              )}
+            </div>
+
+            {/* Stat pills — Alphabot style */}
+            <div className="flex items-center gap-2 flex-wrap justify-center">
+              <StatPill label="Entries"  value={entryCount.toLocaleString()} />
+              <StatPill label="Winners"  value={drop.winner_count.toString()} color="text-green-400" />
+              <StatPill label={isDrawn ? "Status" : "Ends"} value={isDrawn ? "Complete" : endsAtFmt} />
+              <StatPill label="Type"     value={typeLabel} />
+            </div>
+
+            {/* Share bar */}
+            <ShareBar title={drop.title} dropUrl={`${SITE_URL}/drops/${drop.id}`} />
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-8 items-start">
+          {/* ── Entry panel ── */}
+          <DropEntry drop={drop} tasks={tasks} isActive={isActive} isEnded={isEnded || isDrawn} />
 
-            {/* Left — drop info */}
-            <div className="space-y-7">
-              {/* Image — fixed aspect ratio */}
-              <div className="rounded-2xl overflow-hidden relative aspect-[16/9]">
-                {drop.image_url ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={drop.image_url} alt={drop.title} className="absolute inset-0 w-full h-full object-cover" />
-                ) : (
-                  <div className="absolute inset-0 bg-zinc-950 flex items-center justify-center">
-                    <span className="text-zinc-700 text-8xl font-black" style={DISPLAY}>
-                      {drop.title.slice(0, 1).toUpperCase()}
-                    </span>
-                  </div>
-                )}
-              </div>
+          {/* ── Description ── */}
+          {drop.description && (
+            <div className="rounded-2xl border border-white/[0.06] bg-white/[0.01] p-5 space-y-2">
+              <p className="text-zinc-500 text-[10px] uppercase tracking-[0.18em]">About</p>
+              <p className="text-zinc-300 text-sm leading-relaxed">{drop.description}</p>
+            </div>
+          )}
 
-              {/* Title + meta */}
-              <div className="space-y-3">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-[10px] font-bold uppercase tracking-[0.15em] px-2 py-1 rounded-full bg-blue-900/25 text-blue-300 border border-blue-900/30">
-                    {typeLabel}
-                  </span>
-                  {drop.tier === "featured" && (
-                    <span className="text-[9px] font-bold uppercase tracking-[0.15em] px-2 py-1 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/30">
-                      Featured
-                    </span>
-                  )}
-                </div>
-                <h1 className="text-white font-black text-3xl sm:text-4xl leading-tight" style={DISPLAY}>
-                  {drop.title}
-                </h1>
-                {drop.description && (
-                  <p className="text-zinc-400 text-base leading-relaxed">{drop.description}</p>
-                )}
-                {/* Project attribution */}
-                {drop.project && (
-                  <Link href={`/projects/${drop.partner_address}`} className="inline-flex items-center gap-2 group mt-1">
-                    {drop.project.logo_url ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={drop.project.logo_url} alt={drop.project.name} className="w-5 h-5 rounded-md object-cover" />
-                    ) : (
-                      <div className="w-5 h-5 rounded-md bg-zinc-800 flex items-center justify-center">
-                        <span className="text-zinc-400 text-[9px] font-bold">{drop.project.name.slice(0, 1).toUpperCase()}</span>
-                      </div>
-                    )}
-                    <span className="text-zinc-500 text-xs group-hover:text-zinc-300 transition-colors">{drop.project.name}</span>
-                    <span className="text-zinc-700 text-[10px] group-hover:text-zinc-500 transition-colors">↗</span>
-                  </Link>
-                )}
-              </div>
+          {/* ── Prize details ── */}
+          {Object.keys(drop.prize_details ?? {}).length > 0 && (
+            <div className="rounded-2xl border border-white/[0.06] bg-white/[0.01] p-5 space-y-2">
+              <p className="text-zinc-500 text-[10px] uppercase tracking-[0.18em]">Prize details</p>
+              <pre className="text-zinc-300 text-sm font-mono whitespace-pre-wrap">
+                {JSON.stringify(drop.prize_details, null, 2)}
+              </pre>
+            </div>
+          )}
 
-              {/* Stats row */}
-              <div className="grid grid-cols-3 gap-3">
-                {[
-                  { label: "Entries",  value: entryCount.toLocaleString(), color: "text-white" },
-                  { label: "Winners",  value: drop.winner_count.toString(), color: "text-green-400" },
-                  { label: isDrawn ? "Drawn" : "Ends",  value: isDrawn ? "Complete" : timeStr, color: "text-zinc-300", small: true },
-                ].map(({ label, value, color, small }) => (
-                  <div key={label} className="rounded-xl border border-white/[0.06] bg-white/[0.01] px-4 py-3.5">
-                    <p className={`${color} font-bold ${small ? "text-sm" : "text-2xl"} tabular-nums leading-none`}>{value}</p>
-                    <p className="text-zinc-600 text-[10px] uppercase tracking-[0.12em] mt-2">{label}</p>
+          {/* ── Winners ── */}
+          {isDrawn && winners.length > 0 && (
+            <div className="space-y-3">
+              <p className="text-green-400 text-[11px] uppercase tracking-[0.2em] flex items-center gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-green-400" />
+                Winners
+              </p>
+              <div className="rounded-2xl border border-green-900/25 bg-green-950/[0.06] divide-y divide-white/[0.04] overflow-hidden">
+                {winners.map((w: string) => (
+                  <div key={w} className="px-5 py-3 flex items-center justify-between">
+                    <span className="font-mono text-green-300 text-sm">{w.slice(0,6)}…{w.slice(-4)}</span>
+                    <a href={`https://basescan.org/address/${w}`} target="_blank" rel="noopener noreferrer"
+                      className="text-zinc-600 text-[10px] hover:text-zinc-400 transition-colors">
+                      Basescan ↗
+                    </a>
                   </div>
                 ))}
               </div>
-
-              {/* Share bar */}
-              <ShareBar title={drop.title} dropUrl={`${SITE_URL}/drops/${drop.id}`} />
-
-              {/* Prize details */}
-              {Object.keys(drop.prize_details ?? {}).length > 0 && (
-                <div className="rounded-xl border border-white/[0.06] bg-white/[0.01] p-5 space-y-3">
-                  <p className="text-zinc-500 text-[10px] uppercase tracking-[0.18em]">Prize details</p>
-                  <pre className="text-zinc-300 text-sm font-mono whitespace-pre-wrap">
-                    {JSON.stringify(drop.prize_details, null, 2)}
-                  </pre>
-                </div>
-              )}
-
-              {/* Winners (if drawn) */}
-              {isDrawn && winners.length > 0 && (
-                <div className="space-y-3">
-                  <p className="text-green-400 text-[11px] uppercase tracking-[0.2em] flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-green-400" />
-                    Winners
-                  </p>
-                  <div className="rounded-2xl border border-green-900/25 bg-green-950/[0.06] divide-y divide-white/[0.04] overflow-hidden">
-                    {winners.map((w: string) => (
-                      <div key={w} className="px-5 py-3 flex items-center justify-between">
-                        <span className="font-mono text-green-300 text-sm">{w.slice(0,6)}…{w.slice(-4)}</span>
-                        <a
-                          href={`https://basescan.org/address/${w}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-zinc-600 text-[10px] hover:text-zinc-400 transition-colors"
-                        >
-                          Basescan ↗
-                        </a>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
             </div>
-
-            {/* Right — sticky entry panel */}
-            <div className="lg:sticky lg:top-20">
-              <DropEntry drop={drop} tasks={tasks} isActive={isActive} isEnded={isEnded || isDrawn} />
-            </div>
-          </div>
+          )}
         </div>
       </div>
 
-      <footer className="border-t border-white/[0.04] px-6 py-5">
-        <div className="max-w-5xl mx-auto flex items-center justify-between gap-4 flex-wrap">
+      <footer className="border-t border-white/[0.05] px-6 py-5">
+        <div className="max-w-3xl mx-auto flex items-center justify-between gap-4 flex-wrap">
           <span className="text-zinc-700 text-[11px]">Built on Base · 2026</span>
           <Link href="/drops" className="text-zinc-600 text-[11px] hover:text-zinc-400 transition-colors">← All drops</Link>
         </div>
