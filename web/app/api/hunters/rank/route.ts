@@ -51,7 +51,15 @@ export async function POST(req: Request) {
   const entriesXp = entryCount * 10;
   const winsXp    = winCount   * 50;
   const checkinXp = xpRow.data?.checkin_xp ?? 0;
-  const totalXp   = entriesXp + winsXp + checkinXp;
+
+  // Sum quest bonus XP from completed quests
+  const { data: questCompletions } = await db
+    .from("quest_completions")
+    .select("earned_xp")
+    .eq("wallet_address", wallet.toLowerCase());
+  const questXp = (questCompletions ?? []).reduce((s: number, c: { earned_xp: number }) => s + (c.earned_xp ?? 0), 0);
+
+  const totalXp = entriesXp + winsXp + checkinXp + questXp;
 
   // Upsert XP record
   await db.from("hunter_xp").upsert({
@@ -59,6 +67,7 @@ export async function POST(req: Request) {
     entries_xp:     entriesXp,
     wins_xp:        winsXp,
     checkin_xp:     checkinXp,
+    quest_xp:       questXp,
     total_xp:       totalXp,
     updated_at:     new Date().toISOString(),
   }, { onConflict: "wallet_address" });
