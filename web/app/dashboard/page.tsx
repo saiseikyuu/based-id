@@ -13,7 +13,6 @@ import {
   BASED_ID_ADDRESS, BASED_ID_ABI, USDC_ADDRESS, ERC20_ABI, BASESCAN_URL, DEPLOY_BLOCK,
   AUCTION_HOUSE_ADDRESS, AUCTION_HOUSE_ABI,
 } from "@/lib/contracts";
-import { useCountdown, pad } from "@/lib/countdown";
 import { NftCard } from "../NftCard";
 import CountUp from "../components/CountUp";
 import SpotlightCard from "../components/SpotlightCard";
@@ -21,8 +20,6 @@ import { MobileNav } from "../components/MobileNav";
 import { DropCard } from "../drops/DropCard";
 import type { Drop } from "@/lib/supabase";
 
-const SNAPSHOT_DATE   = new Date("2026-09-30T00:00:00Z");
-const SNAPSHOT_2_DATE = new Date("2026-12-31T23:59:59Z");
 const SCAN_BATCH = 100;
 
 const D: React.CSSProperties = {
@@ -105,7 +102,7 @@ async function findAllTokens(
   return ids.sort((a, b) => (a < b ? -1 : 1));
 }
 
-type Tab = "ids" | "drops" | "entries" | "wins" | "rewards" | "auctions" | "owner";
+type Tab = "ids" | "drops" | "entries" | "wins" | "auctions" | "owner";
 
 // ─── Tier system ─────────────────────────────────────────────────────────────
 
@@ -187,8 +184,6 @@ export default function Dashboard() {
   const [hunterXp, setHunterXp] = useState<{ totalXp: number; rank: number; xpToNext: number | null } | null>(null);
   const PAGE_SIZE = 12;
 
-  const snapshot  = useCountdown(SNAPSHOT_DATE);
-  const mintClose = useCountdown(SNAPSHOT_2_DATE);
 
   useEffect(() => {
     if (!isConnected || !address || !publicClient) {
@@ -275,8 +270,7 @@ export default function Dashboard() {
                 </h1>
 
                 <p className="text-zinc-400 text-[15px] leading-relaxed max-w-md">
-                  Your Based ID dashboard is your permanent Base credential — airdrop weight,
-                  partner drops, whitelist access, and $BASED rewards live here.
+                  Your Based ID dashboard — enter drops, track wins, manage your Hunter rank, and bid on Genesis auctions.
                 </p>
 
                 <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
@@ -310,8 +304,8 @@ export default function Dashboard() {
                       <p className="text-zinc-600 text-[10px] uppercase tracking-[0.15em]">Next ID</p>
                     </div>
                     <div className="px-5 py-4">
-                      <p className="text-xl font-black leading-none mb-1" style={GRAD}>1B</p>
-                      <p className="text-zinc-600 text-[10px] uppercase tracking-[0.15em]">$BASED</p>
+                      <p className="text-xl font-black leading-none mb-1 text-blue-400">TBA</p>
+                      <p className="text-zinc-600 text-[10px] uppercase tracking-[0.15em]">Drops</p>
                     </div>
                   </div>
                 )}
@@ -358,8 +352,8 @@ export default function Dashboard() {
                       What unlocks
                     </p>
                     {[
-                      { label: "View all your Based IDs + airdrop weight", dot: "bg-blue-400" },
-                      { label: "Track snapshot countdowns live", dot: "bg-green-500" },
+                      { label: "View all your Based IDs + weight", dot: "bg-blue-400" },
+                      { label: "Enter drops and track your entries", dot: "bg-green-500" },
                       { label: "Bid and manage Genesis auctions", dot: "bg-amber-400" },
                     ].map((item) => (
                       <div key={item.label} className="flex items-center gap-2.5">
@@ -496,7 +490,7 @@ export default function Dashboard() {
             <h1 style={D} className="text-4xl font-bold tracking-tight">No Based ID found</h1>
             <p className="text-zinc-500 text-sm leading-relaxed">
               This wallet doesn&apos;t hold a Based ID yet. Mint one for $2 to unlock your dashboard,
-              $BASED airdrops, whitelist access, and partner drops.
+              drops, whitelists, Hunter rank, and partner perks.
             </p>
           </div>
 
@@ -510,7 +504,7 @@ export default function Dashboard() {
               {(() => {
                 const n = Number(totalMinted);
                 let tierMsg = "";
-                if (n < 100) tierMsg = `${100 - n} Genesis IDs (#1–#100) still available — highest airdrop weight.`;
+                if (n < 100) tierMsg = `${100 - n} Genesis IDs (#1–#100) still available — highest weight.`;
                 else if (n < 1000) tierMsg = `${1000 - n} Founding IDs (#101–#1,000) remaining before Pioneer tier begins.`;
                 else if (n < 10000) tierMsg = `${10000 - n} Pioneer IDs (#1,001–#10,000) remaining.`;
                 else tierMsg = "Builder tier — any number, any time.";
@@ -535,7 +529,7 @@ export default function Dashboard() {
           <div className="grid grid-cols-2 gap-px bg-white/[0.05] rounded-2xl overflow-hidden max-w-xs w-full">
             {[
               "Permanent sequential ID",
-              "$BASED token airdrops",
+              "Enter drops + earn Hunter XP",
               "Partner NFT drops",
               "Whitelist access",
             ].map((item) => (
@@ -562,7 +556,6 @@ export default function Dashboard() {
     { key: "drops",    label: "Drops",    badge: liveDrops?.length ? liveDrops.length.toString() : undefined },
     { key: "entries",  label: "Entries",  badge: entryCounts?.total ? entryCounts.total.toString() : undefined },
     { key: "wins",     label: "Wins",     badge: entryCounts?.wins  ? entryCounts.wins.toString()  : undefined },
-    { key: "rewards",  label: "Rewards" },
     { key: "auctions", label: "Auctions", badge: "Live" },
     { key: "owner",     label: "Owner",     ownerOnly: true },
   ];
@@ -650,11 +643,11 @@ export default function Dashboard() {
                 </p>
               </div>
               <div className="bg-background px-4 py-3.5">
-                <p className="text-zinc-700 text-[9px] uppercase tracking-[0.18em] mb-1.5">Snapshot #1</p>
-                <p className="font-bold text-sm text-white tabular-nums">
-                  {pad(snapshot.d)}d {pad(snapshot.h)}h {pad(snapshot.m)}m
+                <p className="text-zinc-700 text-[9px] uppercase tracking-[0.18em] mb-1.5">Total weight</p>
+                <p className="font-bold text-sm text-blue-400 tabular-nums font-mono">
+                  {tokenIds.reduce((s, id) => s + 1 / Math.sqrt(Number(id)), 0).toFixed(3)}×
                 </p>
-                <p className="text-zinc-700 text-[10px] mt-0.5">Sep 30, 2026</p>
+                <p className="text-zinc-700 text-[10px] mt-0.5">Combined 1÷√ID</p>
               </div>
               <div className="bg-background px-4 py-3.5">
                 <p className="text-zinc-700 text-[9px] uppercase tracking-[0.18em] mb-1.5">Lowest ID</p>
@@ -837,7 +830,7 @@ export default function Dashboard() {
                   <span className="w-1 h-1 rounded-full bg-blue-500 animate-pulse flex-shrink-0" />
                   <p className="text-zinc-500 text-sm flex-1">
                     <span className="text-white font-semibold">#{primaryId!.toString()}</span>
-                    {" "}is your lowest ID — it earns the largest $BASED share in both snapshots.
+                    {" "}is your lowest ID — it holds the highest weight in your portfolio.
                   </p>
                   <span className="text-zinc-600 text-xs flex-shrink-0 tabular-nums">
                     {tokenIds.length} total
@@ -927,185 +920,6 @@ export default function Dashboard() {
         )}
 
         {/* ── Tab: Rewards ── */}
-        {activeTab === "rewards" && (
-          <div className="space-y-4 max-w-2xl">
-
-            {/* Countdown grid */}
-            <div className="grid grid-cols-2 gap-px bg-white/[0.05] rounded-2xl overflow-hidden">
-              <SpotlightCard className="bg-background p-6" spotlightColor="rgba(37,99,235,0.07)">
-                <p className="text-[10px] text-zinc-700 uppercase tracking-[0.2em] mb-5">Snapshot #1</p>
-                <div className="flex items-baseline gap-1 flex-wrap">
-                  <span className="text-3xl font-black tabular-nums">{pad(snapshot.d)}</span>
-                  <span className="text-zinc-600 text-xs mr-1.5">d</span>
-                  <span className="text-3xl font-black tabular-nums">{pad(snapshot.h)}</span>
-                  <span className="text-zinc-600 text-xs mr-1.5">h</span>
-                  <span className="text-3xl font-black tabular-nums">{pad(snapshot.m)}</span>
-                  <span className="text-zinc-600 text-xs mr-1.5">m</span>
-                  <span className="text-3xl font-black tabular-nums">{pad(snapshot.s)}</span>
-                  <span className="text-zinc-600 text-xs">s</span>
-                </div>
-                <p className="text-zinc-600 text-xs mt-4">Sep 30, 2026 00:00 UTC · 40% of 1B $BASED</p>
-              </SpotlightCard>
-              <SpotlightCard className="bg-background p-6" spotlightColor="rgba(37,99,235,0.07)">
-                <p className="text-[10px] text-zinc-700 uppercase tracking-[0.2em] mb-5">Snapshot #2</p>
-                <div className="flex items-baseline gap-1 flex-wrap">
-                  <span className="text-3xl font-black tabular-nums">{pad(mintClose.d)}</span>
-                  <span className="text-zinc-600 text-xs mr-1.5">d</span>
-                  <span className="text-3xl font-black tabular-nums">{pad(mintClose.h)}</span>
-                  <span className="text-zinc-600 text-xs mr-1.5">h</span>
-                  <span className="text-3xl font-black tabular-nums">{pad(mintClose.m)}</span>
-                  <span className="text-zinc-600 text-xs mr-1.5">m</span>
-                  <span className="text-3xl font-black tabular-nums">{pad(mintClose.s)}</span>
-                  <span className="text-zinc-600 text-xs">s</span>
-                </div>
-                <p className="text-zinc-600 text-xs mt-4">Dec 31, 2026 23:59 UTC · 40% of 1B $BASED</p>
-              </SpotlightCard>
-            </div>
-
-            {/* Tier + earning breakdown */}
-            <SpotlightCard
-              className="bg-background rounded-2xl border border-white/[0.05] p-6 space-y-5"
-              spotlightColor="rgba(37,99,235,0.05)"
-            >
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <p className="text-white font-semibold text-sm">How your $BASED is calculated</p>
-                  <p className="text-zinc-500 text-xs leading-relaxed mt-1">
-                    Each snapshot distributes tokens proportionally. Lower ID = higher weight.
-                    Multiple IDs each earn separately.
-                  </p>
-                </div>
-                {primaryId && (() => {
-                  const t = getTier(primaryId);
-                  return (
-                    <span
-                      className="flex-shrink-0 text-[10px] font-bold px-2.5 py-1.5 rounded-xl uppercase tracking-[0.12em]"
-                      style={{ color: t.color, backgroundColor: t.bg, border: `1px solid ${t.color}22` }}
-                    >
-                      {t.label}
-                    </span>
-                  );
-                })()}
-              </div>
-
-              {/* Per-ID earning slots */}
-              {tokenIds.length > 0 && (() => {
-                // Mirror contract formula: weight = 1e18 / sqrt(tokenId)
-                // We normalise relative to #1 (weight=1.0) for display
-                const weightOf = (id: bigint) => 1 / Math.sqrt(Number(id));
-                const totalWeight = tokenIds.reduce((sum, id) => sum + weightOf(id), 0);
-
-                return (
-                  <div className="space-y-2">
-                    {/* Column headers */}
-                    <div className="flex items-center justify-between px-3.5 pb-1">
-                      <span className="text-zinc-700 text-[9px] uppercase tracking-[0.15em]">ID</span>
-                      <div className="flex items-center gap-8">
-                        <span className="text-zinc-700 text-[9px] uppercase tracking-[0.15em]">Relative weight</span>
-                        <span className="text-zinc-700 text-[9px] uppercase tracking-[0.15em] w-16 text-right">Share</span>
-                      </div>
-                    </div>
-
-                    {tokenIds.slice(0, 8).map((id) => {
-                      const t = getTier(id);
-                      const w = weightOf(id);
-                      const pct = ((w / totalWeight) * 100).toFixed(1);
-                      const relW = (w / weightOf(BigInt(1))).toFixed(3);
-                      const barW = Math.max(4, (w / weightOf(BigInt(1))) * 100);
-
-                      return (
-                        <div key={id.toString()} className="rounded-xl border border-white/[0.05] px-3.5 py-2.5 space-y-2">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2.5">
-                              <span style={GRAD} className="font-black text-sm tabular-nums">#{id.toString()}</span>
-                              <span
-                                className="text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-[0.1em]"
-                                style={{ color: t.color, backgroundColor: t.bg }}
-                              >
-                                {t.label}
-                              </span>
-                            </div>
-                            <div className="flex items-center gap-3 text-right">
-                              <span className="text-zinc-500 text-[11px] tabular-nums font-mono">{relW}×</span>
-                              <span className="text-zinc-400 text-[11px] tabular-nums font-semibold w-16 text-right">
-                                {tokenIds.length === 1 ? "100%" : `${pct}%`}
-                              </span>
-                            </div>
-                          </div>
-                          {/* Weight bar */}
-                          <div className="h-0.5 rounded-full bg-white/[0.04] overflow-hidden">
-                            <div
-                              className="h-full rounded-full transition-all"
-                              style={{ width: `${Math.min(barW, 100)}%`, backgroundColor: t.color, opacity: 0.6 }}
-                            />
-                          </div>
-                        </div>
-                      );
-                    })}
-
-                    {tokenIds.length > 8 && (
-                      <p className="text-zinc-700 text-[11px] pl-1">+{tokenIds.length - 8} more IDs also earning</p>
-                    )}
-
-                    {/* Total weight summary */}
-                    <div className="flex items-center justify-between rounded-xl bg-white/[0.02] border border-white/[0.04] px-3.5 py-2.5 mt-1">
-                      <span className="text-zinc-600 text-xs">Your combined weight</span>
-                      <span className="text-white font-bold text-sm tabular-nums font-mono">
-                        {totalWeight.toFixed(3)}×
-                      </span>
-                    </div>
-                  </div>
-                );
-              })()}
-
-              {/* Tier context */}
-              {primaryId && (() => {
-                const t = getTier(primaryId);
-                const msgs: Record<string, string> = {
-                  Genesis:  "Genesis IDs (#1–#100) earn the highest per-ID weight in the airdrop. Your lowest ID puts you in the top tier.",
-                  Founding: "Founding IDs (#101–#1,000) are among the earliest 1,000 — significantly higher weight than later minters.",
-                  Pioneer:  "Pioneer IDs (#1,001–#10,000) locked in well ahead of the crowd. Higher weight than the majority of holders.",
-                  Builder:  "Builder IDs (#10,001+) participate in both snapshots. Mint more low-number IDs to boost your weight.",
-                };
-                return (
-                  <p className="text-zinc-600 text-xs leading-relaxed border-t border-white/[0.05] pt-4">
-                    {msgs[t.label]}
-                  </p>
-                );
-              })()}
-            </SpotlightCard>
-
-            {/* Hold & wait CTA */}
-            <div className="p-5 rounded-xl border border-white/[0.05] flex items-start gap-4">
-              <div className="w-9 h-9 rounded-lg border border-white/[0.06] flex items-center justify-center flex-shrink-0 mt-0.5">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-zinc-500">
-                  <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-                </svg>
-              </div>
-              <div className="space-y-1">
-                <p className="text-white font-semibold text-sm">Hold through both snapshots</p>
-                <p className="text-zinc-600 text-xs leading-relaxed">
-                  Selling or transferring your ID before a snapshot removes it from that round.
-                  The claim window opens January 2027 — no action needed until then.
-                </p>
-              </div>
-            </div>
-
-            {/* Claim reminder */}
-            <div className="p-5 rounded-xl border border-white/[0.05] flex items-center gap-4">
-              <div className="w-9 h-9 rounded-lg border border-white/[0.06] flex items-center justify-center flex-shrink-0">
-                <span style={GRAD} className="text-xs font-black">$B</span>
-              </div>
-              <div>
-                <p className="text-white font-semibold text-sm">Claim opens January 2027</p>
-                <p className="text-zinc-600 text-xs mt-0.5">
-                  After the Dec 31 snapshot closes, claim your $BASED here. No action needed before then.
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
-
         {/* ── Tab: Auctions ── */}
         {activeTab === "auctions" && (
           <AuctionTab address={address ?? ""} isOwner={isOwner} />
@@ -2020,7 +1834,7 @@ function AuctionTab({ address, isOwner }: { address: string; isOwner: boolean })
                   The 100 lowest IDs are held back deliberately. Around the 1,000 mint mark,
                   they will be auctioned one-by-one — starting at <span className="text-white font-semibold">#100</span> and
                   ending with the grand finale: <span className="text-white font-semibold">#1</span>.
-                  Winners earn $BASED at the highest weight in both snapshots.
+                  Winners hold the highest-weight IDs in the entire collection.
                 </p>
 
                 <div className="grid grid-cols-10 gap-1">
