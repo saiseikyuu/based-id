@@ -18,7 +18,6 @@ import type { Drop } from "@/lib/supabase";
 
 type MintState = "idle" | "approving" | "approved" | "minting" | "success";
 const D: React.CSSProperties = { fontFamily: "var(--font-display), system-ui, sans-serif" };
-
 const ease = [0.16, 1, 0.3, 1] as const;
 
 function Reveal({ children, delay = 0, className }: { children: React.ReactNode; delay?: number; className?: string }) {
@@ -27,62 +26,53 @@ function Reveal({ children, delay = 0, className }: { children: React.ReactNode;
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-40px" }}
-      transition={{ duration: 0.6, delay, ease }}>
+      transition={{ duration: 0.55, delay, ease }}>
       {children}
     </motion.div>
   );
 }
 
+const HOW_STEPS = [
+  { n: "01", title: "Connect wallet",    desc: "Use any Base-compatible wallet — Coinbase Wallet, MetaMask, or WalletConnect." },
+  { n: "02", title: "Approve $2 USDC",   desc: "One-time approval of $2 USDC. Permanent access — never pay again." },
+  { n: "03", title: "Mint your Based ID", desc: "Your NFT is minted on Base. Immediate, onchain, yours forever." },
+  { n: "04", title: "Access everything", desc: "Enter drops, claim your Hunter, earn XP, win raffles. Full platform access." },
+];
+
 const ACCESS_FEATURES = [
-  { label: "Browse drops & projects",      free: true,  holder: true  },
-  { label: "Enter drops & win raffles",    free: false, holder: true  },
-  { label: "Claim Based Hunter NFT",       free: false, holder: true  },
-  { label: "Earn XP & rank up",            free: false, holder: true  },
-  { label: "Daily check-ins & streaks",    free: false, holder: true  },
-  { label: "Leaderboard & rewards",        free: false, holder: true  },
-  { label: "Priority in featured drops",   free: false, holder: true  },
+  { label: "Browse drops & projects",    locked: false },
+  { label: "Enter drops & win raffles",  locked: true  },
+  { label: "Claim Based Hunter NFT",     locked: true  },
+  { label: "Earn XP & rank up",          locked: true  },
+  { label: "Daily check-ins & streaks",  locked: true  },
+  { label: "Leaderboard & rewards",      locked: true  },
 ];
 
 const FAQ_ITEMS = [
-  {
-    q: "What is Based ID?",
-    a: "Based ID is a $2 USDC NFT on Base that acts as your platform pass. It proves you're a real, bot-free participant — and unlocks every feature: drops, hunters, leaderboard, and rewards.",
-  },
-  {
-    q: "Why $2?",
-    a: "The $2 price is a minimal commitment that filters out bots and empty wallets. It's permanent — you pay once, hold forever, and access everything indefinitely.",
-  },
-  {
-    q: "Can I browse without minting?",
-    a: "Yes. Anyone can browse drops, projects, and the leaderboard. But to enter a drop, claim a Hunter NFT, or earn XP, you need a Based ID.",
-  },
-  {
-    q: "What are Based Hunters?",
-    a: "Based Hunters are free soulbound NFTs exclusively for Based ID holders. Your Hunter rank (E → National) rises as you enter drops and win raffles — and can be synced on-chain.",
-  },
-  {
-    q: "Is the ID tradeable?",
-    a: "Yes, Based ID is a standard ERC-721. You can transfer or list it. However, only the current holder gets access to platform features.",
-  },
+  { q: "What is Based ID?",        a: "A $2 NFT on Base that acts as your permanent platform pass. It proves you're a real, committed participant and unlocks every feature: drops, hunters, leaderboard, and rewards." },
+  { q: "Why does it cost $2?",     a: "The $2 price filters bots and empty wallets. You pay once, hold forever, and access everything indefinitely. It's the lowest viable commitment that ensures a quality community." },
+  { q: "Can I browse without one?",a: "Yes. Anyone can browse drops, projects, and leaderboards. But to enter a drop, claim a Hunter NFT, or earn XP, you need a Based ID." },
+  { q: "What are Based Hunters?",  a: "Free soulbound NFTs for Based ID holders. Your Hunter License card shows your rank (E → National), which rises as you enter drops, win raffles, and check in daily." },
+  { q: "Is the ID tradeable?",     a: "Yes. Based ID is a standard ERC-721 — you can transfer or sell it. Only the current holder gets platform access." },
 ];
 
 function FAQItem({ q, a }: { q: string; a: string }) {
   const [open, setOpen] = useState(false);
   return (
-    <button onClick={() => setOpen(o => !o)} className="w-full text-left border-b border-white/[0.06] py-5 group">
+    <button onClick={() => setOpen(o => !o)} className="w-full text-left border-b border-white/[0.06] py-5">
       <div className="flex items-center justify-between gap-4">
-        <span className="text-white text-sm font-medium group-hover:text-zinc-200 transition-colors">{q}</span>
-        <motion.div animate={{ rotate: open ? 45 : 0 }} transition={{ duration: 0.2 }} className="text-zinc-500 flex-shrink-0">
+        <span className="text-white text-sm font-medium">{q}</span>
+        <motion.div animate={{ rotate: open ? 45 : 0 }} transition={{ duration: 0.18 }} className="text-zinc-600 flex-shrink-0">
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><line x1="7" y1="2" x2="7" y2="12"/><line x1="2" y1="7" x2="12" y2="7"/></svg>
         </motion.div>
       </div>
-      <AnimatePresence>
+      <AnimatePresence initial={false}>
         {open && (
-          <motion.p initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.25, ease: "easeInOut" }}
-            className="text-zinc-500 text-sm leading-relaxed mt-3 overflow-hidden">
-            {a}
-          </motion.p>
+          <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.22, ease: "easeInOut" }}
+            className="overflow-hidden">
+            <p className="text-zinc-500 text-sm leading-relaxed mt-3 pr-6">{a}</p>
+          </motion.div>
         )}
       </AnimatePresence>
     </button>
@@ -128,7 +118,7 @@ export default function Home() {
       toast.success("USDC approved — ready to mint");
     } else if (mintState === "minting") {
       const log = receipt.logs.find(
-        (l) => l.address.toLowerCase() === BASED_ID_ADDRESS.toLowerCase() && l.topics.length === 3
+        l => l.address.toLowerCase() === BASED_ID_ADDRESS.toLowerCase() && l.topics.length === 3
       );
       const newId = log?.topics[2] ? BigInt(log.topics[2]) : null;
       if (newId) setMintedId(newId);
@@ -138,8 +128,7 @@ export default function Home() {
   }, [isConfirmed, receipt, mintState, refetchAllowance, refetchTotal, refetchNext]);
 
   useEffect(() => {
-    fetch("/api/drops")
-      .then(r => r.json())
+    fetch("/api/drops").then(r => r.json())
       .then(d => { if (Array.isArray(d)) setLiveDrops(d.slice(0, 6)); })
       .catch(() => {});
   }, []);
@@ -148,7 +137,7 @@ export default function Home() {
     setErrorMsg(""); setMintState("approving");
     writeContract(
       { address: USDC_ADDRESS, abi: ERC20_ABI, functionName: "approve", args: [BASED_ID_ADDRESS, MINT_PRICE] },
-      { onError: (e) => { const msg = e.message.split("\n")[0]; setErrorMsg(msg); setMintState("idle"); toast.error(msg); } }
+      { onError: e => { const m = e.message.split("\n")[0]; setErrorMsg(m); setMintState("idle"); toast.error(m); } }
     );
   }, [writeContract]);
 
@@ -156,7 +145,7 @@ export default function Home() {
     setErrorMsg(""); setMintState("minting");
     writeContract(
       { address: BASED_ID_ADDRESS, abi: BASED_ID_ABI, functionName: "mint" },
-      { onError: (e) => { const msg = e.message.split("\n")[0]; setErrorMsg(msg); setMintState("approved"); toast.error(msg); } }
+      { onError: e => { const m = e.message.split("\n")[0]; setErrorMsg(m); setMintState("approved"); toast.error(m); } }
     );
   }, [writeContract]);
 
@@ -167,51 +156,40 @@ export default function Home() {
   const isLoading           = isPending || isConfirming;
   const insufficientBalance = usdcBalance !== undefined && usdcBalance < MINT_PRICE;
   const resolvedNextId      = nextId !== undefined ? (nextId <= BigInt(100) ? BigInt(101) : nextId) : BigInt(101);
-  const previewId           = mintState === "success" && mintedId !== null ? `#${mintedId.toString()}` : `#${resolvedNextId.toString()}`;
+  const previewId           = mintState === "success" && mintedId ? `#${mintedId.toString()}` : `#${resolvedNextId.toString()}`;
 
   return (
     <div className="min-h-screen bg-black text-white overflow-x-hidden">
 
       {/* ── NAV ── */}
-      <header className="fixed top-0 inset-x-0 z-50 border-b border-white/[0.06] bg-black/80 backdrop-blur-xl">
+      <header className="fixed top-0 inset-x-0 z-50 border-b border-white/[0.06] bg-black/90 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2 flex-shrink-0 hover:opacity-75 transition-opacity">
+          <Link href="/" className="flex items-center gap-2.5 hover:opacity-80 transition-opacity flex-shrink-0">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/logo.svg" alt="Based ID" className="w-6 h-6 rounded-md" />
-            <span style={D} className="font-bold text-sm tracking-tight">Based ID</span>
+            <span style={D} className="font-bold text-[13px] tracking-tight">Based ID</span>
           </Link>
-
           <nav className="hidden md:flex items-center gap-7">
-            {[
-              { href: "/drops",    label: "Drops"    },
-              { href: "/calendar", label: "Calendar" },
-              { href: "/hunters",  label: "Hunters"  },
-              { href: "/projects", label: "Projects" },
-              { href: "/dashboard",label: "Dashboard"},
-            ].map(({ href, label }) => (
-              <Link key={href} href={href} className="text-[13px] text-zinc-400 hover:text-white transition-colors">{label}</Link>
+            {[["Drops","/drops"],["Calendar","/calendar"],["Hunters","/hunters"],["Projects","/projects"],["Dashboard","/dashboard"]].map(([l,h])=>(
+              <Link key={h} href={h} className="text-[13px] text-zinc-400 hover:text-white transition-colors">{l}</Link>
             ))}
           </nav>
-
           <div className="flex items-center gap-3 flex-shrink-0">
             <div className="hidden md:block"><ConnectButton showBalance={false} chainStatus="icon" /></div>
-            <button className="md:hidden p-1.5 text-zinc-500 hover:text-white transition-colors" onClick={() => setMenuOpen(o => !o)}>
-              {menuOpen
-                ? <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><line x1="2" y1="2" x2="14" y2="14"/><line x1="14" y1="2" x2="2" y2="14"/></svg>
-                : <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><line x1="2" y1="4" x2="14" y2="4"/><line x1="2" y1="8" x2="14" y2="8"/><line x1="2" y1="12" x2="14" y2="12"/></svg>}
+            <button className="md:hidden p-1.5 text-zinc-500 hover:text-white" onClick={() => setMenuOpen(o=>!o)}>
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+                {menuOpen ? <><line x1="3" y1="3" x2="15" y2="15"/><line x1="15" y1="3" x2="3" y2="15"/></> : <><line x1="3" y1="5" x2="15" y2="5"/><line x1="3" y1="9" x2="15" y2="9"/><line x1="3" y1="13" x2="15" y2="13"/></>}
+              </svg>
             </button>
           </div>
         </div>
         {menuOpen && (
           <div className="md:hidden border-t border-white/[0.05] bg-black/95">
-            <nav className="px-6 py-4 flex flex-col gap-0.5">
-              {["/drops","/calendar","/hunters","/projects","/dashboard"].map((href) => (
-                <Link key={href} href={href} onClick={() => setMenuOpen(false)}
-                  className="px-3 py-2.5 rounded-lg text-sm text-zinc-300 hover:text-white hover:bg-white/[0.04] transition-all capitalize">
-                  {href.slice(1)}
-                </Link>
+            <nav className="px-6 py-4 space-y-0.5">
+              {[["Drops","/drops"],["Calendar","/calendar"],["Hunters","/hunters"],["Projects","/projects"],["Dashboard","/dashboard"]].map(([l,h])=>(
+                <Link key={h} href={h} onClick={()=>setMenuOpen(false)} className="block px-3 py-2.5 rounded-lg text-sm text-zinc-300 hover:text-white hover:bg-white/[0.04]">{l}</Link>
               ))}
-              <div className="pt-3"><ConnectButton showBalance={false} chainStatus="icon" /></div>
+              <div className="pt-3 pb-1"><ConnectButton showBalance={false} chainStatus="icon" /></div>
             </nav>
           </div>
         )}
@@ -219,295 +197,289 @@ export default function Home() {
 
       {/* ── HERO ── */}
       <section className="relative min-h-screen flex items-center pt-14">
-        {/* Background glow */}
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[500px] rounded-full"
-            style={{ background: "radial-gradient(ellipse at center, rgba(37,99,235,0.12) 0%, transparent 70%)" }} />
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          <div className="absolute -top-40 left-1/4 w-[600px] h-[600px] rounded-full opacity-[0.07]"
+            style={{ background: "radial-gradient(circle, #2563eb, transparent 70%)" }} />
         </div>
 
-        <div className="relative max-w-7xl mx-auto px-6 py-24 w-full grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+        <div className="relative max-w-7xl mx-auto px-6 py-20 w-full">
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_420px] gap-16 items-center">
 
-          {/* Left — headline + access list */}
-          <div className="space-y-10">
-            <div className="space-y-6">
-              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease }}>
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-white/[0.1] bg-white/[0.03] mb-6">
-                  <div className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
-                  <span className="text-xs text-zinc-400 font-medium">Live on Base</span>
-                </div>
-                <h1 className="text-5xl sm:text-6xl xl:text-7xl font-black tracking-tight leading-[1.0]" style={D}>
-                  Your pass to<br />
-                  <span className="text-white">every Base</span><br />
-                  <span style={{ WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
-                    background: "linear-gradient(135deg, #3b82f6, #60a5fa 50%, #93c5fd)" }}>
-                    opportunity.
-                  </span>
-                </h1>
+            {/* Left */}
+            <div className="space-y-8 max-w-2xl">
+              <div className="space-y-6">
+                <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease }}>
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-white/[0.1] bg-white/[0.03] mb-5">
+                    <div className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+                    <span className="text-[11px] text-zinc-400 font-medium tracking-wide">Live on Base mainnet</span>
+                  </div>
+                  <h1 className="text-[clamp(2.8rem,6vw,5rem)] font-black tracking-tight leading-[1.0]" style={D}>
+                    The $2 pass to<br />
+                    <span className="text-white">every Base</span><br />
+                    <span className="text-blue-400">opportunity.</span>
+                  </h1>
+                </motion.div>
+
+                <motion.p initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: 0.08, ease }}
+                  className="text-zinc-400 text-lg leading-relaxed max-w-lg">
+                  Mint once. Access every drop, claim your Hunter NFT, earn XP, win raffles.
+                  Anyone can browse — <span className="text-zinc-200">only holders can play.</span>
+                </motion.p>
+              </div>
+
+              {/* CTAs */}
+              <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.14, ease }}
+                className="flex items-center gap-3 flex-wrap">
+                <a href="#mint-card" onClick={e=>{e.preventDefault();document.getElementById("mint-card")?.scrollIntoView({behavior:"smooth"});}}
+                  className="px-6 py-3 rounded-xl bg-blue-600 text-white text-sm font-bold hover:bg-blue-500 transition-colors"
+                  style={{boxShadow:"0 4px 24px rgba(37,99,235,0.4)"}}>
+                  Mint Based ID — $2
+                </a>
+                <Link href="/drops" className="px-6 py-3 rounded-xl border border-white/[0.1] text-zinc-300 text-sm font-medium hover:border-white/[0.2] hover:text-white transition-colors">
+                  Browse drops →
+                </Link>
               </motion.div>
 
-              <motion.p initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.1, ease }}
-                className="text-zinc-400 text-lg leading-relaxed max-w-md">
-                Mint once for $2. Access every drop, claim your Hunter NFT, earn XP, win raffles.
-                Anyone can browse — only holders can play.
-              </motion.p>
+              {/* Access gate */}
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5, delay: 0.2, ease }}>
+                <p className="text-zinc-600 text-[11px] uppercase tracking-[0.2em] mb-3">What Based ID unlocks</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2">
+                  {ACCESS_FEATURES.map((f, i) => (
+                    <motion.div key={f.label} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }}
+                      transition={{ duration: 0.3, delay: 0.25 + i * 0.04, ease }}
+                      className="flex items-center gap-2.5">
+                      {f.locked ? (
+                        <div className="w-4 h-4 rounded-full bg-blue-500/15 border border-blue-500/30 flex items-center justify-center flex-shrink-0">
+                          <svg width="7" height="7" viewBox="0 0 8 8" fill="none"><path d="M1.5 4l1.8 1.8L6.5 2" stroke="#60a5fa" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                        </div>
+                      ) : (
+                        <div className="w-4 h-4 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center flex-shrink-0">
+                          <svg width="7" height="7" viewBox="0 0 7 7" fill="none"><path d="M1.5 1.5l4 4M5.5 1.5l-4 4" stroke="#52525b" strokeWidth="1" strokeLinecap="round"/></svg>
+                        </div>
+                      )}
+                      <span className={`text-sm ${f.locked ? "text-zinc-200" : "text-zinc-600"}`}>{f.label}</span>
+                      {f.locked && <span className="text-[10px] text-blue-400/60 hidden sm:block">Holders</span>}
+                    </motion.div>
+                  ))}
+                </div>
+              </motion.div>
+
+              {/* Stats */}
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5, delay: 0.35, ease }}
+                className="flex items-center gap-7 pt-2 border-t border-white/[0.06]">
+                {[
+                  { val: totalMinted !== undefined ? <CountUp to={Number(totalMinted)} duration={1.5}/> : <span>—</span>, label: "IDs minted" },
+                  { val: "$2", label: "One-time, permanent" },
+                  { val: liveDrops.length || "—", label: "Drops live" },
+                ].map(({ val, label }, i) => (
+                  <div key={i}>
+                    <div className="text-xl font-black tabular-nums" style={D}>{val}</div>
+                    <p className="text-zinc-600 text-xs mt-0.5">{label}</p>
+                  </div>
+                ))}
+              </motion.div>
             </div>
 
-            {/* Access list */}
-            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.15, ease }}
-              className="space-y-2">
-              <p className="text-zinc-600 text-xs uppercase tracking-[0.2em] mb-3">What Based ID unlocks</p>
-              {ACCESS_FEATURES.map((f, i) => (
-                <motion.div key={f.label}
-                  initial={{ opacity: 0, x: -12 }} animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.4, delay: 0.2 + i * 0.05, ease }}
-                  className="flex items-center gap-3">
-                  <div className={`w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0 ${
-                    f.holder ? "bg-blue-500/20 border border-blue-500/40" : "bg-white/[0.04] border border-white/[0.08]"
-                  }`}>
-                    {f.holder
-                      ? <svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="M1.5 4l1.8 1.8L6.5 2.5" stroke="#60a5fa" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                      : <svg width="7" height="7" viewBox="0 0 7 7" fill="none"><path d="M1.5 1.5l4 4M5.5 1.5l-4 4" stroke="#52525b" strokeWidth="1" strokeLinecap="round"/></svg>
-                    }
+            {/* Right — Mint card */}
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.1, ease }}
+              className="flex justify-center lg:justify-end" id="mint-card">
+              <div className="w-full max-w-[380px] space-y-3">
+
+                {/* NFT preview */}
+                <div className="relative">
+                  <div className="absolute inset-0 rounded-2xl blur-3xl opacity-25 scale-90"
+                    style={{background:"linear-gradient(135deg,#1d4ed8,#3b82f6)"}}/>
+                  <div className="relative rounded-2xl border border-white/[0.08] overflow-hidden bg-[#0a0a0a]">
+                    <NftCard id={previewId} />
                   </div>
-                  <span className={`text-sm ${f.holder ? "text-zinc-200" : "text-zinc-600 line-through"}`}>{f.label}</span>
-                  {!f.free && f.holder && (
-                    <span className="text-[10px] text-blue-400/70 font-medium">Holders only</span>
-                  )}
-                  {f.free && (
-                    <span className="text-[10px] text-zinc-600">Free</span>
-                  )}
-                </motion.div>
-              ))}
-            </motion.div>
-
-            {/* Stats */}
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5, delay: 0.5, ease }}
-              className="flex items-center gap-6 pt-2">
-              <div>
-                <div className="text-2xl font-black" style={D}>
-                  {totalMinted !== undefined ? <CountUp to={Number(totalMinted)} duration={1.5} /> : "—"}
                 </div>
-                <p className="text-zinc-600 text-xs mt-0.5">IDs minted</p>
-              </div>
-              <div className="w-px h-8 bg-white/[0.08]" />
-              <div>
-                <div className="text-2xl font-black" style={D}>${"2"}</div>
-                <p className="text-zinc-600 text-xs mt-0.5">One-time · permanent</p>
-              </div>
-              <div className="w-px h-8 bg-white/[0.08]" />
-              <div>
-                <div className="text-2xl font-black" style={D}>{liveDrops.length > 0 ? liveDrops.length : "—"}</div>
-                <p className="text-zinc-600 text-xs mt-0.5">Drops live</p>
-              </div>
-            </motion.div>
-          </div>
 
-          {/* Right — Mint card */}
-          <motion.div initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.6, delay: 0.1, ease }}
-            className="flex justify-center lg:justify-end" id="mint-card">
-            <div className="w-full max-w-sm space-y-4">
-              {/* NFT preview */}
-              <div className="relative">
-                <div className="absolute inset-0 rounded-2xl blur-2xl opacity-20 scale-95"
-                  style={{ background: "radial-gradient(#3b82f6, #1d4ed8)" }} />
-                <div className="relative rounded-2xl border border-white/[0.08] overflow-hidden bg-zinc-950">
-                  <NftCard id={previewId} />
-                </div>
-              </div>
-
-              {/* Mint panel */}
-              <div className="rounded-2xl border border-white/[0.08] bg-white/[0.02] p-5 space-y-4">
-                {mintState === "success" ? (
-                  <div className="text-center space-y-4">
-                    <div className="w-12 h-12 rounded-full bg-green-500/15 border border-green-500/30 flex items-center justify-center mx-auto">
-                      <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M4 11l4.5 4.5L18 7" stroke="#22c55e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                    </div>
-                    <div>
-                      <p className="text-white font-bold text-lg" style={D}>Based ID {previewId} minted!</p>
-                      <p className="text-zinc-500 text-sm mt-1">You now have full access to the platform.</p>
-                    </div>
-                    <div className="grid grid-cols-2 gap-2">
-                      <Link href="/drops" className="py-2.5 rounded-xl border border-white/[0.08] text-white text-sm font-medium text-center hover:bg-white/[0.04] transition-colors">
-                        Browse drops
-                      </Link>
-                      <Link href="/hunters" className="py-2.5 rounded-xl bg-blue-600 text-white text-sm font-bold text-center hover:bg-blue-500 transition-colors">
-                        Claim Hunter →
-                      </Link>
-                    </div>
-                    <a href={`${BASESCAN_URL}/tx/${txHash}`} target="_blank" rel="noopener noreferrer"
-                      className="block text-zinc-600 text-xs hover:text-zinc-400 transition-colors">
-                      View on Basescan ↗
-                    </a>
-                  </div>
-                ) : (
-                  <>
-                    <div className="flex items-start justify-between gap-3">
+                {/* Mint panel */}
+                <div className="rounded-2xl border border-white/[0.08] bg-white/[0.02] backdrop-blur-sm p-5 space-y-4">
+                  {mintState === "success" ? (
+                    <div className="text-center space-y-4 py-2">
+                      <div className="w-11 h-11 rounded-full bg-green-500/15 border border-green-500/30 flex items-center justify-center mx-auto">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M4 10l4 4 8-8" stroke="#22c55e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                      </div>
                       <div>
-                        <p className="text-white font-bold" style={D}>Based ID NFT</p>
-                        <p className="text-zinc-500 text-xs mt-0.5">Permanent access pass · ERC-721</p>
+                        <p className="text-white font-bold" style={D}>Based ID {previewId} minted!</p>
+                        <p className="text-zinc-500 text-sm mt-1">Full platform access unlocked.</p>
                       </div>
-                      <div className="text-right flex-shrink-0">
-                        <p className="text-white font-black text-xl" style={D}>$2</p>
-                        <p className="text-zinc-600 text-xs">USDC</p>
+                      <div className="grid grid-cols-2 gap-2">
+                        <Link href="/drops" className="py-2.5 rounded-xl border border-white/[0.08] text-zinc-200 text-sm font-medium text-center hover:bg-white/[0.04] transition-colors">Browse drops</Link>
+                        <Link href="/hunters" className="py-2.5 rounded-xl bg-blue-600 text-white text-sm font-bold text-center hover:bg-blue-500 transition-colors">Claim Hunter →</Link>
                       </div>
+                      <a href={`${BASESCAN_URL}/tx/${txHash}`} target="_blank" rel="noopener noreferrer" className="block text-zinc-600 text-xs hover:text-zinc-400 transition-colors">View on Basescan ↗</a>
                     </div>
+                  ) : (
+                    <>
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-white font-bold text-[15px]" style={D}>Based ID NFT</p>
+                          <p className="text-zinc-600 text-xs mt-0.5">Permanent access pass · ERC-721 · Base</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-white font-black text-2xl" style={D}>$2</p>
+                          <p className="text-zinc-600 text-xs">USDC</p>
+                        </div>
+                      </div>
 
-                    {!isConnected ? (
-                      <div className="space-y-3">
+                      {!isConnected ? (
                         <ConnectButton.Custom>
                           {({ openConnectModal }) => (
-                            <button onClick={openConnectModal}
-                              className="w-full py-3.5 rounded-xl bg-blue-600 text-white text-sm font-bold hover:bg-blue-500 transition-colors"
-                              style={{ boxShadow: "0 4px 24px rgba(37,99,235,0.35)" }}>
+                            <button onClick={openConnectModal} className="w-full py-3.5 rounded-xl bg-blue-600 text-white text-sm font-bold hover:bg-blue-500 transition-colors" style={{boxShadow:"0 4px 20px rgba(37,99,235,0.4)"}}>
                               Connect wallet to mint
                             </button>
                           )}
                         </ConnectButton.Custom>
-                        <p className="text-zinc-600 text-xs text-center">Requires USDC on Base · ~$0.01 gas</p>
-                      </div>
-                    ) : insufficientBalance ? (
-                      <div className="rounded-xl border border-amber-900/40 bg-amber-950/20 px-4 py-3 text-center">
-                        <p className="text-amber-300 text-sm font-medium">Insufficient USDC balance</p>
-                        <p className="text-zinc-500 text-xs mt-1">You need $2 USDC on Base to mint.</p>
-                      </div>
-                    ) : !hasAllowance && mintState === "idle" ? (
-                      <div className="space-y-3">
-                        <button onClick={handleApprove} disabled={isLoading}
-                          className="w-full py-3.5 rounded-xl bg-blue-600 text-white text-sm font-bold hover:bg-blue-500 transition-colors disabled:opacity-50"
-                          style={{ boxShadow: "0 4px 24px rgba(37,99,235,0.35)" }}>
+                      ) : insufficientBalance ? (
+                        <div className="rounded-xl border border-amber-900/40 bg-amber-950/20 px-4 py-3 text-center">
+                          <p className="text-amber-300 text-sm font-medium">Insufficient USDC</p>
+                          <p className="text-zinc-500 text-xs mt-0.5">You need $2 USDC on Base.</p>
+                        </div>
+                      ) : !hasAllowance && mintState === "idle" ? (
+                        <button onClick={handleApprove} disabled={isLoading} className="w-full py-3.5 rounded-xl bg-blue-600 text-white text-sm font-bold hover:bg-blue-500 disabled:opacity-50 transition-colors" style={{boxShadow:"0 4px 20px rgba(37,99,235,0.4)"}}>
                           Approve $2 USDC
                         </button>
-                        <p className="text-zinc-600 text-xs text-center">Step 1 of 2 — Approve USDC spend</p>
-                      </div>
-                    ) : mintState === "approving" ? (
-                      <button disabled className="w-full py-3.5 rounded-xl bg-blue-600/50 text-white text-sm font-bold opacity-60">
-                        Approving… confirm in wallet
-                      </button>
-                    ) : (hasAllowance || mintState === "approved") ? (
-                      <div className="space-y-3">
-                        <button onClick={handleMint} disabled={isLoading}
-                          className="w-full py-3.5 rounded-xl bg-white text-black text-sm font-bold hover:bg-zinc-100 transition-colors disabled:opacity-50"
-                          style={{ boxShadow: "0 4px 24px rgba(255,255,255,0.12)" }}>
+                      ) : mintState === "approving" ? (
+                        <button disabled className="w-full py-3.5 rounded-xl bg-blue-600/50 text-white text-sm font-bold">Approving… confirm in wallet</button>
+                      ) : (hasAllowance || mintState === "approved") ? (
+                        <button onClick={handleMint} disabled={isLoading} className="w-full py-3.5 rounded-xl bg-white text-black text-sm font-bold hover:bg-zinc-100 disabled:opacity-50 transition-colors" style={{boxShadow:"0 4px 20px rgba(255,255,255,0.12)"}}>
                           {isLoading ? "Minting…" : "Mint Based ID — $2"}
                         </button>
-                        <p className="text-zinc-600 text-xs text-center">Step 2 of 2 — Confirm mint transaction</p>
+                      ) : null}
+
+                      {errorMsg && <p className="text-red-400 text-xs text-center">{errorMsg}</p>}
+
+                      <div className="flex items-center justify-center gap-4 pt-1 border-t border-white/[0.05]">
+                        {["Bot-free","Onchain","Permanent"].map(t=>(
+                          <span key={t} className="flex items-center gap-1.5 text-zinc-600 text-xs">
+                            <span className="w-1 h-1 rounded-full bg-zinc-600"/>
+                            {t}
+                          </span>
+                        ))}
                       </div>
-                    ) : null}
-
-                    {errorMsg && <p className="text-red-400 text-xs text-center">{errorMsg}</p>}
-
-                    <div className="flex items-center gap-3 pt-1 border-t border-white/[0.05]">
-                      <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
-                      <span className="text-zinc-600 text-xs">Bot-free · Onchain · Permanent</span>
-                    </div>
-                  </>
-                )}
+                    </>
+                  )}
+                </div>
               </div>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── HOW IT WORKS ── */}
+      <section className="border-t border-white/[0.06]">
+        <div className="max-w-7xl mx-auto px-6 py-20 space-y-12">
+          <Reveal>
+            <div className="text-center space-y-2">
+              <p className="text-zinc-600 text-xs uppercase tracking-[0.25em]">Simple</p>
+              <h2 className="text-3xl sm:text-4xl font-black tracking-tight" style={D}>How it works</h2>
             </div>
-          </motion.div>
+          </Reveal>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-px bg-white/[0.05] rounded-2xl overflow-hidden">
+            {HOW_STEPS.map(({ n, title, desc }, i) => (
+              <Reveal key={n} delay={i * 0.07}>
+                <div className="bg-black px-7 py-8 h-full space-y-4 hover:bg-white/[0.015] transition-colors">
+                  <span className="text-zinc-700 text-xs font-mono tracking-widest">{n}</span>
+                  <p className="text-white font-bold text-[15px]" style={D}>{title}</p>
+                  <p className="text-zinc-500 text-sm leading-relaxed">{desc}</p>
+                </div>
+              </Reveal>
+            ))}
+          </div>
         </div>
       </section>
 
       {/* ── LIVE DROPS ── */}
       <section className="border-t border-white/[0.06]">
-        <div className="max-w-7xl mx-auto px-6 py-24 space-y-10">
+        <div className="max-w-7xl mx-auto px-6 py-20 space-y-8">
           <Reveal>
             <div className="flex items-end justify-between gap-4 flex-wrap">
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
-                  <div className={`w-1.5 h-1.5 rounded-full ${liveDrops.length > 0 ? "bg-green-500 animate-pulse" : "bg-zinc-600"}`} />
-                  <span className={`text-xs font-medium ${liveDrops.length > 0 ? "text-green-400" : "text-zinc-500"}`}>
-                    {liveDrops.length > 0 ? `${liveDrops.length} drop${liveDrops.length !== 1 ? "s" : ""} live now` : "No active drops"}
+                  <div className={`w-1.5 h-1.5 rounded-full ${liveDrops.length>0?"bg-green-500 animate-pulse":"bg-zinc-700"}`}/>
+                  <span className={`text-xs font-medium ${liveDrops.length>0?"text-green-400":"text-zinc-600"}`}>
+                    {liveDrops.length>0?`${liveDrops.length} drop${liveDrops.length!==1?"s":""} live`:"No active drops"}
                   </span>
                 </div>
                 <h2 className="text-3xl sm:text-4xl font-black tracking-tight" style={D}>Live drops</h2>
-                <p className="text-zinc-500 text-base max-w-md">Airdrops, NFT mints, whitelists, raffles. Hold a Based ID to enter any drop.</p>
+                <p className="text-zinc-500 text-sm max-w-sm">Airdrops, NFT mints, whitelists, raffles. Hold a Based ID to enter any drop.</p>
               </div>
-              <Link href="/drops" className="text-sm text-blue-400 hover:text-blue-300 transition-colors flex-shrink-0">
-                View all drops →
-              </Link>
+              <Link href="/drops" className="text-sm text-blue-400 hover:text-blue-300 transition-colors flex-shrink-0">View all →</Link>
             </div>
           </Reveal>
 
-          {liveDrops.length > 0 ? (
-            <Reveal delay={0.1}>
+          <Reveal delay={0.1}>
+            {liveDrops.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {liveDrops.map(drop => <DropCard key={drop.id} drop={drop} featured={drop.tier === "featured"} />)}
+                {liveDrops.map(d=><DropCard key={d.id} drop={d} featured={d.tier==="featured"}/>)}
               </div>
-            </Reveal>
-          ) : (
-            <Reveal delay={0.1}>
+            ) : (
               <div className="rounded-2xl border border-white/[0.06] bg-white/[0.01] px-8 py-16 text-center space-y-4">
                 <p className="text-zinc-400 font-bold text-xl" style={D}>First drops coming soon</p>
-                <p className="text-zinc-600 text-sm max-w-sm mx-auto">Be the first partner to run a drop on Based ID. Standard listings are free.</p>
-                <Link href="/partner" className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-white text-black text-sm font-bold hover:bg-zinc-100 transition-colors">
+                <p className="text-zinc-600 text-sm">Be the first partner to list. Standard listings are free.</p>
+                <Link href="/partner" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl border border-white/[0.1] text-zinc-200 text-sm font-medium hover:border-white/20 transition-colors">
                   List a drop →
                 </Link>
               </div>
-            </Reveal>
-          )}
+            )}
+          </Reveal>
         </div>
       </section>
 
       {/* ── BASED HUNTERS ── */}
-      <section className="border-t border-white/[0.06] relative overflow-hidden">
-        <div className="absolute inset-0 pointer-events-none"
-          style={{ background: "radial-gradient(ellipse 60% 60% at 50% 50%, rgba(37,99,235,0.05), transparent 70%)" }} />
-        <div className="relative max-w-7xl mx-auto px-6 py-24">
+      <section className="border-t border-white/[0.06] bg-white/[0.01]">
+        <div className="max-w-7xl mx-auto px-6 py-20">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <Reveal>
               <div className="space-y-6">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-blue-500/30 bg-blue-500/[0.06]">
-                  <span className="text-blue-400 text-xs font-medium">Exclusive to holders</span>
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-blue-500/25 bg-blue-500/[0.06]">
+                  <span className="text-blue-400 text-[11px] font-medium">Exclusive to Based ID holders</span>
                 </div>
-                <h2 className="text-4xl sm:text-5xl font-black tracking-tight leading-tight" style={D}>
-                  Based Hunters
-                </h2>
-                <p className="text-zinc-400 text-lg leading-relaxed">
-                  Claim a free soulbound Hunter License NFT — exclusive to Based ID holders. Your rank rises from E to National as you enter drops and win raffles.
+                <h2 className="text-4xl font-black tracking-tight" style={D}>Based Hunters</h2>
+                <p className="text-zinc-400 text-base leading-relaxed max-w-md">
+                  Claim a free soulbound Hunter License NFT. Your rank rises from E to National as you enter drops, win raffles, and check in daily.
                 </p>
-                <div className="space-y-2">
+                <div className="space-y-3">
                   {[
-                    { label: "E → D → C → B → A → S → National", sub: "7 rank tiers, each with its own Hunter card design" },
-                    { label: "XP from drops, wins, daily check-ins",  sub: "Multiple ways to earn — every action counts" },
-                    { label: "Sync rank on-chain anytime",            sub: "Your NFT art updates to match your rank" },
-                  ].map(({ label, sub }) => (
-                    <div key={label} className="flex items-start gap-3 py-2">
-                      <div className="w-1 h-1 rounded-full bg-blue-400 flex-shrink-0 mt-2" />
+                    ["7 rank tiers",          "E → D → C → B → A → S → National"],
+                    ["Multiple XP sources",   "Drops (+10 XP), wins (+50 XP), daily check-ins (+5 XP)"],
+                    ["Rank synced on-chain",  "Your NFT art updates when you level up"],
+                  ].map(([title, sub]) => (
+                    <div key={title} className="flex items-start gap-3">
+                      <div className="w-1.5 h-1.5 rounded-full bg-blue-400 flex-shrink-0 mt-1.5"/>
                       <div>
-                        <p className="text-white text-sm font-medium">{label}</p>
+                        <p className="text-white text-sm font-semibold">{title}</p>
                         <p className="text-zinc-600 text-xs mt-0.5">{sub}</p>
                       </div>
                     </div>
                   ))}
                 </div>
-                <Link href="/hunters" className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-blue-600 text-white text-sm font-bold hover:bg-blue-500 transition-colors"
-                  style={{ boxShadow: "0 4px 24px rgba(37,99,235,0.3)" }}>
+                <Link href="/hunters" className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-blue-600 text-white text-sm font-bold hover:bg-blue-500 transition-colors">
                   View Based Hunters →
                 </Link>
               </div>
             </Reveal>
 
-            {/* Rank preview cards */}
             <Reveal delay={0.1}>
               <div className="grid grid-cols-4 gap-2">
                 {[
-                  { l: "E", c: "#94a3b8", n: "E-Class" },
-                  { l: "B", c: "#60a5fa", n: "B-Class" },
-                  { l: "A", c: "#c084fc", n: "A-Class" },
-                  { l: "S", c: "#f97316", n: "S-Class" },
-                  { l: "D", c: "#a3e635", n: "D-Class" },
-                  { l: "C", c: "#34d399", n: "C-Class" },
-                  { l: "N", c: "#fcd34d", n: "National", wide: true },
-                ].map((r) => (
-                  <div key={r.l}
-                    className={`rounded-xl border p-4 flex flex-col items-center gap-2 ${r.wide ? "col-span-2" : ""}`}
-                    style={{ borderColor: r.c + "30", background: r.c + "08" }}>
-                    <span className="font-black text-3xl" style={{ color: r.c }}>{r.l}</span>
-                    <span className="text-zinc-600 text-[10px] font-medium">{r.n}</span>
+                  {l:"E",c:"#94a3b8",n:"E-Class"},
+                  {l:"D",c:"#a3e635",n:"D-Class"},
+                  {l:"C",c:"#34d399",n:"C-Class"},
+                  {l:"B",c:"#60a5fa",n:"B-Class"},
+                  {l:"A",c:"#c084fc",n:"A-Class"},
+                  {l:"S",c:"#f97316",n:"S-Class"},
+                  {l:"N",c:"#fcd34d",n:"National",wide:true},
+                ].map(r=>(
+                  <div key={r.l} className={`rounded-xl border p-4 flex flex-col items-center gap-2 transition-all hover:scale-[1.03] ${(r as {wide?:boolean}).wide?"col-span-2":""}`}
+                    style={{borderColor:r.c+"28",background:r.c+"06"}}>
+                    <span className="font-black text-3xl leading-none" style={{color:r.c}}>{r.l}</span>
+                    <span className="text-zinc-600 text-[10px]">{r.n}</span>
                   </div>
                 ))}
               </div>
@@ -520,38 +492,38 @@ export default function Home() {
       <section className="border-t border-white/[0.06]">
         <div className="max-w-7xl mx-auto px-6 py-20">
           <Reveal>
-            <div className="rounded-2xl border border-white/[0.07] bg-white/[0.01] p-8 sm:p-12 grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-              <div className="space-y-4">
-                <p className="text-zinc-500 text-xs uppercase tracking-[0.2em]">For projects</p>
+            <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-12 items-center rounded-2xl border border-white/[0.07] bg-white/[0.01] p-8 sm:p-12">
+              <div className="space-y-4 max-w-lg">
+                <p className="text-zinc-500 text-xs uppercase tracking-[0.2em]">For projects on Base</p>
                 <h2 className="text-3xl sm:text-4xl font-black tracking-tight" style={D}>
-                  Drop to real wallets.<br />Not bots.
+                  Drop to real wallets.<br/>Not bots.
                 </h2>
-                <p className="text-zinc-400 text-base leading-relaxed max-w-md">
-                  Every Based ID holder paid $2 and signed onchain. Run your NFT drop, token airdrop, or whitelist in front of the most committed Base audience. Standard listings are free.
+                <p className="text-zinc-400 text-base leading-relaxed">
+                  Every Based ID holder paid $2 onchain — no bots, no empty wallets, no sybil farmers. Run your drop in front of Base&apos;s most committed audience. Free to list.
                 </p>
                 <div className="flex items-center gap-4 flex-wrap">
-                  <Link href="/partner" className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-white text-black text-sm font-bold hover:bg-zinc-100 transition-colors">
+                  <Link href="/partner" className="px-5 py-3 rounded-xl bg-white text-black text-sm font-bold hover:bg-zinc-100 transition-colors">
                     Become a partner →
                   </Link>
-                  <Link href="/partner/new" className="text-sm text-zinc-400 hover:text-white transition-colors">
-                    Create a drop
+                  <Link href="/partner/new" className="text-sm text-zinc-500 hover:text-white transition-colors">
+                    Create a drop for free
                   </Link>
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-3 lg:w-80">
                 {[
-                  { tier: "Standard", price: "Free", features: ["Listed in /drops grid", "Partner dashboard", "Auto-drawn winners"] },
-                  { tier: "Featured", price: "$200 USDC", features: ["Top placement", "Landing page slot", "X announcement"] },
-                ].map(({ tier, price, features }) => (
-                  <div key={tier} className={`rounded-xl border p-5 space-y-3 ${tier === "Featured" ? "border-blue-500/30 bg-blue-500/[0.04]" : "border-white/[0.07]"}`}>
+                  {tier:"Standard",price:"Free",   color:"border-white/[0.08]",  features:["Listed in /drops","Partner dashboard","Auto-drawn winners"]},
+                  {tier:"Featured",price:"$200 USDC",color:"border-blue-500/30 bg-blue-500/[0.04]",features:["Top placement","Landing page","X announcement"]},
+                ].map(({tier,price,color,features})=>(
+                  <div key={tier} className={`rounded-xl border p-5 space-y-3 ${color}`}>
                     <div>
                       <p className="text-zinc-500 text-[10px] uppercase tracking-[0.15em] font-bold">{tier}</p>
-                      <p className="text-white font-black text-xl mt-1" style={D}>{price}</p>
+                      <p className="text-white font-black text-lg mt-1" style={D}>{price}</p>
                     </div>
                     <ul className="space-y-1.5">
-                      {features.map(f => (
+                      {features.map(f=>(
                         <li key={f} className="flex items-start gap-2 text-xs text-zinc-500">
-                          <svg width="10" height="10" viewBox="0 0 10 10" fill="none" className="mt-0.5 flex-shrink-0 text-zinc-600"><path d="M2 5l2 2 4-4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                          <svg width="10" height="10" viewBox="0 0 10 10" fill="none" className="mt-0.5 flex-shrink-0"><path d="M2 5l2 2 4-4" stroke="#52525b" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/></svg>
                           {f}
                         </li>
                       ))}
@@ -566,42 +538,45 @@ export default function Home() {
 
       {/* ── FAQ ── */}
       <section className="border-t border-white/[0.06]">
-        <div className="max-w-3xl mx-auto px-6 py-24 space-y-10">
+        <div className="max-w-3xl mx-auto px-6 py-20 space-y-10">
           <Reveal>
-            <h2 className="text-3xl sm:text-4xl font-black tracking-tight" style={D}>FAQ</h2>
+            <div className="space-y-2">
+              <p className="text-zinc-600 text-xs uppercase tracking-[0.25em]">Questions</p>
+              <h2 className="text-3xl sm:text-4xl font-black tracking-tight" style={D}>FAQ</h2>
+            </div>
           </Reveal>
           <Reveal delay={0.1}>
-            <div>
-              {FAQ_ITEMS.map(item => <FAQItem key={item.q} q={item.q} a={item.a} />)}
+            <div className="border-t border-white/[0.06]">
+              {FAQ_ITEMS.map(item=><FAQItem key={item.q} {...item}/>)}
             </div>
           </Reveal>
         </div>
       </section>
 
-      {/* ── FINAL CTA ── */}
+      {/* ── CTA ── */}
       <section className="border-t border-white/[0.06] relative overflow-hidden">
         <div className="absolute inset-0 pointer-events-none"
-          style={{ background: "radial-gradient(ellipse 80% 100% at 50% 100%, rgba(37,99,235,0.08), transparent 60%)" }} />
+          style={{background:"radial-gradient(ellipse 70% 80% at 50% 100%, rgba(37,99,235,0.1), transparent 60%)"}}/>
         <div className="relative max-w-4xl mx-auto px-6 py-28 text-center space-y-8">
           <Reveal>
-            <h2 className="text-4xl sm:text-6xl font-black tracking-tight leading-none" style={D}>
+            <h2 className="text-5xl sm:text-6xl font-black tracking-tight leading-none" style={D}>
               Ready to join?
             </h2>
           </Reveal>
-          <Reveal delay={0.1}>
-            <p className="text-zinc-400 text-lg max-w-md mx-auto">
+          <Reveal delay={0.08}>
+            <p className="text-zinc-400 text-lg max-w-sm mx-auto">
               Mint your Based ID for $2. One transaction. Permanent access. Everything unlocked.
             </p>
           </Reveal>
-          <Reveal delay={0.2}>
+          <Reveal delay={0.16}>
             <div className="flex items-center gap-4 justify-center flex-wrap">
-              <a href="#mint-card" onClick={e => { e.preventDefault(); document.getElementById("mint-card")?.scrollIntoView({ behavior: "smooth" }); }}
+              <a href="#mint-card" onClick={e=>{e.preventDefault();document.getElementById("mint-card")?.scrollIntoView({behavior:"smooth"});}}
                 className="px-8 py-4 rounded-xl bg-white text-black text-sm font-bold hover:bg-zinc-100 transition-colors"
-                style={{ boxShadow: "0 4px 40px rgba(255,255,255,0.15)" }}>
+                style={{boxShadow:"0 4px 40px rgba(255,255,255,0.15)"}}>
                 Mint Based ID — $2
               </a>
-              <Link href="/drops" className="px-8 py-4 rounded-xl border border-white/[0.08] text-zinc-400 text-sm font-medium hover:text-white hover:border-white/[0.15] transition-colors">
-                Browse drops first →
+              <Link href="/drops" className="px-8 py-4 rounded-xl border border-white/[0.08] text-zinc-400 text-sm font-medium hover:text-white hover:border-white/[0.16] transition-colors">
+                Browse drops first
               </Link>
             </div>
           </Reveal>
@@ -613,16 +588,14 @@ export default function Home() {
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-4 flex-wrap">
           <div className="flex items-center gap-2">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo.svg" alt="Based ID" className="w-5 h-5 rounded-md opacity-60" />
+            <img src="/logo.svg" alt="Based ID" className="w-5 h-5 rounded-md opacity-50"/>
             <span className="text-zinc-600 text-sm">Based ID · Built on Base · 2026</span>
           </div>
-          <div className="flex items-center gap-6 text-sm text-zinc-600">
-            <Link href="/drops"    className="hover:text-zinc-300 transition-colors">Drops</Link>
-            <Link href="/hunters"  className="hover:text-zinc-300 transition-colors">Hunters</Link>
-            <Link href="/partner"  className="hover:text-zinc-300 transition-colors">Partners</Link>
-            <Link href="/calendar" className="hover:text-zinc-300 transition-colors">Calendar</Link>
-            <a href="https://x.com/basedidofficial" target="_blank" rel="noopener noreferrer"
-              className="hover:text-zinc-300 transition-colors">@basedidofficial</a>
+          <div className="flex items-center gap-6 text-[13px] text-zinc-600">
+            {[["Drops","/drops"],["Hunters","/hunters"],["Partners","/partner"],["Calendar","/calendar"]].map(([l,h])=>(
+              <Link key={h} href={h} className="hover:text-zinc-300 transition-colors">{l}</Link>
+            ))}
+            <a href="https://x.com/basedidofficial" target="_blank" rel="noopener noreferrer" className="hover:text-zinc-300 transition-colors">@basedidofficial</a>
           </div>
         </div>
       </footer>
