@@ -485,9 +485,9 @@ export function HuntersClaim() {
                     </div>
                   )}
                   {(!xpData || xpData.rank <= currentRank) && (
-                    <button onClick={handleUpdateRank} disabled={updatingRank}
+                    <button onClick={() => address && loadXp(address)} disabled={updatingRank}
                       className="w-full py-3 rounded-xl border border-white/[0.07] text-zinc-500 text-sm hover:text-zinc-300 transition-colors disabled:opacity-40">
-                      {updatingRank ? "Checking…" : "Check rank progress"}
+                      Refresh XP
                     </button>
                   )}
                 </div>
