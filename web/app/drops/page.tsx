@@ -19,6 +19,14 @@ const TYPE_LABELS: Record<string, string> = {
   whitelist: "Whitelist", raffle: "Raffle", token_drop: "Token Drop", nft_mint: "NFT Mint",
 };
 
+const TYPE_FILTERS = [
+  { key: "all",        label: "All" },
+  { key: "raffle",     label: "Raffles" },
+  { key: "whitelist",  label: "Whitelist" },
+  { key: "nft_mint",   label: "NFT Mint" },
+  { key: "token_drop", label: "Token Drop" },
+];
+
 async function getDrops(): Promise<Drop[]> {
   try {
     const db = createServerClient();
@@ -114,11 +122,14 @@ function DropRow({ drop }: { drop: Drop }) {
   );
 }
 
-export default async function DropsPage() {
-  const drops    = await getDrops();
-  const hasDrops = drops.length > 0;
-  const featured = drops.filter(d => d.tier === "featured");
-  const standard = drops.filter(d => d.tier === "standard");
+export default async function DropsPage({ searchParams }: { searchParams: Promise<{ type?: string }> }) {
+  const { type } = await searchParams;
+  const activeType = TYPE_FILTERS.find(f => f.key === type)?.key ?? "all";
+  const allDrops  = await getDrops();
+  const drops     = activeType === "all" ? allDrops : allDrops.filter(d => d.type === activeType);
+  const hasDrops  = allDrops.length > 0;
+  const featured  = drops.filter(d => d.tier === "featured");
+  const standard  = drops.filter(d => d.tier === "standard");
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -142,6 +153,28 @@ export default async function DropsPage() {
             + List your drop
           </Link>
         </div>
+
+        {/* Type filter tabs */}
+        {hasDrops && (
+          <div className="flex items-center gap-1 flex-wrap">
+            {TYPE_FILTERS.map(f => {
+              const count = f.key === "all" ? allDrops.length : allDrops.filter(d => d.type === f.key).length;
+              return (
+                <Link key={f.key} href={f.key === "all" ? "/drops" : `/drops?type=${f.key}`}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                    activeType === f.key
+                      ? "bg-white/[0.08] text-white"
+                      : "text-zinc-500 hover:text-zinc-300 hover:bg-white/[0.04]"
+                  }`}>
+                  {f.label}
+                  {count > 0 && (
+                    <span className={`text-[10px] font-mono ${activeType === f.key ? "text-zinc-400" : "text-zinc-700"}`}>{count}</span>
+                  )}
+                </Link>
+              );
+            })}
+          </div>
+        )}
 
         {hasDrops ? (
           <div className="rounded-2xl border border-white/[0.07] overflow-hidden">

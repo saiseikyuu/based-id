@@ -3,7 +3,7 @@
 import { useAccount } from "wagmi";
 import Link from "next/link";
 import { motion, AnimatePresence } from "motion/react";
-import { BASESCAN_URL } from "@/lib/contracts";
+import { BASESCAN_URL, RANK_LABELS, RANK_COLORS } from "@/lib/contracts";
 
 export type HolderRow = {
   tokenId: number;
@@ -12,6 +12,8 @@ export type HolderRow = {
   idCount: number;
   holder: string;
   isAuction: boolean;
+  hunterRank?: number | null;
+  hunterXp?:   number | null;
 };
 
 function addressToHue(address: string): number {
@@ -92,12 +94,12 @@ export function LeaderboardTable({ rows }: { rows: HolderRow[] }) {
       {/* Table */}
       <div className="rounded-2xl border border-white/[0.06] overflow-hidden">
 
-        {/* Column headers — mobile: 4 cols, sm+: 5 cols */}
-        <div className="grid grid-cols-[40px_minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)] sm:grid-cols-[48px_minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)] px-4 sm:px-5 py-3 border-b border-white/[0.05] bg-white/[0.015]">
+        {/* Column headers */}
+        <div className="grid grid-cols-[40px_minmax(0,2fr)_80px_minmax(0,1fr)_minmax(0,1fr)] px-4 sm:px-5 py-3 border-b border-white/[0.05] bg-white/[0.015]">
           <span className="text-[10px] text-zinc-700 uppercase tracking-[0.18em]">Rank</span>
           <span className="text-[10px] text-zinc-700 uppercase tracking-[0.18em]">Holder</span>
+          <span className="text-[10px] text-zinc-700 uppercase tracking-[0.18em]">Hunter</span>
           <span className="text-[10px] text-zinc-700 uppercase tracking-[0.18em]">Best ID</span>
-          <span className="hidden sm:block text-[10px] text-zinc-700 uppercase tracking-[0.18em]">IDs</span>
           <span className="text-[10px] text-zinc-700 uppercase tracking-[0.18em] text-right">Weight</span>
         </div>
 
@@ -118,12 +120,16 @@ export function LeaderboardTable({ rows }: { rows: HolderRow[] }) {
             : i === 0 ? "bg-amber-400/[0.02] hover:bg-white/[0.02]"
             : "hover:bg-white/[0.02]";
 
+          const hunterRankIdx = row.hunterRank ?? null;
+          const hunterColor   = hunterRankIdx !== null ? RANK_COLORS[hunterRankIdx] : null;
+          const hunterLabel   = hunterRankIdx !== null ? RANK_LABELS[hunterRankIdx] : null;
+
           return (
             <div
               key={row.holder}
-              className={`grid grid-cols-[40px_minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)] sm:grid-cols-[48px_minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)] px-4 sm:px-5 py-3.5 border-b border-white/[0.03] last:border-0 transition-colors items-center ${leftBorder} ${rowBg}`}
+              className={`grid grid-cols-[40px_minmax(0,2fr)_80px_minmax(0,1fr)_minmax(0,1fr)] px-4 sm:px-5 py-3.5 border-b border-white/[0.03] last:border-0 transition-colors items-center ${leftBorder} ${rowBg}`}
             >
-              {/* Rank */}
+              {/* $BASED Rank */}
               <span className={`text-sm font-mono font-bold tabular-nums ${isTop ? rankColors[i] : "text-zinc-700"}`}>
                 {i + 1}
               </span>
@@ -155,6 +161,17 @@ export function LeaderboardTable({ rows }: { rows: HolderRow[] }) {
                 )}
               </div>
 
+              {/* Hunter rank */}
+              <div>
+                {hunterLabel !== null && hunterColor ? (
+                  <span className="text-xs font-bold tabular-nums" style={{ color: hunterColor }}>
+                    {hunterLabel}
+                  </span>
+                ) : (
+                  <span className="text-zinc-800 text-xs">—</span>
+                )}
+              </div>
+
               {/* Best ID */}
               <Link href={`/profile/${row.tokenId}`} className="group">
                 <span className={`font-bold text-sm font-mono group-hover:opacity-70 transition-opacity ${
@@ -163,12 +180,6 @@ export function LeaderboardTable({ rows }: { rows: HolderRow[] }) {
                   #{row.tokenId.toLocaleString()}
                 </span>
               </Link>
-
-              {/* ID Count */}
-              <div className="hidden sm:block">
-                <span className="text-zinc-400 text-xs font-mono tabular-nums">{row.idCount}</span>
-                <span className="text-zinc-700 text-[10px] ml-1">ID{row.idCount !== 1 ? "s" : ""}</span>
-              </div>
 
               {/* Total Weight */}
               <div className="text-right">

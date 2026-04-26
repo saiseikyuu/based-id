@@ -1,12 +1,13 @@
 import { createPublicClient, http } from "viem";
 import { base, baseSepolia } from "viem/chains";
-import { BASED_ID_ADDRESS, BASED_ID_ABI, isAuctionId } from "@/lib/contracts";
+import { BASED_ID_ADDRESS, BASED_ID_ABI, isAuctionId, RANK_NAMES, RANK_COLORS, RANK_XP_THRESHOLDS } from "@/lib/contracts";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { IdSearch } from "./IdSearch";
 import { LeaderboardTable, type HolderRow } from "./LeaderboardTable";
 import { MobileNav } from "@/app/components/MobileNav";
 import { Nav } from "@/app/components/Nav";
+import { createServerClient } from "@/lib/supabase";
 
 export const revalidate = 60;
 
@@ -174,12 +175,40 @@ function WeightChart({ rows }: { rows: HolderRow[] }) {
   );
 }
 
+function xpToRank(xp: number): number {
+  let rank = 0;
+  for (let i = RANK_XP_THRESHOLDS.length - 1; i >= 0; i--) {
+    if (xp >= RANK_XP_THRESHOLDS[i]) { rank = i; break; }
+  }
+  return rank;
+}
+
 export default async function LeaderboardPage() {
   const rows = await getLeaderboard();
   const isEmpty = rows.length === 0;
 
   const genesisCount = rows.filter(r => r.isAuction).length;
   const totalWeight = rows.reduce((s, r) => s + r.weight, 0);
+
+  // Fetch Hunter XP for all holders
+  const addresses = rows.map(r => r.holder.toLowerCase());
+  let hunterMap: Record<string, { rank: number; xp: number }> = {};
+  try {
+    const db = createServerClient();
+    const { data: xpRows } = await db
+      .from("hunter_xp")
+      .select("wallet_address, total_xp")
+      .in("wallet_address", addresses);
+    for (const row of xpRows ?? []) {
+      hunterMap[row.wallet_address] = { xp: row.total_xp, rank: xpToRank(row.total_xp) };
+    }
+  } catch { /* hunter_xp table may not exist yet */ }
+
+  const rowsWithHunter = rows.map(r => ({
+    ...r,
+    hunterRank: hunterMap[r.holder.toLowerCase()]?.rank ?? null,
+    hunterXp:   hunterMap[r.holder.toLowerCase()]?.xp   ?? null,
+  }));
 
   return (
     <div className="min-h-screen bg-background">
@@ -265,7 +294,7 @@ export default async function LeaderboardPage() {
             </div>
 
             {/* Table (with "Your Rank" highlighting) */}
-            <LeaderboardTable rows={rows} />
+            <LeaderboardTable rows={rowsWithHunter} />
 
             {/* Footer */}
             <div className="flex items-center justify-between pt-2">
