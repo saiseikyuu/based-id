@@ -67,6 +67,25 @@ body {
   background: rgba(255,255,255,0.03);
 }
 
+/* ── Background blob animations ────────────────────────────────────────── */
+@keyframes blob-drift-1 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33%       { transform: translate(40px, -60px) scale(1.08); }
+  66%       { transform: translate(-30px, 30px) scale(0.94); }
+}
+@keyframes blob-drift-2 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33%       { transform: translate(-50px, 40px) scale(1.06); }
+  66%       { transform: translate(35px, -45px) scale(0.96); }
+}
+@keyframes blob-drift-3 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50%       { transform: translate(20px, 50px) scale(1.05); }
+}
+.blob-1 { animation: blob-drift-1 18s ease-in-out infinite; }
+.blob-2 { animation: blob-drift-2 22s ease-in-out infinite; }
+.blob-3 { animation: blob-drift-3 26s ease-in-out infinite; }
+
 /* ── Hide all scrollbar tracks site-wide — elements still scroll */
 * {
   scrollbar-width: none;
