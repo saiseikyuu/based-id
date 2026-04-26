@@ -9,6 +9,7 @@ import { BASED_ID_ADDRESS, BASED_ID_ABI, DEPLOY_BLOCK } from "@/lib/contracts";
 import { HuntersClaim } from "./HuntersClaim";
 import { QuestsClient } from "@/app/quests/QuestsClient";
 import { NftCard } from "@/app/NftCard";
+import { AuctionsSection } from "./AuctionsSection";
 
 type Tab = "hunter" | "quests" | "ids" | "auctions";
 
@@ -202,11 +203,13 @@ export function HuntersHub() {
         )}
         {activeTab === "auctions" && (
           <div className="space-y-8">
-            <div>
-              <h2 className="text-2xl font-black text-white" style={D}>Auctions</h2>
-              <p className="text-zinc-500 text-sm mt-1">Genesis IDs #1–#100 sold via English auction.</p>
+            <div className="flex items-center gap-3">
+              <div>
+                <h2 className="text-2xl font-black text-white" style={D}>Auctions</h2>
+                <p className="text-zinc-500 text-sm mt-1">Genesis IDs #1–#100 sold via English auction. Bid in USDC.</p>
+              </div>
             </div>
-            <AuctionsTab />
+            <AuctionsSection />
           </div>
         )}
       </div>

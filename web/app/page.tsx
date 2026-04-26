@@ -21,6 +21,57 @@ type MintState = "idle" | "approving" | "approved" | "minting" | "success";
 const D: React.CSSProperties = { fontFamily: "var(--font-display), system-ui, sans-serif" };
 const ease = [0.16, 1, 0.3, 1] as const;
 
+const NAV_LINKS = [
+  ["Drops",     "/drops"    ],
+  ["Hunters",   "/hunters"  ],
+  ["Projects",  "/projects" ],
+  ["Calendar",  "/calendar" ],
+  ["Partner",   "/partner"  ],
+];
+
+function NavBar({ menuOpen, setMenuOpen }: { menuOpen: boolean; setMenuOpen: (v: boolean | ((o: boolean) => boolean)) => void }) {
+  return (
+    <header className="fixed top-0 inset-x-0 z-50 border-b border-white/[0.05] bg-black/90 backdrop-blur-xl">
+      <div className="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between gap-8">
+        <Link href="/" className="flex items-center gap-2.5 hover:opacity-80 transition-opacity flex-shrink-0 group">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo.svg" alt="Based ID" className="w-6 h-6 rounded-md" />
+          <span style={D} className="font-bold text-sm tracking-tight hidden sm:block">Based ID</span>
+        </Link>
+        <nav className="hidden md:flex items-center gap-1">
+          {NAV_LINKS.slice(0, -1).map(([l, h]) => (
+            <Link key={h} href={h} className="px-3.5 py-2 rounded-lg text-sm text-zinc-400 hover:text-white hover:bg-white/[0.04] transition-colors">{l}</Link>
+          ))}
+        </nav>
+        <div className="flex items-center gap-3 flex-shrink-0">
+          <div className="hidden sm:flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+            <span className="text-zinc-600 text-[11px]">Live</span>
+          </div>
+          <Link href="/partner" className="hidden md:inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg border border-white/[0.1] text-zinc-300 text-xs font-semibold hover:border-white/[0.2] hover:text-white transition-all">Partner</Link>
+          <div className="hidden md:block"><ConnectButton showBalance={false} chainStatus="icon" /></div>
+          <button className="md:hidden p-1.5 text-zinc-500 hover:text-white" onClick={() => setMenuOpen(o => !o)}>
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+              {menuOpen ? <><line x1="3" y1="3" x2="15" y2="15"/><line x1="15" y1="3" x2="3" y2="15"/></> : <><line x1="3" y1="5" x2="15" y2="5"/><line x1="3" y1="9" x2="15" y2="9"/><line x1="3" y1="13" x2="15" y2="13"/></>}
+            </svg>
+          </button>
+        </div>
+      </div>
+      {menuOpen && (
+        <div className="md:hidden border-t border-white/[0.05] bg-black/98">
+          <nav className="px-4 py-3 space-y-0.5">
+            {NAV_LINKS.map(([l, h]) => (
+              <Link key={h} href={h} onClick={() => setMenuOpen(false)}
+                className="block px-3 py-2.5 rounded-lg text-sm text-zinc-300 hover:text-white hover:bg-white/[0.04] transition-colors">{l}</Link>
+            ))}
+            <div className="pt-3 pb-1 px-3"><ConnectButton showBalance={false} chainStatus="icon" /></div>
+          </nav>
+        </div>
+      )}
+    </header>
+  );
+}
+
 function Reveal({ children, delay = 0, className }: { children: React.ReactNode; delay?: number; className?: string }) {
   return (
     <motion.div className={className}
@@ -319,38 +370,7 @@ export default function Home() {
       <AuroraBackground />
 
       {/* ── NAV ── */}
-      <header className="fixed top-0 inset-x-0 z-50 border-b border-white/[0.06] bg-black/90 backdrop-blur-xl">
-        <div className="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2.5 hover:opacity-80 transition-opacity flex-shrink-0">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo.svg" alt="Based ID" className="w-6 h-6 rounded-md" />
-            <span style={D} className="font-bold text-[13px] tracking-tight">Based ID</span>
-          </Link>
-          <nav className="hidden md:flex items-center gap-7">
-            {[["Drops","/drops"],["Calendar","/calendar"],["Hunters","/hunters"],["Projects","/projects"],["Dashboard","/dashboard"],["Partner","/partner"]].map(([l,h])=>(
-              <Link key={h} href={h} className="text-[13px] text-zinc-400 hover:text-white transition-colors">{l}</Link>
-            ))}
-          </nav>
-          <div className="flex items-center gap-3 flex-shrink-0">
-            <div className="hidden md:block"><ConnectButton showBalance={false} chainStatus="icon" /></div>
-            <button className="md:hidden p-1.5 text-zinc-500 hover:text-white" onClick={() => setMenuOpen(o=>!o)}>
-              <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
-                {menuOpen ? <><line x1="3" y1="3" x2="15" y2="15"/><line x1="15" y1="3" x2="3" y2="15"/></> : <><line x1="3" y1="5" x2="15" y2="5"/><line x1="3" y1="9" x2="15" y2="9"/><line x1="3" y1="13" x2="15" y2="13"/></>}
-              </svg>
-            </button>
-          </div>
-        </div>
-        {menuOpen && (
-          <div className="md:hidden border-t border-white/[0.05] bg-black/95">
-            <nav className="px-6 py-4 space-y-0.5">
-              {[["Drops","/drops"],["Calendar","/calendar"],["Hunters","/hunters"],["Projects","/projects"],["Dashboard","/dashboard"],["Partner","/partner"]].map(([l,h])=>(
-                <Link key={h} href={h} onClick={()=>setMenuOpen(false)} className="block px-3 py-2.5 rounded-lg text-sm text-zinc-300 hover:text-white hover:bg-white/[0.04]">{l}</Link>
-              ))}
-              <div className="pt-3 pb-1"><ConnectButton showBalance={false} chainStatus="icon" /></div>
-            </nav>
-          </div>
-        )}
-      </header>
+      <NavBar menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
 
       {/* All page content — above the fixed background */}
       <div className="relative z-10">
