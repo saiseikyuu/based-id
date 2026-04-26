@@ -14,7 +14,7 @@ import { NftCard } from "./NftCard";
 import CountUp from "./components/CountUp";
 import { motion, AnimatePresence } from "motion/react";
 import { DropCard } from "./drops/DropCard";
-import { BackgroundEffects, Particles } from "./components/BackgroundEffects";
+import { AuroraBackground } from "./components/BackgroundEffects";
 import type { Drop } from "@/lib/supabase";
 
 type MintState = "idle" | "approving" | "approved" | "minting" | "success";
@@ -160,10 +160,8 @@ export default function Home() {
   const previewId           = mintState === "success" && mintedId ? `#${mintedId.toString()}` : `#${resolvedNextId.toString()}`;
 
   return (
-    <div className="min-h-screen bg-[#030305] text-white overflow-x-hidden">
-      {/* Fixed full-page background */}
-      <BackgroundEffects />
-      <Particles count={55} />
+    <div className="min-h-screen bg-[#060608] text-white overflow-x-hidden">
+      <AuroraBackground />
 
       {/* ── NAV ── */}
       <header className="fixed top-0 inset-x-0 z-50 border-b border-white/[0.06] bg-black/90 backdrop-blur-xl">
@@ -198,14 +196,6 @@ export default function Home() {
           </div>
         )}
       </header>
-
-      {/* ── Top accent line ── */}
-      <div className="fixed top-0 inset-x-0 z-[60] h-px overflow-hidden">
-        <div className="h-full w-full" style={{ background: "linear-gradient(90deg, transparent 0%, #2563eb 35%, #7c3aed 65%, transparent 100%)", opacity: 0.7 }} />
-        {/* Sweeping light beam */}
-        <div className="beam-sweep absolute top-0 w-32 h-px"
-          style={{ background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.9), transparent)" }} />
-      </div>
 
       {/* All page content — above the fixed background */}
       <div className="relative z-10">
@@ -250,18 +240,8 @@ export default function Home() {
               <div className="w-full max-w-[380px] space-y-3">
 
                 {/* NFT preview */}
-                <div className="relative">
-                  {/* Outer glow */}
-                  <div className="absolute inset-0 rounded-2xl blur-3xl opacity-30 scale-95"
-                    style={{background:"linear-gradient(135deg,#1d4ed8,#7c3aed)"}}/>
-                  {/* Gradient border */}
-                  <div className="absolute inset-0 rounded-2xl p-px"
-                    style={{background:"linear-gradient(135deg,rgba(37,99,235,0.5),rgba(124,58,237,0.3),rgba(37,99,235,0.1))"}}>
-                    <div className="w-full h-full rounded-2xl bg-[#050508]" />
-                  </div>
-                  <div className="relative rounded-2xl overflow-hidden">
-                    <NftCard id={previewId} />
-                  </div>
+                <div className="relative rounded-2xl border border-white/[0.08] overflow-hidden">
+                  <NftCard id={previewId} />
                 </div>
 
                 {/* Mint panel */}
