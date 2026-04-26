@@ -14,6 +14,7 @@ import { NftCard } from "./NftCard";
 import CountUp from "./components/CountUp";
 import { motion, AnimatePresence } from "motion/react";
 import { DropCard } from "./drops/DropCard";
+import { BackgroundEffects, Particles } from "./components/BackgroundEffects";
 import type { Drop } from "@/lib/supabase";
 
 type MintState = "idle" | "approving" | "approved" | "minting" | "success";
@@ -159,8 +160,10 @@ export default function Home() {
   const previewId           = mintState === "success" && mintedId ? `#${mintedId.toString()}` : `#${resolvedNextId.toString()}`;
 
   return (
-    <div className="min-h-screen bg-black text-white overflow-x-hidden"
-      style={{ backgroundImage: "radial-gradient(circle at 1px 1px, rgba(255,255,255,0.045) 1px, transparent 0)", backgroundSize: "52px 52px" }}>
+    <div className="min-h-screen bg-[#030305] text-white overflow-x-hidden">
+      {/* Fixed full-page background */}
+      <BackgroundEffects />
+      <Particles count={55} />
 
       {/* ── NAV ── */}
       <header className="fixed top-0 inset-x-0 z-50 border-b border-white/[0.06] bg-black/90 backdrop-blur-xl">
@@ -197,23 +200,18 @@ export default function Home() {
       </header>
 
       {/* ── Top accent line ── */}
-      <div className="fixed top-0 inset-x-0 z-[60] h-px"
-        style={{ background: "linear-gradient(90deg, transparent 0%, #2563eb 30%, #7c3aed 60%, transparent 100%)", opacity: 0.6 }} />
+      <div className="fixed top-0 inset-x-0 z-[60] h-px overflow-hidden">
+        <div className="h-full w-full" style={{ background: "linear-gradient(90deg, transparent 0%, #2563eb 35%, #7c3aed 65%, transparent 100%)", opacity: 0.7 }} />
+        {/* Sweeping light beam */}
+        <div className="beam-sweep absolute top-0 w-32 h-px"
+          style={{ background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.9), transparent)" }} />
+      </div>
+
+      {/* All page content — above the fixed background */}
+      <div className="relative z-10">
 
       {/* ── HERO ── */}
       <section className="relative min-h-screen flex items-center pt-14">
-        {/* Animated gradient blobs */}
-        <div className="absolute inset-0 pointer-events-none overflow-hidden">
-          {/* Primary blue — top center */}
-          <div className="blob-1 absolute -top-32 left-1/2 -translate-x-1/2 w-[900px] h-[700px] rounded-full"
-            style={{ background: "radial-gradient(ellipse, rgba(37,99,235,0.18) 0%, transparent 65%)", filter: "blur(1px)" }} />
-          {/* Purple — right */}
-          <div className="blob-2 absolute top-1/3 -right-40 w-[600px] h-[600px] rounded-full"
-            style={{ background: "radial-gradient(circle, rgba(124,58,237,0.12) 0%, transparent 65%)", filter: "blur(1px)" }} />
-          {/* Cyan accent — bottom left */}
-          <div className="blob-3 absolute bottom-0 -left-20 w-[400px] h-[400px] rounded-full"
-            style={{ background: "radial-gradient(circle, rgba(6,182,212,0.08) 0%, transparent 65%)", filter: "blur(1px)" }} />
-        </div>
 
         <div className="relative max-w-7xl mx-auto px-6 py-20 w-full">
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_420px] gap-16 items-center">
@@ -391,7 +389,7 @@ export default function Home() {
       </section>
 
       {/* ── BASED HUNTERS ── */}
-      <section className="border-t border-white/[0.06] relative overflow-hidden" style={{ background: "linear-gradient(180deg, rgba(37,99,235,0.04) 0%, transparent 60%)" }}>
+      <section className="border-t border-white/[0.06] relative">
         <div className="max-w-7xl mx-auto px-6 py-20">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <Reveal>
@@ -558,6 +556,9 @@ export default function Home() {
           </div>
         </div>
       </footer>
+
+      {/* Close z-10 content wrapper */}
+      </div>
     </div>
   );
 }
