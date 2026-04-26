@@ -4,9 +4,9 @@ import Link from "next/link";
 
 const links = [
   { href: "/drops",    label: "Drops"    },
-  { href: "/calendar", label: "Calendar" },
   { href: "/hunters",  label: "Hunters"  },
   { href: "/dashboard",label: "Dashboard"},
+  { href: "/partner",  label: "Partner"  },
 ];
 
 export function MobileNav() {

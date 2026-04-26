@@ -327,7 +327,7 @@ export default function Home() {
             <span style={D} className="font-bold text-[13px] tracking-tight">Based ID</span>
           </Link>
           <nav className="hidden md:flex items-center gap-7">
-            {[["Drops","/drops"],["Calendar","/calendar"],["Hunters","/hunters"],["Projects","/projects"],["Dashboard","/dashboard"]].map(([l,h])=>(
+            {[["Drops","/drops"],["Calendar","/calendar"],["Hunters","/hunters"],["Projects","/projects"],["Dashboard","/dashboard"],["Partner","/partner"]].map(([l,h])=>(
               <Link key={h} href={h} className="text-[13px] text-zinc-400 hover:text-white transition-colors">{l}</Link>
             ))}
           </nav>
@@ -343,7 +343,7 @@ export default function Home() {
         {menuOpen && (
           <div className="md:hidden border-t border-white/[0.05] bg-black/95">
             <nav className="px-6 py-4 space-y-0.5">
-              {[["Drops","/drops"],["Calendar","/calendar"],["Hunters","/hunters"],["Projects","/projects"],["Dashboard","/dashboard"]].map(([l,h])=>(
+              {[["Drops","/drops"],["Calendar","/calendar"],["Hunters","/hunters"],["Projects","/projects"],["Dashboard","/dashboard"],["Partner","/partner"]].map(([l,h])=>(
                 <Link key={h} href={h} onClick={()=>setMenuOpen(false)} className="block px-3 py-2.5 rounded-lg text-sm text-zinc-300 hover:text-white hover:bg-white/[0.04]">{l}</Link>
               ))}
               <div className="pt-3 pb-1"><ConnectButton showBalance={false} chainStatus="icon" /></div>
