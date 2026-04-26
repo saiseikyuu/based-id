@@ -6,8 +6,9 @@ export const runtime = "nodejs";
 // GET /api/drops — list active + upcoming drops (optionally filter by partner)
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
-  const partner = searchParams.get("partner");
-  const tier    = searchParams.get("tier") as DropTier | null;
+  const partner   = searchParams.get("partner");
+  const tier      = searchParams.get("tier") as DropTier | null;
+  const statusAll = searchParams.get("status") === "all"; // for calendar view
 
   const db = createServerClient();
 
@@ -18,10 +19,11 @@ export async function GET(req: Request) {
     .order("created_at", { ascending: false });
 
   if (partner) {
-    // Partner viewing their own drops (all statuses)
     query = query.eq("partner_address", partner.toLowerCase());
+  } else if (statusAll) {
+    // Calendar view: active + ended + drawn
+    query = query.in("status", ["active", "ended", "drawn"]);
   } else {
-    // Public view: only active drops
     query = query.eq("status", "active");
   }
 
