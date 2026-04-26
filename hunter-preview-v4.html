@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Based Hunters — Solo Leveling Style</title>
+<style>
+  body { background: #050505; font-family: system-ui; color: #fff; padding: 40px; }
+  h1 { color: #60a5fa; margin-bottom: 6px; font-size: 20px; letter-spacing: 2px; }
+  p { color: #444; margin-bottom: 40px; font-size: 13px; }
+  .grid { display: grid; grid-template-columns: repeat(2, 560px); gap: 36px; }
+  .card { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+  .label { font-size: 10px; color: #444; letter-spacing: 3px; text-transform: uppercase; }
+  svg { width: 560px; border-radius: 14px;
+        box-shadow: 0 0 0 1px rgba(255,255,255,0.06), 0 32px 80px rgba(0,0,0,0.95); }
+</style>
+</head>
+<body>
+<h1>BASED HUNTERS — OFFICIAL LICENSE</h1>
+<p>Solo Leveling inspired Hunter License card NFT</p>
+<div class="grid" id="grid"></div>
+
+<script>
+const ranks = [
+  { letter:"E", rankName:"E-CLASS",  rankFull:"E-Rank Hunter",   rankKr:"E급 헌터", classKr:"헌터",  color:"#94a3b8", dark:"#1e2330", mid:"#0d1020" },
+  { letter:"D", rankName:"D-CLASS",  rankFull:"D-Rank Hunter",   rankKr:"D급 헌터", classKr:"헌터",  color:"#a3e635", dark:"#141d08", mid:"#0a1205" },
+  { letter:"C", rankName:"C-CLASS",  rankFull:"C-Rank Hunter",   rankKr:"C급 헌터", classKr:"헌터",  color:"#34d399", dark:"#071a12", mid:"#04100b" },
+  { letter:"B", rankName:"B-CLASS",  rankFull:"B-Rank Hunter",   rankKr:"B급 헌터", classKr:"헌터",  color:"#60a5fa", dark:"#071528", mid:"#040e1a" },
+  { letter:"A", rankName:"A-CLASS",  rankFull:"A-Rank Hunter",   rankKr:"A급 헌터", classKr:"헌터",  color:"#c084fc", dark:"#160825", mid:"#0e0518" },
+  { letter:"S", rankName:"S-CLASS",  rankFull:"S-Rank Hunter",   rankKr:"S급 헌터", classKr:"에이스",color:"#f97316", dark:"#1e0d03", mid:"#120801" },
+  { letter:"N", rankName:"NATIONAL", rankFull:"National Hunter", rankKr:"국가급 헌터",classKr:"전설", color:"#fcd34d", dark:"#1a1403", mid:"#110e02" },
+];
+
+function hexPattern(color) {
+  // Subtle diagonal line pattern
+  let out = '';
+  for (let i = -5; i < 25; i++) {
+    const x1 = i * 40; const y1 = 0; const x2 = i * 40 + 330; const y2 = 330;
+    out += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${color}" stroke-width="0.3" stroke-opacity="0.06"/>`;
+  }
+  return out;
+}
+
+function circuit(color) {
+  // Subtle circuit-board style lines in the portrait area
+  return `
+    <line x1="14" y1="120" x2="40" y2="120" stroke="${color}" stroke-width="0.4" stroke-opacity="0.3"/>
+    <line x1="40" y1="120" x2="40" y2="135" stroke="${color}" stroke-width="0.4" stroke-opacity="0.3"/>
+    <line x1="14" y1="155" x2="55" y2="155" stroke="${color}" stroke-width="0.4" stroke-opacity="0.3"/>
+    <circle cx="40" cy="135" r="1.5" fill="${color}" fill-opacity="0.4"/>
+    <circle cx="55" cy="155" r="1.5" fill="${color}" fill-opacity="0.4"/>
+    <line x1="14" y1="85" x2="30" y2="85" stroke="${color}" stroke-width="0.4" stroke-opacity="0.2"/>
+    <line x1="30" y1="85" x2="30" y2="70" stroke="${color}" stroke-width="0.4" stroke-opacity="0.2"/>
+  `;
+}
+
+function barcode(color) {
+  const pattern = [3,1,2,1,3,2,1,2,1,3,1,2,3,1,1,2,3,1,2,1,2,3,1,2,1,3,2,1,2,1,3,1,2];
+  let x = 145; let out = '';
+  pattern.forEach((w, i) => {
+    if (i % 2 === 0) {
+      out += `<rect x="${x}" y="248" width="${w}" height="44" fill="${color}" opacity="${i===0||i===pattern.length-1?0.9:0.65}"/>`;
+    }
+    x += w + 0.5;
+  });
+  return out;
+}
+
+function chip() {
+  return `
+    <!-- EMV Chip -->
+    <rect x="18" y="218" width="42" height="32" rx="4" fill="#c9a227" fill-opacity="0.85"/>
+    <rect x="18" y="218" width="42" height="32" rx="4" fill="none" stroke="#a07a10" stroke-width="0.5"/>
+    <!-- Chip contacts -->
+    <line x1="18" y1="228" x2="60" y2="228" stroke="#a07a10" stroke-width="0.5"/>
+    <line x1="18" y1="238" x2="60" y2="238" stroke="#a07a10" stroke-width="0.5"/>
+    <line x1="32" y1="218" x2="32" y2="250" stroke="#a07a10" stroke-width="0.5"/>
+    <line x1="46" y1="218" x2="46" y2="250" stroke="#a07a10" stroke-width="0.5"/>
+    <rect x="20" y="220" width="10" height="10" rx="1" fill="#b8860b" fill-opacity="0.6"/>
+    <rect x="34" y="220" width="10" height="10" rx="1" fill="#b8860b" fill-opacity="0.6"/>
+    <rect x="48" y="220" width="10" height="10" rx="1" fill="#b8860b" fill-opacity="0.6"/>
+    <rect x="20" y="240" width="10" height="8" rx="1" fill="#b8860b" fill-opacity="0.6"/>
+    <rect x="34" y="240" width="10" height="8" rx="1" fill="#b8860b" fill-opacity="0.6"/>
+    <rect x="48" y="240" width="10" height="8" rx="1" fill="#b8860b" fill-opacity="0.6"/>
+  `;
+}
+
+function makeSVG({ letter, rankName, rankFull, rankKr, classKr, color, dark, mid }, id) {
+  const pid = String(id).padStart(4, '0');
+  const licNo = `HA-2026-${pid}`;
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 330">
+<defs>
+  <linearGradient id="cbg${id}" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0%" stop-color="${dark}"/>
+    <stop offset="100%" stop-color="${mid}"/>
+  </linearGradient>
+  <linearGradient id="hdr${id}" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%" stop-color="#0a0d14"/>
+    <stop offset="100%" stop-color="#060810"/>
+  </linearGradient>
+  <linearGradient id="acc${id}" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0%" stop-color="${color}" stop-opacity="0.95"/>
+    <stop offset="85%" stop-color="${color}" stop-opacity="0.7"/>
+    <stop offset="100%" stop-color="${color}" stop-opacity="0"/>
+  </linearGradient>
+  <linearGradient id="ptbg${id}" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%" stop-color="#16192a"/>
+    <stop offset="100%" stop-color="#0a0d16"/>
+  </linearGradient>
+  <radialGradient id="ptglow${id}" cx="50%" cy="50%" r="50%">
+    <stop offset="0%" stop-color="${color}" stop-opacity="0.18"/>
+    <stop offset="100%" stop-color="${color}" stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="rbadge${id}" cx="50%" cy="30%" r="70%">
+    <stop offset="0%" stop-color="${color}" stop-opacity="0.4"/>
+    <stop offset="100%" stop-color="${color}" stop-opacity="0.08"/>
+  </radialGradient>
+  <linearGradient id="bot${id}" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%" stop-color="#050810"/>
+    <stop offset="100%" stop-color="#030508"/>
+  </linearGradient>
+  <filter id="gf${id}">
+    <feGaussianBlur stdDeviation="5" result="b"/>
+    <feMerge><feMergeNode in="b"/><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+  <filter id="sf${id}"><feGaussianBlur stdDeviation="22"/></filter>
+  <clipPath id="card${id}">
+    <rect width="520" height="330" rx="13"/>
+  </clipPath>
+</defs>
+
+<!-- ── CARD BASE ── -->
+<rect width="520" height="330" fill="url(#cbg${id})" rx="13"/>
+
+<!-- Diagonal lines background texture -->
+<g clip-path="url(#card${id})">
+  ${hexPattern(color)}
+</g>
+
+<!-- ── TOP HEADER BAR ── -->
+<rect x="0" y="0" width="520" height="52" fill="url(#hdr${id})"/>
+<!-- Header top accent line -->
+<rect x="0" y="0" width="520" height="2.5" fill="${color}" fill-opacity="0.9"/>
+
+<!-- "Official Hunter's License" -->
+<text x="142" y="21" font-family="system-ui,sans-serif" font-size="13" font-weight="700"
+  fill="#ffffff" opacity="0.95" letter-spacing="0.5">Official Hunter's License</text>
+
+<!-- Korean subtitle + arrows -->
+<text x="142" y="38" font-family="system-ui,sans-serif" font-size="10"
+  fill="${color}" opacity="0.8" letter-spacing="1">헌터 자격증  ▶▶▶</text>
+
+<!-- Separator line -->
+<rect x="0" y="52" width="520" height="1" fill="${color}" fill-opacity="0.18"/>
+
+<!-- ── PORTRAIT AREA ── -->
+<!-- Portrait background -->
+<rect x="0" y="0" width="126" height="210" fill="url(#ptbg${id})"/>
+<rect x="0" y="52" width="126" height="158" fill="url(#ptglow${id})"/>
+
+<!-- Portrait right border with color -->
+<rect x="124" y="0" width="2" height="210" fill="${color}" fill-opacity="0.25"/>
+
+<!-- Circuit decoration -->
+<g clip-path="url(#card${id})">${circuit(color)}</g>
+
+<!-- Rank letter in portrait (styled as silhouette/character) -->
+<text x="63" y="156" text-anchor="middle" dominant-baseline="middle"
+  font-family="system-ui,sans-serif" font-size="110" font-weight="900"
+  fill="${color}" filter="url(#gf${id})" opacity="0.9">${letter}</text>
+
+<!-- Portrait corner brackets -->
+<path d="M8 64 L8 53 L19 53" fill="none" stroke="${color}" stroke-width="1.2" stroke-linecap="round" stroke-opacity="0.8"/>
+<path d="M118 64 L118 53 L107 53" fill="none" stroke="${color}" stroke-width="1.2" stroke-linecap="round" stroke-opacity="0.8"/>
+<path d="M8 198 L8 209 L19 209" fill="none" stroke="${color}" stroke-width="1.2" stroke-linecap="round" stroke-opacity="0.8"/>
+<path d="M118 198 L118 209 L107 209" fill="none" stroke="${color}" stroke-width="1.2" stroke-linecap="round" stroke-opacity="0.8"/>
+
+<!-- ── NAME STRIP (diagonal parallelogram) ── -->
+<!-- Background fill for name area -->
+<polygon points="126,74 430,74 418,108 126,108" fill="${color}" fill-opacity="0.85"/>
+<polygon points="126,74 430,74 418,108 126,108" fill="#000000" fill-opacity="0.2"/>
+
+<!-- Name text -->
+<text x="135" y="96" font-family="system-ui,sans-serif" font-size="20" font-weight="900"
+  fill="#ffffff" opacity="0.98">BASED HUNTER</text>
+
+<!-- BASED HUNTERS label below name -->
+<text x="135" y="121" font-family="system-ui,sans-serif" font-size="9" letter-spacing="5"
+  fill="${color}" opacity="0.75">BASED  HUNTERS</text>
+
+<!-- Chevrons next to name (right side of strip) -->
+<text x="400" y="97" font-family="system-ui,sans-serif" font-size="18" font-weight="900"
+  fill="#ffffff" fill-opacity="0.12">◄◄◄</text>
+
+<!-- ── RANK BADGE (top-right) ── -->
+<!-- Badge background with glow -->
+<rect x="400" y="52" width="120" height="158" fill="url(#rbadge${id})"/>
+<!-- Badge left border line -->
+<rect x="400" y="52" width="1.5" fill="${color}" height="158" fill-opacity="0.5"/>
+
+<!-- Big rank letter in badge -->
+<text x="460" y="136" text-anchor="middle" dominant-baseline="middle"
+  font-family="system-ui,sans-serif" font-size="68" font-weight="900"
+  fill="${color}" filter="url(#gf${id})">${letter}</text>
+
+<!-- Arrow chevrons pointing at rank -->
+<text x="414" y="140" font-family="system-ui,sans-serif" font-size="22" font-weight="900"
+  fill="${color}" fill-opacity="0.55">◄◄</text>
+
+<!-- RANK label -->
+<rect x="418" y="162" width="84" height="22" rx="3" fill="${color}" fill-opacity="0.2"
+  stroke="${color}" stroke-width="0.8" stroke-opacity="0.5"/>
+<text x="460" y="177" text-anchor="middle" font-family="system-ui,sans-serif"
+  font-size="10" font-weight="800" letter-spacing="3" fill="#ffffff">RANK</text>
+
+<!-- Grade Korean text -->
+<text x="460" y="200" text-anchor="middle" font-family="system-ui,sans-serif"
+  font-size="9" letter-spacing="1" fill="${color}" opacity="0.8">${rankKr}</text>
+
+<!-- ── BOTTOM SECTION ── -->
+<rect x="0" y="210" width="520" height="120" fill="url(#bot${id})"/>
+<rect x="0" y="210" width="520" height="1" fill="${color}" fill-opacity="0.15"/>
+
+<!-- Watermark text behind bottom info -->
+<text x="290" y="285" text-anchor="middle"
+  font-family="system-ui,sans-serif" font-size="70" font-weight="900"
+  fill="${color}" opacity="0.04" transform="rotate(-8,290,285)">HUNTERS</text>
+
+<!-- Info rows -->
+<text x="75" y="228" font-family="system-ui,sans-serif" font-size="8.5" fill="#64748b">성별</text>
+<text x="110" y="228" font-family="system-ui,sans-serif" font-size="8.5" fill="#cbd5e1">남성(Hunter)</text>
+<text x="240" y="228" font-family="system-ui,sans-serif" font-size="8.5" fill="#64748b">클래스</text>
+<text x="280" y="228" font-family="system-ui,sans-serif" font-size="8.5" fill="${color}" font-weight="700">${classKr}  헌터</text>
+
+<text x="75" y="245" font-family="system-ui,sans-serif" font-size="8.5" fill="#64748b">소속</text>
+<text x="110" y="245" font-family="system-ui,sans-serif" font-size="8.5" fill="#cbd5e1">N/A</text>
+
+<line x1="70" y1="252" x2="510" y2="252" stroke="#ffffff" stroke-width="0.3" stroke-opacity="0.12"/>
+
+<text x="75" y="265" font-family="system-ui,sans-serif" font-size="8" fill="#64748b">발급국가</text>
+<text x="122" y="265" font-family="system-ui,sans-serif" font-size="8" fill="#cbd5e1">Base Mainnet</text>
+
+<text x="75" y="280" font-family="system-ui,sans-serif" font-size="8" fill="#64748b">발급기관</text>
+<text x="122" y="280" font-family="system-ui,sans-serif" font-size="8" fill="#cbd5e1">Based ID Hunters Association</text>
+
+<!-- EMV Chip -->
+${chip()}
+
+<!-- Barcode -->
+${barcode(color)}
+<text x="303" y="300" text-anchor="middle" font-family="monospace,system-ui"
+  font-size="7.5" letter-spacing="2" fill="${color}" opacity="0.45">${licNo}</text>
+
+<!-- Footer strip -->
+<rect x="0" y="316" width="520" height="14" rx="0" fill="#000000" fill-opacity="0.4"/>
+<rect x="0" y="328" width="520" height="2" rx="0" fill="${color}" fill-opacity="0.35"/>
+<text x="260" y="325" text-anchor="middle" font-family="system-ui,sans-serif"
+  font-size="6.5" letter-spacing="2" fill="${color}" opacity="0.3">BASEDID.SPACE · BASED MAINNET · ${licNo}</text>
+
+<!-- Outer card border -->
+<rect x="0.5" y="0.5" width="519" height="329" rx="12.5"
+  fill="none" stroke="${color}" stroke-width="0.8" stroke-opacity="0.4"/>
+</svg>`;
+}
+
+const grid = document.getElementById('grid');
+ranks.forEach((r, i) => {
+  const div = document.createElement('div');
+  div.className = 'card';
+  div.innerHTML = makeSVG(r, i + 1) + `<div class="label">${r.letter} · ${r.rankFull}</div>`;
+  grid.appendChild(div);
+});
+</script>
+</body>
+</html>

@@ -248,12 +248,12 @@ export function HuntersClaim() {
   const supplyNum    = totalSupply !== undefined ? Number(totalSupply as bigint) : null;
 
   return (
-    <div className="flex-1 relative overflow-hidden">
+    <div className="relative overflow-hidden">
       {/* Ambient background glow */}
       <div className="absolute inset-0 pointer-events-none"
         style={{ background: `radial-gradient(ellipse 60% 50% at 30% 40%, ${activeColor}0d, transparent 70%)` }} />
 
-      <div className="relative max-w-7xl mx-auto px-6 py-16 space-y-20">
+      <div className="relative space-y-20">
 
         {/* ── HERO ── */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Based Hunters — NFT Preview</title>
+<style>
+  body { background: #030303; font-family: system-ui; color: #fff; padding: 40px; }
+  h1 { color: #fff; margin-bottom: 8px; }
+  p { color: #555; margin-bottom: 40px; }
+  .grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 16px; }
+  .card { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  .label { font-size: 11px; color: #555; letter-spacing: 2px; }
+  svg { width: 100%; border-radius: 16px; }
+</style>
+</head>
+<body>
+<h1>Based Hunters — All Ranks</h1>
+<p>Current design (BEFORE redesign)</p>
+<div class="grid" id="grid"></div>
+
+<script>
+const ranks = [
+  { letter: "E", name: "E-Rank Hunter",      color: "#71717a" },
+  { letter: "D", name: "D-Rank Hunter",      color: "#84cc16" },
+  { letter: "C", name: "C-Rank Hunter",      color: "#22c55e" },
+  { letter: "B", name: "B-Rank Hunter",      color: "#3b82f6" },
+  { letter: "A", name: "A-Rank Hunter",      color: "#a855f7" },
+  { letter: "S", name: "S-Rank Hunter",      color: "#f97316" },
+  { letter: "N", name: "National Hunter",    color: "#fbbf24" },
+];
+
+function makeSVG({ letter, name, color }, id) {
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <defs>
+    <linearGradient id="bg${id}" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0a0a0a"/>
+      <stop offset="100%" stop-color="#131313"/>
+    </linearGradient>
+    <filter id="glow${id}"><feGaussianBlur stdDeviation="8" result="blur"/>
+    <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs>
+  <rect width="400" height="400" fill="url(#bg${id})" rx="24"/>
+  <rect x="1" y="1" width="398" height="398" fill="none" rx="23" stroke="${color}" stroke-width="1.5" stroke-opacity="0.35"/>
+  <text x="200" y="210" text-anchor="middle" dominant-baseline="middle" font-family="system-ui,sans-serif" font-size="160" font-weight="900" fill="${color}" filter="url(#glow${id})" opacity="0.15">${letter}</text>
+  <text x="200" y="210" text-anchor="middle" dominant-baseline="middle" font-family="system-ui,sans-serif" font-size="160" font-weight="900" fill="${color}">${letter}</text>
+  <text x="200" y="302" text-anchor="middle" font-family="system-ui,sans-serif" font-size="18" font-weight="700" letter-spacing="2" fill="#ffffff" opacity="0.85">${name}</text>
+  <text x="200" y="330" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" fill="#444444" letter-spacing="3">BASED HUNTERS  #${id}</text>
+  </svg>`;
+}
+
+const grid = document.getElementById('grid');
+ranks.forEach((r, i) => {
+  const div = document.createElement('div');
+  div.className = 'card';
+  div.innerHTML = makeSVG(r, i+1) + `<div class="label">${r.letter}-RANK</div>`;
+  grid.appendChild(div);
+});
+</script>
+</body>
+</html>

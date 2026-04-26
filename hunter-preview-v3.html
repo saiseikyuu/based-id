@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Based Hunters — Hunter License</title>
+<style>
+  body { background: #080808; font-family: system-ui; color: #fff; padding: 40px; }
+  h1 { color: #d4a843; margin-bottom: 6px; font-size: 22px; letter-spacing: 2px; }
+  p { color: #444; margin-bottom: 48px; font-size: 13px; }
+  .grid { display: grid; grid-template-columns: repeat(4, 220px); gap: 32px; }
+  .card { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+  .label { font-size: 10px; color: #444; letter-spacing: 3px; text-transform: uppercase; }
+  svg { width: 220px; border-radius: 12px; box-shadow: 0 24px 64px rgba(0,0,0,0.9), 0 0 0 1px rgba(212,168,67,0.15); }
+</style>
+</head>
+<body>
+<h1>BASED HUNTERS — HUNTER LICENSE</h1>
+<p>HxH-inspired design. Each rank has its own color and class designation.</p>
+<div class="grid" id="grid"></div>
+
+<script>
+const ranks = [
+  { letter:"E", rankName:"E-CLASS",  rankClass:"ROOKIE",      rankFull:"E-Rank Hunter",   color:"#71717a", glow:"#71717a", cardBg:"#0c0c0e" },
+  { letter:"D", rankName:"D-CLASS",  rankClass:"APPRENTICE",  rankFull:"D-Rank Hunter",   color:"#84cc16", glow:"#84cc16", cardBg:"#0b0e07" },
+  { letter:"C", rankName:"C-CLASS",  rankClass:"NOVICE",      rankFull:"C-Rank Hunter",   color:"#22c55e", glow:"#22c55e", cardBg:"#080f0a" },
+  { letter:"B", rankName:"B-CLASS",  rankClass:"VETERAN",     rankFull:"B-Rank Hunter",   color:"#60a5fa", glow:"#3b82f6", cardBg:"#07090f" },
+  { letter:"A", rankName:"A-CLASS",  rankClass:"EXPERT",      rankFull:"A-Rank Hunter",   color:"#c084fc", glow:"#a855f7", cardBg:"#0b070f" },
+  { letter:"S", rankName:"S-CLASS",  rankClass:"ELITE",       rankFull:"S-Rank Hunter",   color:"#fb923c", glow:"#f97316", cardBg:"#0f0805" },
+  { letter:"N", rankName:"NATIONAL", rankClass:"LEGENDARY",   rankFull:"National Hunter", color:"#fcd34d", glow:"#fbbf24", cardBg:"#0f0d05" },
+];
+
+function pad(n, len=4) { return String(n).padStart(len,'0'); }
+
+function barcode(color) {
+  const widths = [2,1,3,1,2,2,1,3,2,1,1,2,3,1,2,1,3,2,1,2,1,1,3,2,1,3,1,2];
+  let x = 28; let out = '';
+  widths.forEach((w, i) => {
+    if (i % 2 === 0) out += `<rect x="${x}" y="490" width="${w}" height="36" fill="${color}" opacity="0.7"/>`;
+    x += w + 1;
+  });
+  return out;
+}
+
+function dotGrid() {
+  let out = '';
+  for (let row = 0; row < 5; row++) {
+    for (let col = 0; col < 10; col++) {
+      out += `<circle cx="${36 + col*34}" cy="${298 + row*26}" r="1" fill="#d4a843"/>`;
+    }
+  }
+  return out;
+}
+
+function makeSVG({ letter, rankName, rankClass, rankFull, color, glow, cardBg }, id) {
+  const pid = pad(id);
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 340 520">
+<defs>
+  <linearGradient id="cbg${id}" x1="0" y1="0" x2="0.4" y2="1">
+    <stop offset="0%" stop-color="#121620"/>
+    <stop offset="100%" stop-color="${cardBg}"/>
+  </linearGradient>
+  <radialGradient id="pbg${id}" cx="50%" cy="50%" r="55%">
+    <stop offset="0%" stop-color="${glow}" stop-opacity="0.3"/>
+    <stop offset="100%" stop-color="${cardBg}" stop-opacity="1"/>
+  </radialGradient>
+  <radialGradient id="seal${id}" cx="50%" cy="50%" r="50%">
+    <stop offset="0%" stop-color="#d4a843" stop-opacity="0.15"/>
+    <stop offset="100%" stop-color="#d4a843" stop-opacity="0"/>
+  </radialGradient>
+  <linearGradient id="holo${id}" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0%"   stop-color="#a855f7" stop-opacity="0.8"/>
+    <stop offset="20%"  stop-color="#3b82f6" stop-opacity="0.8"/>
+    <stop offset="40%"  stop-color="#22c55e" stop-opacity="0.8"/>
+    <stop offset="60%"  stop-color="#eab308" stop-opacity="0.8"/>
+    <stop offset="80%"  stop-color="#f97316" stop-opacity="0.8"/>
+    <stop offset="100%" stop-color="#ec4899" stop-opacity="0.8"/>
+  </linearGradient>
+  <filter id="gf${id}">
+    <feGaussianBlur stdDeviation="5" result="b"/>
+    <feMerge><feMergeNode in="b"/><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+  <filter id="sf${id}"><feGaussianBlur stdDeviation="16"/></filter>
+</defs>
+
+<!-- Card base -->
+<rect width="340" height="520" fill="url(#cbg${id})" rx="14"/>
+
+<!-- Subtle grid texture -->
+<rect width="340" height="520" rx="14" fill="none"
+  style="background-image:radial-gradient(circle,#ffffff08 1px,transparent 1px);background-size:20px 20px"/>
+
+<!-- Gold outer border -->
+<rect x="1" y="1" width="338" height="518" rx="13"
+  fill="none" stroke="#d4a843" stroke-width="1" stroke-opacity="0.55"/>
+<!-- Inner thin border -->
+<rect x="8" y="8" width="324" height="504" rx="9"
+  fill="none" stroke="#d4a843" stroke-width="0.4" stroke-opacity="0.18"/>
+
+<!-- ── HEADER AREA ── -->
+<rect x="0" y="0" width="340" height="65" rx="14" fill="#d4a843" fill-opacity="0.07"/>
+<rect x="0" y="50" width="340" height="15" fill="#000000" fill-opacity="0.15"/>
+
+<!-- Association name -->
+<text x="170" y="26" text-anchor="middle"
+  font-family="Georgia,serif" font-size="10" font-weight="700"
+  letter-spacing="5" fill="#d4a843" opacity="0.95">HUNTER ASSOCIATION</text>
+
+<!-- Decorative divider under header text -->
+<line x1="40" y1="35" x2="130" y2="35" stroke="#d4a843" stroke-width="0.4" stroke-opacity="0.4"/>
+<text x="170" y="38" text-anchor="middle" font-family="system-ui" font-size="6" fill="#d4a843" opacity="0.5">◆</text>
+<line x1="210" y1="35" x2="300" y2="35" stroke="#d4a843" stroke-width="0.4" stroke-opacity="0.4"/>
+
+<!-- License title -->
+<text x="170" y="52" text-anchor="middle"
+  font-family="system-ui" font-size="8" letter-spacing="6"
+  fill="#d4a843" opacity="0.5">HUNTER LICENSE</text>
+
+<!-- ── SEAL (top right) ── -->
+<circle cx="298" cy="97" r="28" fill="url(#seal${id})"/>
+<circle cx="298" cy="97" r="27" fill="none" stroke="#d4a843" stroke-width="0.8" stroke-opacity="0.4"/>
+<circle cx="298" cy="97" r="20" fill="none" stroke="#d4a843" stroke-width="0.4" stroke-opacity="0.25"/>
+<text x="298" y="93" text-anchor="middle" font-family="Georgia,serif" font-size="8" font-weight="700" fill="#d4a843" opacity="0.75">H · A</text>
+<text x="298" y="105" text-anchor="middle" font-family="system-ui" font-size="7" fill="#d4a843" opacity="0.5">2026</text>
+
+<!-- ── PORTRAIT BOX ── -->
+<!-- Shadow behind portrait -->
+<rect x="19" y="74" width="120" height="152" rx="7" fill="${glow}" fill-opacity="0.05" filter="url(#sf${id})"/>
+<!-- Portrait frame -->
+<rect x="18" y="73" width="122" height="154" rx="8"
+  fill="url(#pbg${id})" stroke="${color}" stroke-width="1.2" stroke-opacity="0.65"/>
+
+<!-- Corner ticks on portrait -->
+<path d="M20 86 L20 75 L31 75" fill="none" stroke="${color}" stroke-width="1" stroke-linecap="round" stroke-opacity="0.8"/>
+<path d="M128 86 L128 75 L117 75" fill="none" stroke="${color}" stroke-width="1" stroke-linecap="round" stroke-opacity="0.8"/>
+<path d="M20 214 L20 225 L31 225" fill="none" stroke="${color}" stroke-width="1" stroke-linecap="round" stroke-opacity="0.8"/>
+<path d="M128 214 L128 225 L117 225" fill="none" stroke="${color}" stroke-width="1" stroke-linecap="round" stroke-opacity="0.8"/>
+
+<!-- Big rank letter -->
+<text x="79" y="166" text-anchor="middle" dominant-baseline="middle"
+  font-family="system-ui,sans-serif" font-size="100" font-weight="900"
+  fill="${color}" filter="url(#gf${id})">${letter}</text>
+
+<!-- Portrait bottom label -->
+<rect x="18" y="211" width="122" height="16" rx="0"
+  fill="${color}" fill-opacity="0.18"/>
+<text x="79" y="222" text-anchor="middle" font-family="system-ui"
+  font-size="7" font-weight="700" letter-spacing="2" fill="${color}" opacity="0.9">${rankClass}</text>
+
+<!-- ── INFO PANEL ── -->
+<text x="155" y="90" font-family="Georgia,serif" font-size="14" font-weight="700"
+  fill="#ffffff" opacity="0.95">CERTIFIED HUNTER</text>
+<line x1="155" y1="96" x2="322" y2="96" stroke="#d4a843" stroke-width="0.5" stroke-opacity="0.35"/>
+
+<!-- Rank -->
+<text x="155" y="115" font-family="system-ui" font-size="8" letter-spacing="2"
+  fill="#d4a843" opacity="0.5">RANK</text>
+<text x="155" y="133" font-family="system-ui" font-size="15" font-weight="800"
+  letter-spacing="1" fill="${color}">${rankName}</text>
+
+<!-- License no -->
+<text x="155" y="155" font-family="system-ui" font-size="8" letter-spacing="2"
+  fill="#d4a843" opacity="0.5">LICENSE NO.</text>
+<text x="155" y="172" font-family="monospace,system-ui" font-size="12" font-weight="600"
+  fill="#e5e5e5" opacity="0.85">HA-2026-${pid}</text>
+
+<!-- Status -->
+<text x="155" y="193" font-family="system-ui" font-size="8" letter-spacing="2"
+  fill="#d4a843" opacity="0.5">STATUS</text>
+<text x="165" y="210" font-family="system-ui" font-size="11" font-weight="600"
+  letter-spacing="1" fill="#22c55e">● ACTIVE</text>
+
+<!-- ── MID SECTION ── -->
+<line x1="18" y1="240" x2="322" y2="240" stroke="#d4a843" stroke-width="0.5" stroke-opacity="0.2"/>
+
+<!-- Watermark -->
+<text x="170" y="355" text-anchor="middle"
+  font-family="Georgia,serif" font-size="110" font-weight="900"
+  fill="#d4a843" opacity="0.025" transform="rotate(-20,170,355)">HUNTER</text>
+
+<!-- Dot grid decoration -->
+<g opacity="0.12">
+${dotGrid()}
+</g>
+
+<!-- Association line -->
+<text x="170" y="264" text-anchor="middle" font-family="system-ui"
+  font-size="7.5" letter-spacing="3" fill="#d4a843" opacity="0.4">HUNTER ASSOCIATION × BASED ID</text>
+
+<!-- ── HOLOGRAPHIC STRIP ── -->
+<rect x="18" y="416" width="304" height="10" rx="2" fill="url(#holo${id})" opacity="0.5"/>
+<rect x="18" y="416" width="304" height="10" rx="2" fill="none"
+  stroke="#ffffff" stroke-width="0.3" stroke-opacity="0.4"/>
+
+<!-- ── BARCODE ── -->
+<rect x="18" y="436" width="304" height="56" rx="5"
+  fill="#ffffff" fill-opacity="0.03" stroke="#d4a843" stroke-width="0.5" stroke-opacity="0.18"/>
+${barcode(color)}
+<text x="170" y="503" text-anchor="middle" font-family="monospace"
+  font-size="8" letter-spacing="2" fill="${color}" opacity="0.5">HA-2026-${pid}</text>
+
+<!-- ── FOOTER ── -->
+<text x="170" y="516" text-anchor="middle" font-family="system-ui"
+  font-size="7" letter-spacing="2" fill="#d4a843" opacity="0.25">BASEDID.SPACE · BASE MAINNET</text>
+</svg>`;
+}
+
+const grid = document.getElementById('grid');
+ranks.forEach((r, i) => {
+  const div = document.createElement('div');
+  div.className = 'card';
+  div.innerHTML = makeSVG(r, i + 1) + `<div class="label">${r.letter} · ${r.rankFull}</div>`;
+  grid.appendChild(div);
+});
+</script>
+</body>
+</html>

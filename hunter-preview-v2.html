@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Based Hunters v2 — Premium Preview</title>
+<style>
+  body { background: #030303; font-family: system-ui; color: #fff; padding: 40px; }
+  h1 { color: #fff; margin-bottom: 8px; font-size: 28px; }
+  p { color: #555; margin-bottom: 48px; font-size: 14px; }
+  .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; max-width: 1100px; }
+  .card { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+  .label { font-size: 10px; color: #444; letter-spacing: 3px; text-transform: uppercase; }
+  svg { width: 100%; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.8); }
+</style>
+</head>
+<body>
+<h1>Based Hunters — Premium Redesign</h1>
+<p>New design v2</p>
+<div class="grid" id="grid"></div>
+
+<script>
+const ranks = [
+  { letter: "E", name: "E-Rank Hunter",   color: "#71717a", bg1: "#0c0c0c", bg2: "#060606", stars: 0 },
+  { letter: "D", name: "D-Rank Hunter",   color: "#84cc16", bg1: "#0a0f06", bg2: "#060806", stars: 0 },
+  { letter: "C", name: "C-Rank Hunter",   color: "#22c55e", bg1: "#061209", bg2: "#050906", stars: 2 },
+  { letter: "B", name: "B-Rank Hunter",   color: "#3b82f6", bg1: "#060c14", bg2: "#050810", stars: 3 },
+  { letter: "A", name: "A-Rank Hunter",   color: "#a855f7", bg1: "#0c0614", bg2: "#080510", stars: 4 },
+  { letter: "S", name: "S-Rank Hunter",   color: "#f97316", bg1: "#140904", bg2: "#100604", stars: 5 },
+  { letter: "N", name: "National Hunter", color: "#fbbf24", bg1: "#140f02", bg2: "#100b02", stars: 8 },
+];
+
+function stars(count, color) {
+  const pts = [
+    [72, 80], [328, 90], [55, 300], [345, 295],
+    [85, 170], [315, 165], [100, 260], [300, 255],
+    [200, 60], [140, 120], [260, 115]
+  ];
+  return pts.slice(0, count).map(([x, y], i) => {
+    const r = i % 3 === 0 ? 1.5 : i % 3 === 1 ? 1 : 0.7;
+    const op = i % 3 === 0 ? 0.6 : 0.35;
+    return `<circle cx="${x}" cy="${y}" r="${r}" fill="${color}" opacity="${op}"/>`;
+  }).join('');
+}
+
+function makeSVG({ letter, name, color, bg1, bg2, stars: sc }, id) {
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <defs>
+    <radialGradient id="rbg${id}" cx="50%" cy="38%" r="65%">
+      <stop offset="0%" stop-color="${color}" stop-opacity="0.13"/>
+      <stop offset="100%" stop-color="${bg2}" stop-opacity="1"/>
+    </radialGradient>
+    <radialGradient id="glow${id}" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="${color}" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="${color}" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="blur${id}">
+      <feGaussianBlur stdDeviation="18"/>
+    </filter>
+    <filter id="lg${id}">
+      <feGaussianBlur stdDeviation="5" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="400" height="400" fill="${bg2}" rx="20"/>
+  <rect width="400" height="400" fill="url(#rbg${id})" rx="20"/>
+
+  <!-- Outer border -->
+  <rect x="1" y="1" width="398" height="398" fill="none" rx="19"
+        stroke="${color}" stroke-width="1" stroke-opacity="0.45"/>
+  <!-- Inner border -->
+  <rect x="10" y="10" width="380" height="380" fill="none" rx="13"
+        stroke="${color}" stroke-width="0.5" stroke-opacity="0.12"/>
+
+  <!-- Corner brackets — TL -->
+  <path d="M22 42 L22 22 L42 22" fill="none" stroke="${color}" stroke-width="1.5" stroke-linecap="round" stroke-opacity="0.7"/>
+  <!-- Corner brackets — TR -->
+  <path d="M378 42 L378 22 L358 22" fill="none" stroke="${color}" stroke-width="1.5" stroke-linecap="round" stroke-opacity="0.7"/>
+  <!-- Corner brackets — BL -->
+  <path d="M22 358 L22 378 L42 378" fill="none" stroke="${color}" stroke-width="1.5" stroke-linecap="round" stroke-opacity="0.7"/>
+  <!-- Corner brackets — BR -->
+  <path d="M378 358 L378 378 L358 378" fill="none" stroke="${color}" stroke-width="1.5" stroke-linecap="round" stroke-opacity="0.7"/>
+
+  <!-- Stars/particles -->
+  ${stars(sc, color)}
+
+  <!-- Header line -->
+  <text x="200" y="46" text-anchor="middle" font-family="system-ui,sans-serif"
+        font-size="9" font-weight="700" letter-spacing="5" fill="${color}" opacity="0.5">BASED · HUNTERS</text>
+
+  <!-- Glow bloom behind letter -->
+  <ellipse cx="200" cy="205" rx="90" ry="90" fill="url(#glow${id})" filter="url(#blur${id})"/>
+
+  <!-- Letter shadow (big, faint) -->
+  <text x="200" y="230" text-anchor="middle" dominant-baseline="middle"
+        font-family="system-ui,sans-serif" font-size="190" font-weight="900"
+        fill="${color}" opacity="0.05">${letter}</text>
+
+  <!-- Letter main with glow -->
+  <text x="200" y="224" text-anchor="middle" dominant-baseline="middle"
+        font-family="system-ui,sans-serif" font-size="168" font-weight="900"
+        fill="${color}" filter="url(#lg${id})">${letter}</text>
+
+  <!-- Divider -->
+  <line x1="36" y1="318" x2="364" y2="318" stroke="${color}" stroke-width="0.5" stroke-opacity="0.18"/>
+
+  <!-- Left tick -->
+  <line x1="36" y1="314" x2="36" y2="322" stroke="${color}" stroke-width="1" stroke-opacity="0.35" stroke-linecap="round"/>
+  <!-- Right tick -->
+  <line x1="364" y1="314" x2="364" y2="322" stroke="${color}" stroke-width="1" stroke-opacity="0.35" stroke-linecap="round"/>
+
+  <!-- Rank name -->
+  <text x="200" y="346" text-anchor="middle" font-family="system-ui,sans-serif"
+        font-size="15" font-weight="700" letter-spacing="3" fill="#ffffff" opacity="0.9">${name.toUpperCase()}</text>
+
+  <!-- Token ID -->
+  <text x="200" y="368" text-anchor="middle" font-family="system-ui,sans-serif"
+        font-size="10" fill="${color}" opacity="0.4" letter-spacing="2">#${String(id).padStart(4,'0')}</text>
+</svg>`;
+}
+
+const grid = document.getElementById('grid');
+ranks.forEach((r, i) => {
+  const div = document.createElement('div');
+  div.className = 'card';
+  div.innerHTML = makeSVG(r, i + 1) + `<div class="label">${r.letter} · ${r.name}</div>`;
+  grid.appendChild(div);
+});
+</script>
+</body>
+</html>
