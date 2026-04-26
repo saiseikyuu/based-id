@@ -214,12 +214,12 @@ export default function Home() {
                   <span className="text-[11px] text-zinc-400 font-medium tracking-wide">Live on Base mainnet</span>
                 </div>
                 <h1 className="text-[clamp(3rem,6.5vw,5.5rem)] font-black tracking-tight leading-[1.03]" style={D}>
-                  Your license<br />
-                  to hunt<br />
-                  <span className="text-blue-400">on Base.</span>
+                  The Based<br />
+                  Hunter<br />
+                  <span className="text-blue-400">Ecosystem.</span>
                 </h1>
                 <p className="text-zinc-400 text-lg leading-relaxed max-w-md">
-                  Based ID is the $2 permanent on-chain pass. Enter drops, claim your Hunter rank, earn XP — mint once and access everything on Base forever.
+                  Enter drops, earn your Hunter rank, collect XP, and win rewards. Based ID is your key to everything built on Base.
                 </p>
               </motion.div>
 
