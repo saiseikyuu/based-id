@@ -205,80 +205,31 @@ export default function Home() {
         <div className="relative max-w-7xl mx-auto px-6 py-20 w-full">
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_420px] gap-16 items-center">
 
-            {/* Left */}
-            <div className="space-y-8 max-w-2xl">
-              <div className="space-y-6">
-                <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease }}>
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-white/[0.1] bg-white/[0.03] mb-5">
-                    <div className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
-                    <span className="text-[11px] text-zinc-400 font-medium tracking-wide">Live on Base mainnet</span>
-                  </div>
-                  <h1 className="text-[clamp(2.8rem,6vw,5rem)] font-black tracking-tight leading-[1.0]" style={D}>
-                    The $2 pass to<br />
-                    <span className="text-white">every Base</span><br />
-                    <span className="text-blue-400">opportunity.</span>
-                  </h1>
-                </motion.div>
-
-                <motion.p initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.08, ease }}
-                  className="text-zinc-400 text-lg leading-relaxed max-w-lg">
+            {/* Left — tagline only */}
+            <div className="space-y-8">
+              <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease }}
+                className="space-y-5">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-white/[0.1] bg-white/[0.03]">
+                  <div className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+                  <span className="text-[11px] text-zinc-400 font-medium tracking-wide">Live on Base mainnet</span>
+                </div>
+                <h1 className="text-[clamp(3rem,6.5vw,5.5rem)] font-black tracking-tight leading-[1.0]" style={D}>
+                  The $2 pass to<br />
+                  every Base<br />
+                  <span className="text-blue-400">opportunity.</span>
+                </h1>
+                <p className="text-zinc-400 text-lg leading-relaxed max-w-md">
                   Mint once. Access every drop, claim your Hunter NFT, earn XP, win raffles.
                   Anyone can browse — <span className="text-zinc-200">only holders can play.</span>
-                </motion.p>
-              </div>
+                </p>
+              </motion.div>
 
-              {/* CTAs */}
-              <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.14, ease }}
-                className="flex items-center gap-3 flex-wrap">
-                <a href="#mint-card" onClick={e=>{e.preventDefault();document.getElementById("mint-card")?.scrollIntoView({behavior:"smooth"});}}
-                  className="px-6 py-3 rounded-xl bg-blue-600 text-white text-sm font-bold hover:bg-blue-500 transition-colors"
-                  style={{boxShadow:"0 4px 24px rgba(37,99,235,0.4)"}}>
-                  Mint Based ID — $2
-                </a>
-                <Link href="/drops" className="px-6 py-3 rounded-xl border border-white/[0.1] text-zinc-300 text-sm font-medium hover:border-white/[0.2] hover:text-white transition-colors">
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.12, ease }}>
+                <Link href="/drops"
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-xl border border-white/[0.1] text-zinc-300 text-sm font-medium hover:border-white/[0.25] hover:text-white transition-all">
                   Browse drops →
                 </Link>
-              </motion.div>
-
-              {/* Access gate */}
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5, delay: 0.2, ease }}>
-                <p className="text-zinc-600 text-[11px] uppercase tracking-[0.2em] mb-3">What Based ID unlocks</p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2">
-                  {ACCESS_FEATURES.map((f, i) => (
-                    <motion.div key={f.label} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }}
-                      transition={{ duration: 0.3, delay: 0.25 + i * 0.04, ease }}
-                      className="flex items-center gap-2.5">
-                      {f.locked ? (
-                        <div className="w-4 h-4 rounded-full bg-blue-500/15 border border-blue-500/30 flex items-center justify-center flex-shrink-0">
-                          <svg width="7" height="7" viewBox="0 0 8 8" fill="none"><path d="M1.5 4l1.8 1.8L6.5 2" stroke="#60a5fa" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                        </div>
-                      ) : (
-                        <div className="w-4 h-4 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center flex-shrink-0">
-                          <svg width="7" height="7" viewBox="0 0 7 7" fill="none"><path d="M1.5 1.5l4 4M5.5 1.5l-4 4" stroke="#52525b" strokeWidth="1" strokeLinecap="round"/></svg>
-                        </div>
-                      )}
-                      <span className={`text-sm ${f.locked ? "text-zinc-200" : "text-zinc-600"}`}>{f.label}</span>
-                      {f.locked && <span className="text-[10px] text-blue-400/60 hidden sm:block">Holders</span>}
-                    </motion.div>
-                  ))}
-                </div>
-              </motion.div>
-
-              {/* Stats */}
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5, delay: 0.35, ease }}
-                className="flex items-center gap-7 pt-2 border-t border-white/[0.06]">
-                {[
-                  { val: totalMinted !== undefined ? <CountUp to={Number(totalMinted)} duration={1.5}/> : <span>—</span>, label: "IDs minted" },
-                  { val: "$2", label: "One-time, permanent" },
-                  { val: liveDrops.length || "—", label: "Drops live" },
-                ].map(({ val, label }, i) => (
-                  <div key={i}>
-                    <div className="text-xl font-black tabular-nums" style={D}>{val}</div>
-                    <p className="text-zinc-600 text-xs mt-0.5">{label}</p>
-                  </div>
-                ))}
               </motion.div>
             </div>
 
