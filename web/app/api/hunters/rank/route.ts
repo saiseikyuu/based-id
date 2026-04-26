@@ -12,7 +12,7 @@ const HUNTERS    = (process.env.NEXT_PUBLIC_HUNTERS_ADDRESS ?? "") as `0x${strin
 const ORACLE_PK  = process.env.HUNTERS_ORACLE_PK as `0x${string}` | undefined;
 
 // XP thresholds per rank (0=E, 1=D, 2=C, 3=B, 4=A, 5=S, 6=National)
-const RANK_XP_THRESHOLDS = [0, 100, 300, 700, 1500, 3000, 6000];
+const RANK_XP_THRESHOLDS = [0, 300, 800, 2000, 5000, 12000, 30000];
 
 // Rank sync costs in USDC (for display, matches contract)
 export const RANK_COSTS = [0, 2, 2, 2, 5, 10, 20];
