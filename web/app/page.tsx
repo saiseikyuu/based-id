@@ -213,14 +213,13 @@ export default function Home() {
                   <div className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
                   <span className="text-[11px] text-zinc-400 font-medium tracking-wide">Live on Base mainnet</span>
                 </div>
-                <h1 className="text-[clamp(3rem,6.5vw,5.5rem)] font-black tracking-tight leading-[1.0]" style={D}>
-                  The $2 pass to<br />
-                  every Base<br />
-                  <span className="text-blue-400">opportunity.</span>
+                <h1 className="text-[clamp(3rem,6.5vw,5.5rem)] font-black tracking-tight leading-[1.03]" style={D}>
+                  Your license<br />
+                  to hunt<br />
+                  <span className="text-blue-400">on Base.</span>
                 </h1>
                 <p className="text-zinc-400 text-lg leading-relaxed max-w-md">
-                  Mint once. Access every drop, claim your Hunter NFT, earn XP, win raffles.
-                  Anyone can browse — <span className="text-zinc-200">only holders can play.</span>
+                  Based ID is the $2 permanent on-chain pass. Enter drops, claim your Hunter rank, earn XP — mint once and access everything on Base forever.
                 </p>
               </motion.div>
 
@@ -270,7 +269,6 @@ export default function Home() {
                       <div className="flex items-center justify-between">
                         <div>
                           <p className="text-white font-bold text-[15px]" style={D}>Based ID NFT</p>
-                          <p className="text-zinc-600 text-xs mt-0.5">Permanent access pass · ERC-721 · Base</p>
                         </div>
                         <div className="text-right">
                           <p className="text-white font-black text-2xl" style={D}>$2</p>
@@ -304,15 +302,6 @@ export default function Home() {
                       ) : null}
 
                       {errorMsg && <p className="text-red-400 text-xs text-center">{errorMsg}</p>}
-
-                      <div className="flex items-center justify-center gap-4 pt-1 border-t border-white/[0.05]">
-                        {["Bot-free","Onchain","Permanent"].map(t=>(
-                          <span key={t} className="flex items-center gap-1.5 text-zinc-600 text-xs">
-                            <span className="w-1 h-1 rounded-full bg-zinc-600"/>
-                            {t}
-                          </span>
-                        ))}
-                      </div>
                     </>
                   )}
                 </div>
