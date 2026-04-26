@@ -34,10 +34,46 @@ function Reveal({ children, delay = 0, className }: { children: React.ReactNode;
 }
 
 const HOW_STEPS = [
-  { n: "01", title: "Connect wallet",    desc: "Use any Base-compatible wallet — Coinbase Wallet, MetaMask, or WalletConnect." },
-  { n: "02", title: "Approve $2 USDC",   desc: "One-time approval of $2 USDC. Permanent access — never pay again." },
-  { n: "03", title: "Mint your Based ID", desc: "Your NFT is minted on Base. Immediate, onchain, yours forever." },
-  { n: "04", title: "Access everything", desc: "Enter drops, claim your Hunter, earn XP, win raffles. Full platform access." },
+  {
+    n: "01",
+    title: "Connect wallet",
+    desc: "Use any Base-compatible wallet — Coinbase Wallet, MetaMask, or WalletConnect.",
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/>
+      </svg>
+    ),
+  },
+  {
+    n: "02",
+    title: "Approve $2 USDC",
+    desc: "One-time approval. $2 paid once — permanent access, never charged again.",
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="9"/><path d="M14.8 9A2 2 0 0 0 13 8h-2a2 2 0 0 0 0 4h2a2 2 0 0 1 0 4h-2a2 2 0 0 1-1.8-1M12 7v1m0 8v1"/>
+      </svg>
+    ),
+  },
+  {
+    n: "03",
+    title: "Mint your Based ID",
+    desc: "Your NFT is minted on Base. Immediate, permanent, verifiable onchain.",
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+      </svg>
+    ),
+  },
+  {
+    n: "04",
+    title: "Access everything",
+    desc: "Enter drops, claim your Hunter NFT, earn XP, and win raffles. Full ecosystem access.",
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+      </svg>
+    ),
+  },
 ];
 
 const ACCESS_FEATURES = [
@@ -310,24 +346,76 @@ export default function Home() {
 
       {/* ── HOW IT WORKS ── */}
       <section className="border-t border-white/[0.06]">
-        <div className="max-w-7xl mx-auto px-6 py-20 space-y-12">
+        <div className="max-w-7xl mx-auto px-6 py-24 space-y-16">
+
+          {/* Header */}
           <Reveal>
-            <div className="text-center space-y-2">
-              <p className="text-zinc-600 text-xs uppercase tracking-[0.25em]">Simple</p>
-              <h2 className="text-3xl sm:text-4xl font-black tracking-tight" style={D}>How it works</h2>
+            <div className="text-center space-y-3 max-w-lg mx-auto">
+              <p className="text-blue-400 text-[11px] font-semibold uppercase tracking-[0.3em]">Get started in minutes</p>
+              <h2 className="text-4xl sm:text-5xl font-black tracking-tight" style={D}>How it works</h2>
+              <p className="text-zinc-500 text-base">From zero to full access in under 2 minutes.</p>
             </div>
           </Reveal>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-px bg-white/[0.05] rounded-2xl overflow-hidden">
-            {HOW_STEPS.map(({ n, title, desc }, i) => (
-              <Reveal key={n} delay={i * 0.07}>
-                <div className="bg-black px-7 py-8 h-full space-y-4 hover:bg-white/[0.015] transition-colors">
-                  <span className="text-zinc-700 text-xs font-mono tracking-widest">{n}</span>
-                  <p className="text-white font-bold text-[15px]" style={D}>{title}</p>
-                  <p className="text-zinc-500 text-sm leading-relaxed">{desc}</p>
-                </div>
-              </Reveal>
-            ))}
+
+          {/* Steps */}
+          <div className="relative">
+            {/* Connecting line — desktop only */}
+            <div className="hidden lg:block absolute top-[52px] left-[calc(12.5%+20px)] right-[calc(12.5%+20px)] h-px"
+              style={{ background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.08) 15%, rgba(255,255,255,0.08) 85%, transparent)" }} />
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {HOW_STEPS.map(({ n, title, desc, icon }, i) => (
+                <Reveal key={n} delay={i * 0.08}>
+                  <div className="group relative rounded-2xl border border-white/[0.07] bg-white/[0.02] p-6 h-full overflow-hidden
+                    hover:border-blue-500/30 hover:bg-white/[0.04] transition-all duration-300 cursor-default">
+
+                    {/* Hover gradient top border */}
+                    <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-blue-500 to-transparent
+                      opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+                    {/* Large watermark step number */}
+                    <span className="absolute -right-2 -top-4 text-[80px] font-black text-white/[0.03] select-none leading-none pointer-events-none"
+                      style={D}>{n}</span>
+
+                    <div className="relative space-y-5">
+                      {/* Icon + step number row */}
+                      <div className="flex items-center justify-between">
+                        <div className="w-10 h-10 rounded-xl border border-white/[0.08] bg-white/[0.03]
+                          flex items-center justify-center text-zinc-400
+                          group-hover:border-blue-500/30 group-hover:text-blue-400 group-hover:bg-blue-500/[0.06]
+                          transition-all duration-300">
+                          {icon}
+                        </div>
+                        <span className="font-mono text-[11px] text-zinc-700 tracking-widest">{n}</span>
+                      </div>
+
+                      {/* Text */}
+                      <div className="space-y-2">
+                        <p className="text-white font-bold text-[15px] leading-snug" style={D}>{title}</p>
+                        <p className="text-zinc-500 text-sm leading-relaxed">{desc}</p>
+                      </div>
+                    </div>
+                  </div>
+                </Reveal>
+              ))}
+            </div>
           </div>
+
+          {/* CTA under steps */}
+          <Reveal delay={0.2}>
+            <div className="text-center">
+              <a href="#mint-card"
+                onClick={e=>{e.preventDefault();document.getElementById("mint-card")?.scrollIntoView({behavior:"smooth"});}}
+                className="inline-flex items-center gap-2 text-zinc-500 text-sm hover:text-white transition-colors group">
+                <span>Ready to mint?</span>
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"
+                  className="group-hover:translate-x-1 transition-transform">
+                  <path d="M2 7h10M8 3l4 4-4 4"/>
+                </svg>
+              </a>
+            </div>
+          </Reveal>
+
         </div>
       </section>
 
