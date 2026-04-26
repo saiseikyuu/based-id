@@ -86,9 +86,9 @@ export async function generateMetadata(
 
 function StatPill({ label, value, color }: { label: string; value: string; color?: string }) {
   return (
-    <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-white/[0.07] bg-white/[0.03]">
-      <span className="text-zinc-600 text-[10px] font-bold uppercase tracking-[0.12em]">{label}</span>
-      <span className={`text-xs font-bold tabular-nums ${color ?? "text-white"}`}>{value}</span>
+    <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-white/[0.08] bg-white/[0.02]">
+      <span className="text-zinc-600 text-[9px] font-bold uppercase tracking-[0.15em]">{label}</span>
+      <span className={`text-[11px] font-bold tabular-nums ${color ?? "text-zinc-200"}`}>{value}</span>
     </div>
   );
 }
@@ -130,31 +130,34 @@ export default async function DropPage({ params }: { params: Promise<{ id: strin
 
       <div className="flex-1">
 
-        {/* ── Full-bleed banner ── */}
-        <div className="relative w-full h-56 sm:h-72 bg-zinc-950 overflow-hidden">
-          {drop.image_url ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={drop.image_url} alt={drop.title} className="w-full h-full object-cover" />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center"
-              style={{ background: "linear-gradient(135deg, #0f1729 0%, #0a0d1a 100%)" }}>
-              <span className="text-zinc-800 font-black text-[120px] leading-none select-none" style={DISPLAY}>
-                {drop.title.slice(0,1).toUpperCase()}
-              </span>
-            </div>
-          )}
-          {/* Bottom fade */}
-          <div className="absolute inset-x-0 bottom-0 h-24"
-            style={{ background: "linear-gradient(to bottom, transparent, #000)" }} />
+        {/* ── Banner — 16:9 capped, not full bleed tall ── */}
+        <div className="w-full overflow-hidden" style={{ maxHeight: "320px" }}>
+          <div className="relative w-full aspect-[16/6] max-h-80 bg-zinc-950">
+            {drop.image_url ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={drop.image_url} alt={drop.title}
+                className="absolute inset-0 w-full h-full object-cover object-center" />
+            ) : (
+              <div className="absolute inset-0 flex items-center justify-center"
+                style={{ background: "linear-gradient(135deg, #0f1729 0%, #0a0d1a 100%)" }}>
+                <span className="text-zinc-800 font-black text-[100px] leading-none select-none" style={DISPLAY}>
+                  {drop.title.slice(0,1).toUpperCase()}
+                </span>
+              </div>
+            )}
+            {/* Bottom fade */}
+            <div className="absolute inset-x-0 bottom-0 h-20"
+              style={{ background: "linear-gradient(to bottom, transparent, #000)" }} />
+          </div>
         </div>
 
         {/* ── Centered content ── */}
-        <div className="max-w-3xl mx-auto px-6 pb-20 -mt-12 space-y-6">
+        <div className="max-w-2xl mx-auto px-6 pb-20 -mt-10 space-y-6">
 
           {/* Logo + title block */}
-          <div className="flex flex-col items-center text-center space-y-4">
+          <div className="flex flex-col items-center text-center space-y-3">
             {/* Logo — overlaps banner */}
-            <div className="w-20 h-20 rounded-2xl border-4 border-black overflow-hidden bg-zinc-900 flex items-center justify-center flex-shrink-0 shadow-xl">
+            <div className="w-16 h-16 rounded-xl border-[3px] border-black overflow-hidden bg-zinc-900 flex items-center justify-center flex-shrink-0 shadow-xl">
               {drop.project?.logo_url ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={drop.project.logo_url} alt={drop.project.name} className="w-full h-full object-cover" />
@@ -162,12 +165,13 @@ export default async function DropPage({ params }: { params: Promise<{ id: strin
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={drop.image_url} alt={drop.title} className="w-full h-full object-cover" />
               ) : (
-                <span className="text-white font-black text-2xl" style={DISPLAY}>{drop.title.slice(0,1)}</span>
+                <span className="text-white font-black text-xl" style={DISPLAY}>{drop.title.slice(0,1)}</span>
               )}
             </div>
 
             {/* Title + badges */}
             <div className="space-y-2">
+              <h1 className="text-white font-black text-2xl sm:text-3xl leading-tight" style={DISPLAY}>{drop.title}</h1>
               <div className="flex items-center justify-center gap-2 flex-wrap">
                 <span className="text-[10px] font-bold uppercase tracking-[0.15em] px-2 py-0.5 rounded-full bg-blue-900/25 text-blue-300 border border-blue-900/30">
                   {typeLabel}
@@ -178,17 +182,16 @@ export default async function DropPage({ params }: { params: Promise<{ id: strin
                   </span>
                 )}
               </div>
-              <h1 className="text-white font-black text-2xl sm:text-3xl leading-tight" style={DISPLAY}>{drop.title}</h1>
               {drop.project && (
                 <Link href={`/projects/${drop.partner_address}`}
-                  className="inline-flex items-center gap-1.5 text-zinc-500 text-xs hover:text-zinc-300 transition-colors">
-                  {drop.project.name}
+                  className="inline-flex items-center gap-1.5 text-zinc-600 text-xs hover:text-zinc-400 transition-colors">
+                  by {drop.project.name}
                   <span className="text-zinc-700">↗</span>
                 </Link>
               )}
             </div>
 
-            {/* Stat pills — Alphabot style */}
+            {/* Stat pills */}
             <div className="flex items-center gap-2 flex-wrap justify-center">
               <StatPill label="Entries"  value={entryCount.toLocaleString()} />
               <StatPill label="Winners"  value={drop.winner_count.toString()} color="text-green-400" />
