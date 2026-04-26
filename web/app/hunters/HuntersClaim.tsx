@@ -113,11 +113,13 @@ type XpData = {
 
 export function HuntersClaim() {
   const { address, isConnected } = useAccount();
-  const [updatingRank, setUpdatingRank] = useState(false);
-  const [previewRank,  setPreviewRank]  = useState(0);
-  const [xpData,       setXpData]       = useState<XpData>(null);
+  const [updatingRank,   setUpdatingRank]   = useState(false);
+  const [previewRank,    setPreviewRank]    = useState(0);
+  const [xpData,         setXpData]         = useState<XpData>(null);
   const [checkinLoading, setCheckinLoading] = useState(false);
-  const [needsApproval, setNeedsApproval]   = useState(false);
+  const [needsApproval,  setNeedsApproval]  = useState(false);
+  const [refreshing,     setRefreshing]     = useState(false);
+  const [refreshedAt,    setRefreshedAt]    = useState<number | null>(null);
 
   const { data: idBalance } = useReadContract({
     address: BASED_ID_ADDRESS, abi: BASED_ID_ABI, functionName: "balanceOf",
@@ -464,30 +466,64 @@ export function HuntersClaim() {
                     );
                   })()}
 
-                  {/* Sync rank */}
-                  {xpData && xpData.rank > currentRank && (
-                    <div className="space-y-2">
-                      <div className="rounded-xl border border-white/[0.08] bg-white/[0.02] px-4 py-3 flex items-center justify-between">
-                        <div>
-                          <p className="text-white text-sm font-semibold">New rank available!</p>
-                          <p className="text-zinc-500 text-xs">{RANK_DATA[xpData.rank].name}</p>
+                  {/* Upgrade available */}
+                  {xpData && xpData.rank > currentRank && (() => {
+                    const nextRank = RANK_DATA[xpData.rank];
+                    const cost = RANK_COSTS_USDC[xpData.rank];
+                    const busy = updatingRank || rankPending || rankConfirming || approvePending || approveConfirming;
+                    return (
+                      <div className="space-y-2">
+                        <div className="rounded-xl border px-4 py-3.5 flex items-center justify-between gap-3"
+                          style={{ borderColor: nextRank.color + "40", background: nextRank.color + "08" }}>
+                          <div className="space-y-0.5">
+                            <div className="flex items-center gap-2">
+                              <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: nextRank.color }} />
+                              <p className="text-white text-sm font-bold">License upgrade ready</p>
+                            </div>
+                            <p className="text-xs" style={{ color: nextRank.color + "bb" }}>{nextRank.name}</p>
+                          </div>
+                          <span className="font-black text-3xl leading-none" style={{ color: nextRank.color }}>{nextRank.label}</span>
                         </div>
-                        <span className="font-black text-lg" style={{ color: RANK_DATA[xpData.rank].color }}>{RANK_DATA[xpData.rank].label}</span>
+                        <button onClick={handleUpdateRank} disabled={busy}
+                          className="w-full py-3.5 rounded-xl text-sm font-bold transition-all disabled:opacity-40"
+                          style={{ background: nextRank.color, color: "#000", boxShadow: `0 4px 24px ${nextRank.color}40` }}>
+                          {approvePending || approveConfirming ? "Approving USDC…" :
+                           rankPending || rankConfirming ? "Upgrading license…" :
+                           updatingRank ? "Computing…" :
+                           cost > 0 ? `Upgrade to ${nextRank.label}-Rank — $${cost} USDC` : `Upgrade to ${nextRank.label}-Rank — Free`}
+                        </button>
                       </div>
-                      <button onClick={handleUpdateRank}
-                        disabled={updatingRank || rankPending || rankConfirming || approvePending || approveConfirming}
-                        className="w-full py-3.5 rounded-xl bg-white text-black text-sm font-bold hover:bg-zinc-100 transition-colors disabled:opacity-40">
-                        {approvePending || approveConfirming ? "Approving USDC…" :
-                         rankPending || rankConfirming ? "Syncing…" :
-                         updatingRank ? "Computing…" :
-                         `Sync rank — $${RANK_COSTS_USDC[xpData.rank]} USDC`}
-                      </button>
-                    </div>
-                  )}
+                    );
+                  })()}
+
+                  {/* Refresh XP */}
                   {(!xpData || xpData.rank <= currentRank) && (
-                    <button onClick={() => address && loadXp(address)} disabled={updatingRank}
-                      className="w-full py-3 rounded-xl border border-white/[0.07] text-zinc-500 text-sm hover:text-zinc-300 transition-colors disabled:opacity-40">
-                      Refresh XP
+                    <button
+                      onClick={async () => {
+                        if (!address || refreshing) return;
+                        setRefreshing(true);
+                        await loadXp(address);
+                        setRefreshing(false);
+                        setRefreshedAt(Date.now());
+                        setTimeout(() => setRefreshedAt(null), 3000);
+                      }}
+                      disabled={refreshing}
+                      className="w-full py-3 rounded-xl border border-white/[0.07] text-sm transition-colors disabled:opacity-40 flex items-center justify-center gap-2
+                        hover:border-white/[0.14] hover:text-white"
+                      style={{ color: refreshedAt ? "#22c55e" : "#71717a" }}>
+                      {refreshing ? (
+                        <>
+                          <svg className="animate-spin w-3.5 h-3.5" viewBox="0 0 24 24" fill="none">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3"/>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
+                          </svg>
+                          Refreshing…
+                        </>
+                      ) : refreshedAt ? (
+                        <><span>✓</span> XP updated</>
+                      ) : (
+                        "Refresh XP"
+                      )}
                     </button>
                   )}
                 </div>
