@@ -76,6 +76,125 @@ const HOW_STEPS = [
   },
 ];
 
+// Hunter rank data used for the rotating card showcase
+const HUNTER_RANKS = [
+  { label:"E", color:"#94a3b8", name:"E-Rank Hunter",   cls:"E-CLASS",  d1:"#1a1c26", d2:"#030508" },
+  { label:"D", color:"#a3e635", name:"D-Rank Hunter",   cls:"D-CLASS",  d1:"#141d09", d2:"#030508" },
+  { label:"C", color:"#34d399", name:"C-Rank Hunter",   cls:"C-CLASS",  d1:"#071a13", d2:"#030508" },
+  { label:"B", color:"#60a5fa", name:"B-Rank Hunter",   cls:"B-CLASS",  d1:"#071528", d2:"#030508" },
+  { label:"A", color:"#c084fc", name:"A-Rank Hunter",   cls:"A-CLASS",  d1:"#160826", d2:"#030508" },
+  { label:"S", color:"#f97316", name:"S-Rank Hunter",   cls:"S-CLASS",  d1:"#1e0d04", d2:"#030508" },
+  { label:"N", color:"#fcd34d", name:"National Hunter", cls:"NATIONAL", d1:"#1a1404", d2:"#030508" },
+];
+
+function HunterLicenseCard({ rankIdx }: { rankIdx: number }) {
+  const r = HUNTER_RANKS[rankIdx];
+  const c = r.color;
+  const uid = `lp${rankIdx}`;
+  const lic = "HA-2026-????";
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 330" className="w-full rounded-xl">
+      <defs>
+        <linearGradient id={`bg${uid}`} x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor={r.d1}/><stop offset="100%" stopColor={r.d2}/></linearGradient>
+        <linearGradient id={`hd${uid}`} x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#090c15"/><stop offset="100%" stopColor="#05070d"/></linearGradient>
+        <radialGradient id={`rb${uid}`} cx="50%" cy="30%" r="75%"><stop offset="0%" stopColor={c} stopOpacity="0.32"/><stop offset="100%" stopColor={c} stopOpacity="0.05"/></radialGradient>
+        <linearGradient id={`bt${uid}`} x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#04060d"/><stop offset="100%" stopColor="#020409"/></linearGradient>
+        <filter id={`gf${uid}`}><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        <clipPath id={`cl${uid}`}><rect width="520" height="330" rx="13"/></clipPath>
+      </defs>
+      <rect width="520" height="330" fill={`url(#bg${uid})`} rx="13"/>
+      <g clipPath={`url(#cl${uid})`}>{[-84,-42,0,42,84,126,168,210].map((x,i)=><line key={i} x1={x} y1="0" x2={x+330} y2="330" stroke={c} strokeWidth="0.4" strokeOpacity="0.05"/>)}</g>
+      <rect x="0" y="0" width="520" height="52" fill={`url(#hd${uid})`}/>
+      <rect x="0" y="0" width="520" height="2.5" fill={c} fillOpacity="0.9"/>
+      <rect x="0" y="51" width="520" height="1" fill={c} fillOpacity="0.15"/>
+      <text x="28" y="21" fontFamily="system-ui" fontSize="13" fontWeight="700" fill="#fff" opacity="0.95">Official Hunter&apos;s License</text>
+      <text x="28" y="39" fontFamily="system-ui" fontSize="9.5" fill={c} opacity="0.75" letterSpacing="1.5">HUNTER LICENSE  &gt;&gt;&gt;</text>
+      <polygon points="18,68 432,68 420,106 18,106" fill={c} fillOpacity="0.9"/>
+      <polygon points="18,68 432,68 420,106 18,106" fill="#000" fillOpacity="0.15"/>
+      <text x="28" y="93" fontFamily="system-ui" fontSize="22" fontWeight="900" fill="#fff">BASED HUNTERS</text>
+      <text x="28" y="125" fontFamily="system-ui" fontSize="9.5" letterSpacing="5" fill={c} opacity="0.65">BASED  ID</text>
+      <line x1="18" y1="138" x2="390" y2="138" stroke={c} strokeWidth="0.4" strokeOpacity="0.2"/>
+      <path d="M20 66 L20 55 L32 55" fill="none" stroke={c} strokeWidth="1.2" strokeLinecap="round" strokeOpacity="0.6"/>
+      <text x="28" y="190" fontFamily="monospace" fontSize="9" letterSpacing="2" fill={c} opacity="0.12">{lic}</text>
+      <rect x="400" y="52" width="120" height="158" fill={`url(#rb${uid})`}/>
+      <rect x="400" y="52" width="1.5" height="158" fill={c} fillOpacity="0.45"/>
+      <text x="413" y="142" fontFamily="system-ui" fontSize="22" fontWeight="900" fill={c} opacity="0.5">&#9668;&#9668;</text>
+      <text x="460" y="138" textAnchor="middle" dominantBaseline="middle" fontFamily="system-ui" fontSize="68" fontWeight="900" fill={c} filter={`url(#gf${uid})`}>{r.label}</text>
+      <rect x="418" y="163" width="84" height="22" rx="3" fill={c} fillOpacity="0.2" stroke={c} strokeWidth="0.8" strokeOpacity="0.6"/>
+      <text x="460" y="178" textAnchor="middle" fontFamily="system-ui" fontSize="10" fontWeight="800" letterSpacing="3" fill="#fff">RANK</text>
+      <text x="460" y="200" textAnchor="middle" fontFamily="system-ui" fontSize="10" fill={c} opacity="0.85" fontWeight="700">{r.cls}</text>
+      <rect x="0" y="210" width="520" height="120" fill={`url(#bt${uid})`}/>
+      <rect x="0" y="210" width="520" height="1" fill={c} fillOpacity="0.18"/>
+      <text x="300" y="285" textAnchor="middle" fontFamily="system-ui" fontSize="68" fontWeight="900" fill={c} opacity="0.04" transform="rotate(-8,300,285)">HUNTERS</text>
+      <text x="76" y="228" fontFamily="system-ui" fontSize="8" fill="#475569">Class</text>
+      <text x="115" y="228" fontFamily="system-ui" fontSize="8.5" fill={c} fontWeight="700">{r.name}</text>
+      <text x="76" y="245" fontFamily="system-ui" fontSize="8" fill="#475569">License</text>
+      <text x="115" y="245" fontFamily="monospace" fontSize="8.5" fill="#cbd5e1">{lic}</text>
+      <line x1="70" y1="252" x2="390" y2="252" stroke="#fff" strokeWidth="0.3" strokeOpacity="0.1"/>
+      <text x="76" y="265" fontFamily="system-ui" fontSize="8" fill="#475569">Affiliation</text>
+      <text x="120" y="265" fontFamily="system-ui" fontSize="8.5" fill="#94a3b8">N/A</text>
+      <text x="76" y="280" fontFamily="system-ui" fontSize="8" fill="#475569">Issued by</text>
+      <text x="120" y="280" fontFamily="system-ui" fontSize="8.5" fill="#94a3b8">Based ID Hunters Association</text>
+      <rect x="18" y="218" width="42" height="32" rx="4" fill="#c9a227" fillOpacity="0.85"/>
+      <rect x="18" y="218" width="42" height="32" rx="4" fill="none" stroke="#a07a10" strokeWidth="0.5"/>
+      <line x1="18" y1="228" x2="60" y2="228" stroke="#a07a10" strokeWidth="0.5"/>
+      <line x1="18" y1="238" x2="60" y2="238" stroke="#a07a10" strokeWidth="0.5"/>
+      <line x1="32" y1="218" x2="32" y2="250" stroke="#a07a10" strokeWidth="0.5"/>
+      <line x1="46" y1="218" x2="46" y2="250" stroke="#a07a10" strokeWidth="0.5"/>
+      {[20,34,48].map(x=><rect key={x} x={x} y="220" width="10" height="10" rx="1" fill="#b8860b" fillOpacity="0.6"/>)}
+      {[20,34,48].map(x=><rect key={x+100} x={x} y="240" width="10" height="8" rx="1" fill="#b8860b" fillOpacity="0.5"/>)}
+      {[[145,3],[150,2],[154,3],[161,1],[165,1],[170,1],[174,3],[179,1],[184,3],[189,2],[193,2],[198,3],[203,2],[208,1]].map(([x,w])=><rect key={x} x={x} y="248" width={w} height="44" fill={c} opacity="0.65"/>)}
+      <text x="303" y="300" textAnchor="middle" fontFamily="monospace" fontSize="7.5" letterSpacing="2" fill={c} opacity="0.4">{lic}</text>
+      <rect x="0" y="316" width="520" height="14" fill="#000" fillOpacity="0.45"/>
+      <rect x="0" y="327.5" width="520" height="2.5" fill={c} fillOpacity="0.4"/>
+      <text x="260" y="324" textAnchor="middle" fontFamily="system-ui" fontSize="6.5" letterSpacing="2" fill={c} opacity="0.25">BASEDID.SPACE  ·  OFFICIAL HUNTER LICENSE</text>
+      <rect x="0.5" y="0.5" width="519" height="329" rx="12.5" fill="none" stroke={c} strokeWidth="0.8" strokeOpacity="0.4"/>
+    </svg>
+  );
+}
+
+function RotatingHunterCard() {
+  const [idx, setIdx] = useState(3); // start at B-rank
+  useEffect(() => {
+    const t = setInterval(() => setIdx(i => (i + 1) % HUNTER_RANKS.length), 3000);
+    return () => clearInterval(t);
+  }, []);
+  const active = HUNTER_RANKS[idx];
+  return (
+    <div className="space-y-5">
+      {/* Card with drop shadow matching rank color */}
+      <div className="relative">
+        <div className="absolute inset-0 rounded-xl blur-2xl opacity-20 scale-95 transition-all duration-700"
+          style={{ background: active.color }} />
+        <AnimatePresence mode="wait">
+          <motion.div key={idx}
+            initial={{ opacity: 0, y: 8, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -8, scale: 1.01 }}
+            transition={{ duration: 0.35, ease: [0.16,1,0.3,1] }}
+            className="relative">
+            <HunterLicenseCard rankIdx={idx} />
+          </motion.div>
+        </AnimatePresence>
+      </div>
+      {/* Rank selector */}
+      <div className="flex justify-center gap-2 flex-wrap">
+        {HUNTER_RANKS.map((r, i) => (
+          <button key={r.label} onClick={() => setIdx(i)}
+            className="px-2.5 py-1 rounded-full border text-[11px] font-bold transition-all duration-200"
+            style={{
+              color:        i === idx ? r.color : "#52525b",
+              borderColor:  i === idx ? r.color + "50" : "rgba(255,255,255,0.07)",
+              background:   i === idx ? r.color + "12" : "transparent",
+            }}>
+            {r.label}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 const ACCESS_FEATURES = [
   { label: "Browse drops & projects",    locked: false },
   { label: "Enter drops & win raffles",  locked: true  },
@@ -491,23 +610,7 @@ export default function Home() {
             </Reveal>
 
             <Reveal delay={0.1}>
-              <div className="grid grid-cols-4 gap-2">
-                {[
-                  {l:"E",c:"#94a3b8",n:"E-Class"},
-                  {l:"D",c:"#a3e635",n:"D-Class"},
-                  {l:"C",c:"#34d399",n:"C-Class"},
-                  {l:"B",c:"#60a5fa",n:"B-Class"},
-                  {l:"A",c:"#c084fc",n:"A-Class"},
-                  {l:"S",c:"#f97316",n:"S-Class"},
-                  {l:"N",c:"#fcd34d",n:"National",wide:true},
-                ].map(r=>(
-                  <div key={r.l} className={`rounded-xl border p-4 flex flex-col items-center gap-2 transition-all hover:scale-[1.03] ${(r as {wide?:boolean}).wide?"col-span-2":""}`}
-                    style={{borderColor:r.c+"28",background:r.c+"06"}}>
-                    <span className="font-black text-3xl leading-none" style={{color:r.c}}>{r.l}</span>
-                    <span className="text-zinc-600 text-[10px]">{r.n}</span>
-                  </div>
-                ))}
-              </div>
+              <RotatingHunterCard />
             </Reveal>
           </div>
         </div>
