@@ -43,10 +43,10 @@ export async function POST(
     return Response.json({ error: "Unauthorized" }, { status: 403 });
   }
 
-  // Free tier — skip payment verification, activate immediately
+  // Free tier — no payment needed, goes to pending_review
   if (drop.fee_amount_usdc === 0) {
-    await db.from("drops").update({ status: "active" }).eq("id", id);
-    return Response.json({ success: true, message: "Drop is now active (free tier)" });
+    await db.from("drops").update({ status: "pending_review" }).eq("id", id);
+    return Response.json({ success: true, message: "Drop submitted for review" });
   }
 
   // Paid tier — tx_hash required
@@ -86,13 +86,13 @@ export async function POST(
     return Response.json({ error: "Could not verify transaction onchain" }, { status: 502 });
   }
 
-  // Activate the drop
+  // Payment confirmed — move to pending_review (owner still approves)
   const { error: updateErr } = await db
     .from("drops")
-    .update({ status: "active", fee_paid_tx: tx_hash })
+    .update({ status: "pending_review", fee_paid_tx: tx_hash })
     .eq("id", id);
 
   if (updateErr) return Response.json({ error: updateErr.message }, { status: 500 });
 
-  return Response.json({ success: true, message: "Drop is now active" });
+  return Response.json({ success: true, message: "Payment confirmed. Drop submitted for review." });
 }

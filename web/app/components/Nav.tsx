@@ -41,14 +41,6 @@ export function Nav({ active }: { active?: string }) {
             <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
             <span className="text-zinc-600 text-[11px]">Live</span>
           </div>
-          <Link href="/partner"
-            className={`hidden md:inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg border text-xs font-semibold transition-all ${
-              active === "/partner"
-                ? "border-blue-500/50 bg-blue-500/10 text-blue-300"
-                : "border-white/[0.1] text-zinc-300 hover:border-white/[0.2] hover:text-white"
-            }`}>
-            Partner
-          </Link>
         </div>
       </div>
     </header>

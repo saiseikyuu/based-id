@@ -26,7 +26,6 @@ const NAV_LINKS = [
   ["Hunters",   "/hunters"  ],
   ["Projects",  "/projects" ],
   ["Calendar",  "/calendar" ],
-  ["Partner",   "/partner"  ],
 ];
 
 function NavBar({ menuOpen, setMenuOpen }: { menuOpen: boolean; setMenuOpen: (v: boolean | ((o: boolean) => boolean)) => void }) {
@@ -48,7 +47,6 @@ function NavBar({ menuOpen, setMenuOpen }: { menuOpen: boolean; setMenuOpen: (v:
             <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
             <span className="text-zinc-600 text-[11px]">Live</span>
           </div>
-          <Link href="/partner" className="hidden md:inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg border border-white/[0.1] text-zinc-300 text-xs font-semibold hover:border-white/[0.2] hover:text-white transition-all">Partner</Link>
           <div className="hidden md:block"><ConnectButton showBalance={false} chainStatus="icon" /></div>
           <button className="md:hidden p-1.5 text-zinc-500 hover:text-white" onClick={() => setMenuOpen(o => !o)}>
             <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">

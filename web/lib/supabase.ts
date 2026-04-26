@@ -16,7 +16,7 @@ export function createServerClient() {
 
 export type DropType     = "whitelist" | "raffle" | "token_drop" | "nft_mint";
 export type DropTier     = "standard"  | "featured";
-export type DropStatus   = "pending_payment" | "active" | "ended" | "drawn" | "cancelled";
+export type DropStatus   = "pending_payment" | "pending_review" | "active" | "ended" | "drawn" | "cancelled";
 export type EntryStatus  = "entered" | "disqualified" | "won" | "lost";
 export type TaskType     = "follow_x" | "join_discord" | "hold_nft" | "hold_based_id" | "min_hunter_rank";
 export type VerifyMethod = "self_attest" | "onchain";

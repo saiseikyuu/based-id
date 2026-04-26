@@ -18,8 +18,12 @@ export async function GET(req: Request) {
     .order("tier",       { ascending: false }) // featured first
     .order("created_at", { ascending: false });
 
+  const statusFilter = searchParams.get("status");
+
   if (partner) {
     query = query.eq("partner_address", partner.toLowerCase());
+  } else if (statusFilter === "pending_review") {
+    query = query.eq("status", "pending_review");
   } else if (statusAll) {
     // Calendar view: active + ended + drawn
     query = query.in("status", ["active", "ended", "drawn"]);
@@ -91,7 +95,7 @@ export async function POST(req: Request) {
         winner_count:    body.winner_count ?? 1,
         starts_at:       body.starts_at,
         ends_at:         body.ends_at,
-        status:          "pending_payment",
+        status:          body.tier === "featured" ? "pending_payment" : "pending_review",
       })
       .select()
       .single();
