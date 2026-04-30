@@ -1,15 +1,19 @@
 import type { Metadata } from "next";
-import { Space_Grotesk, Geist_Mono } from "next/font/google";
+import { Barlow_Condensed, Outfit, Geist } from "next/font/google";
+import { Geist_Mono } from "next/font/google";
 import { Providers } from "./providers";
 import EnvWarning from "./components/EnvWarning";
 import { Analytics } from "@vercel/analytics/react";
 import "./globals.css";
+import { cn } from "@/lib/utils";
 
-const spaceGrotesk = Space_Grotesk({
+const barlowCondensed = Barlow_Condensed({
   variable: "--font-display",
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+  weight: ["400", "500", "600", "700", "800", "900"],
 });
+
+const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
@@ -18,23 +22,23 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://basedid.space"),
-  title: "Based ID — The base of Airdrops, NFT Drops & Whitelists on Base",
+  title: "Based ID — The Hunters of Base",
   description:
-    "Every Base opportunity — airdrops, NFT drops, whitelists, raffles. One ID gets you in. $2 USDC. Permanent. Bot-free.",
+    "The home for quests, drops, and rewards on Base. Browse free. Participate with a Based ID.",
   keywords: ["Base", "airdrops", "NFT drops", "whitelists", "raffles", "Base NFT", "Alphabot Base", "onchain identity"],
   openGraph: {
-    title: "Based ID — The base of Airdrops.",
+    title: "Based ID — The Hunters of Base",
     description:
-      "Every Base opportunity — airdrops, NFT drops, whitelists, raffles. One ID. $2.",
+      "The home for quests, drops, and rewards on Base. One ID. Every opportunity.",
     type: "website",
     siteName: "Based ID",
     images: [{ url: "/api/frame/image", width: 1200, height: 630 }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Based ID — The base of Airdrops.",
+    title: "Based ID — The Hunters of Base",
     description:
-      "Every Base opportunity — airdrops, NFT drops, whitelists, raffles. One ID. $2.",
+      "The home for quests, drops, and rewards on Base. One ID. Every opportunity.",
     images: ["/api/frame/image"],
   },
   other: {
@@ -59,9 +63,9 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${spaceGrotesk.variable} ${geistMono.variable} h-full antialiased`}
+      className={cn("h-full", "antialiased", barlowCondensed.variable, geistMono.variable, "font-sans", geist.variable)}
     >
-      <body className="min-h-full flex flex-col bg-background text-foreground font-mono">
+      <body className="min-h-full flex flex-col bg-background text-foreground" style={{ fontFamily: "var(--font-sans), system-ui, sans-serif" }}>
         <Providers>{children}</Providers>
         <EnvWarning />
         <Analytics />

@@ -1,19 +1,29 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useAccount, useReadContract, usePublicClient } from "wagmi";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import Link from "next/link";
 import { parseAbiItem } from "viem";
 import { BASED_ID_ADDRESS, BASED_ID_ABI, DEPLOY_BLOCK } from "@/lib/contracts";
 import { HuntersClaim } from "./HuntersClaim";
-import { QuestsClient } from "@/app/quests/QuestsClient";
 import { NftCard } from "@/app/NftCard";
 import { AuctionsSection } from "./AuctionsSection";
 
 type Tab = "hunter" | "quests" | "ids" | "auctions";
 
 const D: React.CSSProperties = { fontFamily: "var(--font-display), system-ui, sans-serif" };
+const BODY: React.CSSProperties = { fontFamily: "var(--font-sans), system-ui, sans-serif" };
+
+const RANK_BADGES = [
+  { label: "E", color: "#94a3b8", name: "E-Rank"    },
+  { label: "D", color: "#a3e635", name: "D-Rank"    },
+  { label: "C", color: "#34d399", name: "C-Rank"    },
+  { label: "B", color: "#60a5fa", name: "B-Rank"    },
+  { label: "A", color: "#c084fc", name: "A-Rank"    },
+  { label: "S", color: "#f97316", name: "S-Rank"    },
+  { label: "N", color: "#fcd34d", name: "National"  },
+];
 
 async function findAllTokens(client: ReturnType<typeof usePublicClient>, address: string): Promise<bigint[]> {
   if (!client) return [];
@@ -57,7 +67,7 @@ function MyIdsTab({ address }: { address: string }) {
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {[1, 2, 3].map(i => (
-          <div key={i} className="aspect-[480/270] rounded-2xl bg-white/[0.03] animate-pulse border border-white/[0.05]" />
+          <div key={i} className="aspect-[480/270] rounded-2xl bg-gray-100 animate-pulse border border-black/[0.06]" />
         ))}
       </div>
     );
@@ -65,10 +75,11 @@ function MyIdsTab({ address }: { address: string }) {
 
   if (ids.length === 0) {
     return (
-      <div className="rounded-2xl border border-white/[0.06] bg-white/[0.01] px-8 py-16 text-center space-y-4">
-        <p className="text-zinc-400 font-bold text-lg">No Based IDs found</p>
-        <p className="text-zinc-600 text-sm">Mint one for $2 to unlock drops, Hunter NFT, and more.</p>
-        <Link href="/" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white text-black text-sm font-bold hover:bg-zinc-100 transition-colors">
+      <div className="rounded-2xl px-8 py-16 text-center space-y-4 bg-gray-50 border border-black/[0.07]">
+        <p className="text-black font-black text-xl uppercase" style={D}>No Based IDs found</p>
+        <p className="text-gray-500 text-sm max-w-xs mx-auto" style={BODY}>Mint one for $2 to unlock drops, your Hunter NFT, and more.</p>
+        <Link href="/" className="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-bold transition-colors"
+          style={{ background: "#0052FF", color: "#fff" }}>
           Mint Based ID — $2 →
         </Link>
       </div>
@@ -78,9 +89,11 @@ function MyIdsTab({ address }: { address: string }) {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-3">
-        <p className="text-zinc-500 text-sm"><span className="text-white font-semibold">{ids.length}</span> Based ID{ids.length !== 1 ? "s" : ""}</p>
-        <div className="h-px flex-1 bg-white/[0.05]" />
-        <span className="text-zinc-600 text-xs font-mono">
+        <p className="text-gray-500 text-sm" style={BODY}>
+          <span className="text-black font-semibold">{ids.length}</span> Based ID{ids.length !== 1 ? "s" : ""}
+        </p>
+        <div className="h-px flex-1 bg-black/[0.06]" />
+        <span className="text-gray-400 text-xs font-mono">
           Weight: {ids.reduce((s, id) => s + 1 / Math.sqrt(Number(id)), 0).toFixed(3)}×
         </span>
       </div>
@@ -89,36 +102,15 @@ function MyIdsTab({ address }: { address: string }) {
           <div key={id.toString()} className="space-y-2">
             <NftCard id={`#${id.toString()}`} holder={address} />
             <div className="flex items-center justify-between px-1">
-              <span className="text-zinc-400 font-bold text-sm">#{id.toString()}</span>
-              <div className="flex items-center gap-3 text-[11px]">
-                <Link href={`/profile/${id.toString()}`} className="text-blue-400 hover:text-blue-300 transition-colors">Profile →</Link>
-              </div>
+              <span className="text-black font-bold text-sm">#{id.toString()}</span>
+              <Link href={`/nft/${id.toString()}`} style={{ color: "#0052FF" }}
+                className="text-xs font-semibold hover:opacity-80 transition-opacity">
+                View details →
+              </Link>
             </div>
           </div>
         ))}
       </div>
-    </div>
-  );
-}
-
-function AuctionsTab() {
-  return (
-    <div className="rounded-2xl border border-white/[0.06] bg-white/[0.01] px-8 py-16 text-center space-y-4">
-      <div className="w-12 h-12 rounded-2xl border border-amber-500/20 bg-amber-500/[0.04] flex items-center justify-center mx-auto">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-          <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-        </svg>
-      </div>
-      <div className="space-y-2">
-        <p className="text-amber-400 font-bold text-lg">Genesis Vault — IDs #1–#100</p>
-        <p className="text-zinc-500 text-sm max-w-sm mx-auto">
-          The 100 lowest IDs will be auctioned starting around the 1,000 mint mark.
-          Auctions go live here when they open.
-        </p>
-      </div>
-      <Link href="/dashboard" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl border border-white/[0.08] text-zinc-300 text-sm font-medium hover:border-white/[0.16] transition-colors">
-        View auction dashboard →
-      </Link>
     </div>
   );
 }
@@ -142,23 +134,72 @@ export function HuntersHub() {
   ];
 
   return (
-    <div className="flex-1">
-      {/* Tab bar */}
-      <div className="border-b border-white/[0.05] sticky top-14 z-40 bg-black/90 backdrop-blur-xl">
+    <div className="flex-1 bg-white">
+
+      {/* ── HERO — pure black section like "Live Auctions" reference ── */}
+      <div className="bg-black text-white">
+        <div className="max-w-6xl mx-auto px-6 py-16 sm:py-20">
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-10 items-end">
+            <div className="space-y-6">
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                <span className="text-green-400 text-xs font-semibold uppercase tracking-[0.2em]" style={D}>Live on Base</span>
+              </div>
+              <h1 className="font-black text-6xl sm:text-7xl uppercase tracking-tight leading-none" style={D}>
+                Based<br />Hunters
+              </h1>
+              <p className="text-gray-400 text-lg leading-relaxed max-w-md" style={BODY}>
+                Claim your Hunter License. Earn XP. Rise through the ranks from E to National.
+              </p>
+            </div>
+
+            {/* Rank tier row — right side */}
+            <div className="space-y-3 lg:text-right">
+              <p className="text-gray-600 text-[10px] uppercase tracking-[0.25em]" style={D}>Rank tiers</p>
+              <div className="flex items-center gap-2 flex-wrap lg:justify-end">
+                {RANK_BADGES.map((r, i) => (
+                  <div key={r.label} className="flex items-center gap-2">
+                    <div className="flex flex-col items-center gap-1">
+                      <div className="w-10 h-10 rounded-xl flex items-center justify-center"
+                        style={{ border: `1px solid ${r.color}40`, background: `${r.color}10` }}>
+                        <span className="font-black text-base" style={{ color: r.color, ...D }}>{r.label}</span>
+                      </div>
+                      <span className="text-[9px] text-gray-600 hidden sm:block" style={D}>{r.name}</span>
+                    </div>
+                    {i < RANK_BADGES.length - 1 && (
+                      <span className="text-gray-700 text-xs mb-4">›</span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ── TAB BAR — white bg, black text, blue active underline ── */}
+      <div className="sticky top-16 z-40 bg-white border-b border-black/[0.07]">
         <div className="max-w-6xl mx-auto px-6">
           <div className="flex items-center gap-0 overflow-x-auto no-scrollbar">
             {tabs.map(({ key, label, badge }) => (
               <button key={key} onClick={() => setActiveTab(key)}
-                className={`flex items-center gap-2 px-4 py-3.5 text-sm font-medium border-b-2 transition-colors -mb-px whitespace-nowrap ${
-                  activeTab === key
-                    ? "border-white text-white"
-                    : "border-transparent text-zinc-500 hover:text-zinc-300"
-                }`}>
+                className="flex items-center gap-2 px-5 py-4 -mb-px whitespace-nowrap transition-colors"
+                style={{
+                  borderBottom: activeTab === key ? "2px solid #0052FF" : "2px solid transparent",
+                  color: activeTab === key ? "#000000" : "#9ca3af",
+                  fontFamily: "var(--font-sans), system-ui, sans-serif",
+                  fontWeight: activeTab === key ? 700 : 500,
+                  fontSize: "0.875rem",
+                }}>
                 {label}
                 {badge && (
-                  <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded tabular-nums ${
-                    activeTab === key ? "text-zinc-400 bg-white/[0.08]" : "text-zinc-600 bg-white/[0.04]"
-                  }`}>{badge}</span>
+                  <span className="text-[10px] font-mono px-1.5 py-0.5 rounded tabular-nums"
+                    style={{
+                      color: activeTab === key ? "#0052FF" : "#9ca3af",
+                      background: activeTab === key ? "rgba(0,82,255,0.08)" : "rgba(0,0,0,0.04)",
+                    }}>
+                    {badge}
+                  </span>
                 )}
               </button>
             ))}
@@ -166,34 +207,69 @@ export function HuntersHub() {
         </div>
       </div>
 
-      {/* Tab content */}
+      {/* ── TAB CONTENT ── */}
       <div className="max-w-6xl mx-auto px-6 py-10 pb-24 md:pb-10">
-        {activeTab === "hunter" && <HuntersClaim />}
+
+        {/* HUNTER TAB */}
+        {activeTab === "hunter" && (
+          !isConnected ? (
+            <div className="flex flex-col items-center justify-center py-24 space-y-6 text-center">
+              <div className="w-20 h-20 rounded-2xl bg-black flex items-center justify-center mx-auto">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                </svg>
+              </div>
+              <div className="space-y-2">
+                <h2 className="font-black text-4xl sm:text-5xl uppercase tracking-tight text-black" style={D}>
+                  Connect to Hunt
+                </h2>
+                <p className="text-gray-500 text-base max-w-sm" style={BODY}>
+                  Connect your wallet to claim your Hunter License and start earning XP on Base.
+                </p>
+              </div>
+              <ConnectButton />
+            </div>
+          ) : (
+            <HuntersClaim />
+          )
+        )}
+
+        {/* QUESTS TAB */}
         {activeTab === "quests" && (
           <div className="space-y-8">
             <div>
-              <h2 className="text-2xl font-black text-white" style={D}>Quests</h2>
-              <p className="text-zinc-500 text-sm mt-1">Complete quests to earn bonus XP toward your Hunter rank.</p>
+              <h2 className="font-black text-3xl uppercase text-black" style={D}>Quests</h2>
+              <p className="text-gray-500 text-sm mt-1" style={BODY}>
+                Quests are now part of Campaigns. Complete quest campaigns to earn XP.
+              </p>
             </div>
-            {!isConnected ? (
-              <div className="rounded-2xl border border-white/[0.06] bg-white/[0.01] px-8 py-16 text-center space-y-5">
-                <p className="text-white font-bold text-lg">Connect wallet to see your quests</p>
-                <ConnectButton />
+            <div className="rounded-2xl px-8 py-16 text-center space-y-6 bg-black">
+              <div>
+                <p className="font-black text-3xl uppercase text-white mb-3" style={D}>
+                  Quests Moved to Campaigns
+                </p>
+                <p className="text-gray-400 text-sm max-w-sm mx-auto" style={BODY}>
+                  All quests are now campaign drops. Filter by &ldquo;Quest&rdquo; to find them.
+                </p>
               </div>
-            ) : (
-              <QuestsClient />
-            )}
+              <Link href="/campaigns"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-sm font-bold transition-colors bg-white text-black hover:bg-gray-100">
+                Browse Quest Campaigns →
+              </Link>
+            </div>
           </div>
         )}
+
+        {/* MY IDs TAB */}
         {activeTab === "ids" && (
           <div className="space-y-8">
             <div>
-              <h2 className="text-2xl font-black text-white" style={D}>My IDs</h2>
-              <p className="text-zinc-500 text-sm mt-1">Your Based ID NFTs and their weight.</p>
+              <h2 className="font-black text-3xl uppercase text-black" style={D}>My IDs</h2>
+              <p className="text-gray-500 text-sm mt-1" style={BODY}>Your Based ID NFTs and their $BASED airdrop weight.</p>
             </div>
             {!isConnected ? (
-              <div className="rounded-2xl border border-white/[0.06] bg-white/[0.01] px-8 py-16 text-center space-y-5">
-                <p className="text-white font-bold text-lg">Connect wallet to view your IDs</p>
+              <div className="rounded-2xl px-8 py-16 text-center space-y-5 bg-gray-50 border border-black/[0.07]">
+                <p className="font-black text-xl uppercase text-black" style={D}>Connect wallet to view your IDs</p>
                 <ConnectButton />
               </div>
             ) : (
@@ -201,17 +277,18 @@ export function HuntersHub() {
             )}
           </div>
         )}
+
+        {/* AUCTIONS TAB */}
         {activeTab === "auctions" && (
           <div className="space-y-8">
-            <div className="flex items-center gap-3">
-              <div>
-                <h2 className="text-2xl font-black text-white" style={D}>Auctions</h2>
-                <p className="text-zinc-500 text-sm mt-1">Genesis IDs #1–#100 sold via English auction. Bid in USDC.</p>
-              </div>
+            <div>
+              <h2 className="font-black text-3xl uppercase text-black" style={D}>Auctions</h2>
+              <p className="text-gray-500 text-sm mt-1" style={BODY}>Genesis IDs #1–#100 sold via English auction. Bid in USDC.</p>
             </div>
             <AuctionsSection />
           </div>
         )}
+
       </div>
     </div>
   );

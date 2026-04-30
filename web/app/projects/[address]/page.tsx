@@ -1,10 +1,11 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import type { Metadata } from "next";
-import { createServerClient, type Drop } from "@/lib/supabase";
+import { createServerClient, type Campaign } from "@/lib/supabase";
 import { MobileNav } from "@/app/components/MobileNav";
 import { Nav } from "@/app/components/Nav";
-import { DropCard } from "@/app/drops/DropCard";
+import { CampaignCard } from "@/app/campaigns/CampaignCard";
+import { OwnerControls } from "./OwnerControls";
 
 export const revalidate = 60;
 
@@ -18,16 +19,25 @@ async function getProject(address: string) {
   } catch { return null; }
 }
 
-async function getProjectDrops(address: string): Promise<Drop[]> {
+async function getProjectCampaigns(address: string): Promise<Campaign[]> {
   try {
     const db = createServerClient();
-    const { data } = await db
-      .from("drops")
+    const { data: campaigns } = await db
+      .from("campaigns")
       .select("*, tasks(*)")
       .eq("partner_address", address.toLowerCase())
-      .in("status", ["active", "ended", "drawn"])
+      .in("status", ["active", "ended", "drawn", "pending_review"])
       .order("created_at", { ascending: false });
-    return (data ?? []) as Drop[];
+    if (!campaigns?.length) return [];
+    const ids = campaigns.map(c => c.id);
+    const { data: counts } = await db
+      .from("entries")
+      .select("campaign_id")
+      .in("campaign_id", ids)
+      .eq("status", "entered");
+    const countMap: Record<string, number> = {};
+    for (const row of counts ?? []) countMap[row.campaign_id] = (countMap[row.campaign_id] ?? 0) + 1;
+    return campaigns.map(c => ({ ...c, entry_count: countMap[c.id] ?? 0 })) as Campaign[];
   } catch { return []; }
 }
 
@@ -45,12 +55,12 @@ export async function generateMetadata(
 
 export default async function ProjectPage({ params }: { params: Promise<{ address: string }> }) {
   const { address } = await params;
-  const [project, drops] = await Promise.all([getProject(address), getProjectDrops(address)]);
+  const [project, campaigns] = await Promise.all([getProject(address), getProjectCampaigns(address)]);
 
   if (!project) notFound();
 
-  const activeDrops = drops.filter((d) => d.status === "active");
-  const pastDrops   = drops.filter((d) => d.status !== "active");
+  const activeCampaigns = campaigns.filter((c) => c.status === "active");
+  const pastCampaigns   = campaigns.filter((c) => c.status !== "active");
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -115,9 +125,9 @@ export default async function ProjectPage({ params }: { params: Promise<{ addres
           <div className="space-y-2">
             <div className="flex items-center gap-3 flex-wrap">
               <h1 className="text-white font-black text-3xl sm:text-4xl tracking-tight" style={DISPLAY}>{project.name}</h1>
-              {activeDrops.length > 0 && (
+              {activeCampaigns.length > 0 && (
                 <span className="text-xs font-bold px-2 py-1 rounded-full bg-green-500/10 text-green-400 border border-green-500/20">
-                  {activeDrops.length} active
+                  {activeCampaigns.length} active
                 </span>
               )}
             </div>
@@ -127,34 +137,36 @@ export default async function ProjectPage({ params }: { params: Promise<{ addres
             <p className="text-zinc-700 text-xs font-mono">{project.address.slice(0, 6)}…{project.address.slice(-4)}</p>
           </div>
 
-          {/* Active drops */}
-          {activeDrops.length > 0 && (
+          <OwnerControls projectAddress={project.address} campaigns={campaigns} />
+
+          {/* Active campaigns */}
+          {activeCampaigns.length > 0 && (
             <section className="space-y-4">
               <p className="text-[11px] text-green-400 uppercase tracking-[0.2em] flex items-center gap-2">
                 <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
-                Active drops
+                Active campaigns
               </p>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {activeDrops.map((drop) => <DropCard key={drop.id} drop={drop} featured={drop.tier === "featured"} />)}
+                {activeCampaigns.map((c) => <CampaignCard key={c.id} campaign={c} featured={c.tier === "featured"} />)}
               </div>
             </section>
           )}
 
-          {/* Past drops */}
-          {pastDrops.length > 0 && (
+          {/* Past campaigns */}
+          {pastCampaigns.length > 0 && (
             <section className="space-y-4">
-              <p className="text-[11px] text-zinc-600 uppercase tracking-[0.2em]">Past drops</p>
+              <p className="text-[11px] text-zinc-600 uppercase tracking-[0.2em]">Past campaigns</p>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {pastDrops.map((drop) => <DropCard key={drop.id} drop={drop} />)}
+                {pastCampaigns.map((c) => <CampaignCard key={c.id} campaign={c} />)}
               </div>
             </section>
           )}
 
-          {/* No drops yet */}
-          {drops.length === 0 && (
+          {/* No campaigns yet */}
+          {campaigns.length === 0 && (
             <div className="rounded-2xl border border-white/[0.06] bg-white/[0.01] px-8 py-16 text-center space-y-3">
-              <p className="text-zinc-400 font-medium">No drops yet</p>
-              <p className="text-zinc-600 text-sm">This project hasn&apos;t launched any drops yet.</p>
+              <p className="text-zinc-400 font-medium">No campaigns yet</p>
+              <p className="text-zinc-600 text-sm">This project hasn&apos;t launched any campaigns yet.</p>
             </div>
           )}
 

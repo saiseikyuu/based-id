@@ -86,7 +86,7 @@ async function getLeaderboard(): Promise<HolderRow[]> {
   }
 }
 
-// Clean SVG weight-curve chart — minimal, Hyperliquid-style
+// Bold weight-curve chart — blue line, dark card
 function WeightChart({ rows }: { rows: HolderRow[] }) {
   const W = 800, H = 100;
   const PAD = { t: 8, r: 16, b: 24, l: 52 };
@@ -114,8 +114,8 @@ function WeightChart({ rows }: { rows: HolderRow[] }) {
     <svg viewBox={`0 0 ${W} ${H}`} width="100%" style={{ display: "block" }}>
       <defs>
         <linearGradient id="areaFill" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.15" />
-          <stop offset="100%" stopColor="#3b82f6" stopOpacity="0" />
+          <stop offset="0%" stopColor="#0052FF" stopOpacity="0.15" />
+          <stop offset="100%" stopColor="#0052FF" stopOpacity="0" />
         </linearGradient>
       </defs>
 
@@ -127,7 +127,7 @@ function WeightChart({ rows }: { rows: HolderRow[] }) {
 
       {/* Area + line */}
       <path d={area} fill="url(#areaFill)" />
-      <path d={line} fill="none" stroke="#3b82f6" strokeWidth="1.5" strokeOpacity="0.8" strokeLinejoin="round" />
+      <path d={line} fill="none" stroke="#0052FF" strokeWidth="1.5" strokeOpacity="0.9" strokeLinejoin="round" />
 
       {/* Genesis boundary */}
       {(() => {
@@ -138,8 +138,9 @@ function WeightChart({ rows }: { rows: HolderRow[] }) {
         return (
           <>
             <line x1={x} y1={PAD.t} x2={x} y2={PAD.t + iH}
-              stroke="#f59e0b" strokeOpacity="0.25" strokeWidth="1" strokeDasharray="4,3" />
-            <text x={x + 4} y={PAD.t + 9} fontSize="8.5" fill="#f59e0b" fillOpacity="0.5" fontFamily="monospace">
+              stroke="#f59e0b" strokeOpacity="0.3" strokeWidth="1" strokeDasharray="4,3" />
+            <text x={x + 4} y={PAD.t + 9} fontSize="8.5" fill="#f59e0b" fillOpacity="0.6"
+              fontFamily="var(--font-display), system-ui, sans-serif" fontWeight="700" letterSpacing="0.05em">
               GENESIS
             </text>
           </>
@@ -148,14 +149,14 @@ function WeightChart({ rows }: { rows: HolderRow[] }) {
 
       {/* Top dot */}
       {pts[0] && (
-        <circle cx={pts[0].x} cy={pts[0].y} r="3"
-          fill="#f59e0b" stroke="#060818" strokeWidth="1.5" />
+        <circle cx={pts[0].x} cy={pts[0].y} r="3.5"
+          fill="#f59e0b" stroke="#0f0f17" strokeWidth="2" />
       )}
 
       {/* Y labels */}
       {yTicks.map((t) => (
         <text key={t.label} x={PAD.l - 6} y={t.y + 4}
-          textAnchor="end" fontSize="9" fill="#374151" fontFamily="monospace">
+          textAnchor="end" fontSize="9" fill="#475569" fontFamily="monospace">
           {t.label}
         </text>
       ))}
@@ -166,7 +167,7 @@ function WeightChart({ rows }: { rows: HolderRow[] }) {
         if (!p) return null;
         return (
           <text key={idx} x={p.x} y={H - 4}
-            textAnchor="middle" fontSize="9" fill="#374151" fontFamily="monospace">
+            textAnchor="middle" fontSize="9" fill="#475569" fontFamily="monospace">
             #{rows[idx].tokenId.toLocaleString()}
           </text>
         );
@@ -182,6 +183,8 @@ function xpToRank(xp: number): number {
   }
   return rank;
 }
+
+const D = { fontFamily: "var(--font-display), system-ui, sans-serif" };
 
 export default async function LeaderboardPage() {
   const rows = await getLeaderboard();
@@ -211,97 +214,106 @@ export default async function LeaderboardPage() {
   }));
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-white">
       <Nav active="/leaderboard" />
       <MobileNav />
 
-      <div className="max-w-4xl mx-auto px-6 py-12 space-y-8">
-
-        {/* Page title */}
-        <div className="flex items-start justify-between gap-4 flex-wrap">
-          <div>
-            <h1 className="text-white font-black text-4xl sm:text-5xl mb-2" style={{ fontFamily: "var(--font-display), system-ui, sans-serif" }}>
-              Leaderboard
-            </h1>
-            <p className="text-zinc-500 text-sm">Top 100 wallets ranked by total $BASED weight.</p>
+      {/* Hero — black section like "Live Auctions" reference */}
+      <div className="bg-black text-white">
+        <div className="max-w-5xl mx-auto px-6 pt-14 pb-10">
+          <div className="flex items-start justify-between gap-6 flex-wrap">
+            <div>
+              <h1 className="font-black text-6xl sm:text-7xl uppercase tracking-tight leading-none text-white mb-3" style={D}>
+                Leaderboard
+              </h1>
+              <p className="text-gray-400 text-sm" style={{ fontFamily: "var(--font-sans), system-ui, sans-serif" }}>
+                Top 100 wallets ranked by total $BASED weight
+              </p>
+            </div>
+            <div className="mt-1">
+              <IdSearch />
+            </div>
           </div>
-          <IdSearch />
+
+          {!isEmpty && (
+            <div className="flex flex-wrap gap-3 mt-8">
+              {[
+                { label: "Holders",       value: String(rows.length),        accent: false            },
+                { label: "Genesis minted", value: `${genesisCount}/100`,     accent: "amber" as const },
+                { label: "Total weight",  value: `${totalWeight.toFixed(2)}×`, accent: "blue" as const },
+              ].map(({ label, value, accent }) => (
+                <div key={label} className="flex items-center gap-3 px-4 py-2.5 rounded-xl"
+                  style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.12)" }}>
+                  <span className="text-gray-500 text-xs uppercase tracking-[0.15em]" style={D}>{label}</span>
+                  <span className="font-black text-lg tabular-nums" style={{ ...D, color: accent === "blue" ? "#60a5fa" : accent === "amber" ? "#f59e0b" : "#ffffff" }}>
+                    {value}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
+      </div>
+
+      <div className="max-w-5xl mx-auto px-6 py-10 space-y-6">
 
         {isEmpty ? (
-          /* Empty state — no holders yet */
-          <div className="rounded-2xl border border-white/[0.06] bg-white/[0.01] px-8 py-20 text-center space-y-6">
-            <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl border border-amber-400/20 bg-amber-400/[0.04]">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-amber-400/70">
-                <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/>
-                <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/>
-                <path d="M4 22h16"/>
-                <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/>
-                <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/>
-                <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>
+          /* Empty state */
+          <div className="rounded-2xl px-8 py-24 text-center space-y-6 bg-gray-50 border border-black/[0.07]">
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl mx-auto"
+              style={{ background: "rgba(245,158,11,0.08)", border: "1px solid rgba(245,158,11,0.2)" }}>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ color: "#f59e0b" }}>
+                <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/>
+                <path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/>
+                <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>
               </svg>
             </div>
             <div className="space-y-2 max-w-sm mx-auto">
-              <h2 className="text-white font-bold text-xl" style={{ fontFamily: "var(--font-display), system-ui, sans-serif" }}>
-                The leaderboard opens with the first mint
+              <h2 className="text-black font-black text-4xl sm:text-5xl uppercase tracking-tight" style={D}>
+                No Hunters Yet
               </h2>
-              <p className="text-zinc-500 text-sm leading-relaxed">
+              <p className="text-gray-500 text-sm leading-relaxed" style={{ fontFamily: "var(--font-sans), system-ui, sans-serif" }}>
                 No Based IDs minted yet. Mint yours for $2 USDC and you&apos;ll take #101 — the first public ID on Base.
               </p>
             </div>
-            <Link
-              href="/"
-              className="inline-block px-6 py-3 rounded-xl bg-white text-black font-bold text-sm hover:bg-zinc-100 transition-colors"
-            >
-              Mint Based ID #101 →
+            <Link href="/" className="inline-block px-7 py-3 rounded-xl font-black text-sm uppercase tracking-wide text-white transition-opacity hover:opacity-80"
+              style={{ background: "#111", ...D }}>
+              Mint Based ID #101
             </Link>
           </div>
         ) : (
           <>
             {/* Stats + chart card */}
-            <div className="border border-white/[0.08] rounded-2xl overflow-hidden">
-              {/* Stat row */}
-              <div className="grid grid-cols-3 divide-x divide-white/[0.06] border-b border-white/[0.06]">
-                {[
-                  { label: "Holders", value: rows.length, color: "text-white" },
-                  { label: "Genesis", value: `${genesisCount}/100`, color: "text-amber-400" },
-                  { label: "Total weight", value: `${totalWeight.toFixed(2)}×`, color: "text-blue-400" },
-                ].map(({ label, value, color }) => (
-                  <div key={label} className="px-4 sm:px-6 py-4 sm:py-5">
-                    <p className="text-xs text-zinc-600 mb-1.5">{label}</p>
-                    <p className={`${color} font-black text-xl tabular-nums`} style={{ fontFamily: "var(--font-display), system-ui, sans-serif" }}>{value}</p>
-                  </div>
-                ))}
-              </div>
-
+            <div className="rounded-2xl overflow-hidden border border-black/[0.07] bg-white">
               {/* Chart */}
-              <div className="px-5 pt-5 pb-4 border-b border-white/[0.04]">
-                <p className="text-xs text-zinc-600 mb-3">$BASED weight curve</p>
+              <div className="px-5 pt-5 pb-3">
+                <p className="font-black text-[10px] uppercase tracking-[0.25em] mb-3 text-gray-400" style={D}>
+                  $BASED weight curve
+                </p>
                 <WeightChart rows={rows} />
               </div>
-
               {/* Chart legend */}
-              <div className="px-4 sm:px-6 py-3 flex items-center flex-wrap gap-x-5 gap-y-2">
+              <div className="px-5 py-3 flex items-center flex-wrap gap-x-5 gap-y-2 border-t border-black/[0.05]">
                 <div className="flex items-center gap-2">
-                  <div className="w-6 h-px bg-blue-500 opacity-70 flex-shrink-0" />
-                  <span className="text-zinc-600 text-[10px]">Weight = 1 ÷ √ID</span>
+                  <div className="w-6 h-px flex-shrink-0" style={{ background: "#0052FF", opacity: 0.8 }} />
+                  <span className="text-gray-400 text-[10px] font-mono">Weight = 1 ÷ √ID</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-3 h-px border-t border-dashed border-amber-500/50 flex-shrink-0" />
-                  <span className="text-zinc-600 text-[10px]">Genesis boundary (#100)</span>
+                  <div className="w-3 h-px border-t border-dashed flex-shrink-0" style={{ borderColor: "rgba(245,158,11,0.5)" }} />
+                  <span className="text-gray-400 text-[10px] font-mono">Genesis boundary (#100)</span>
                 </div>
               </div>
             </div>
 
-            {/* Table (with "Your Rank" highlighting) */}
+            {/* Table */}
             <LeaderboardTable rows={rowsWithHunter} />
 
             {/* Footer */}
-            <div className="flex items-center justify-between pt-2">
-              <p className="text-zinc-700 text-[11px] font-mono">
+            <div className="flex items-center justify-between pt-1">
+              <p className="text-gray-400 text-[11px] font-mono">
                 {rows.length} holders · refreshes every 60s
               </p>
-              <Link href="/" className="text-[11px] text-blue-400 hover:text-blue-300 transition-colors">
+              <Link href="/" className="text-[11px] font-medium transition-opacity hover:opacity-70" style={{ color: "#0052FF" }}>
                 Mint your Based ID →
               </Link>
             </div>
@@ -310,13 +322,13 @@ export default async function LeaderboardPage() {
 
       </div>
 
-      <footer className="border-t border-white/[0.06] px-6 py-6">
-        <div className="max-w-4xl mx-auto flex items-center justify-between gap-4 flex-wrap">
-          <span className="text-zinc-700 text-xs">Built on Base · 2026</span>
-          <div className="flex items-center gap-5 text-xs text-zinc-700">
-            <Link href="/" className="hover:text-zinc-400 transition-colors">Home</Link>
-            <Link href="/dashboard" className="hover:text-zinc-400 transition-colors">Dashboard</Link>
-            <a href="https://x.com/basedidofficial" target="_blank" rel="noopener noreferrer" className="hover:text-zinc-400 transition-colors">@basedidofficial</a>
+      <footer className="border-t border-black/[0.07] px-6 py-6 bg-white">
+        <div className="max-w-5xl mx-auto flex items-center justify-between gap-4 flex-wrap">
+          <span className="text-gray-400 text-xs font-mono">Built on Base · 2026</span>
+          <div className="flex items-center gap-5 text-xs text-gray-400">
+            <Link href="/" className="hover:text-black transition-colors">Home</Link>
+            <Link href="/campaigns" className="hover:text-black transition-colors">Campaigns</Link>
+            <a href="https://x.com/basedidofficial" target="_blank" rel="noopener noreferrer" className="hover:text-black transition-colors">@basedidofficial</a>
           </div>
         </div>
       </footer>

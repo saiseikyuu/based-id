@@ -3,17 +3,19 @@ import type { Metadata } from "next";
 import { createServerClient, type Project } from "@/lib/supabase";
 import { MobileNav } from "@/app/components/MobileNav";
 import { Nav } from "@/app/components/Nav";
+import { ListProjectButton } from "./ListProjectButton";
 
 export const revalidate = 60;
 
 export const metadata: Metadata = {
   title: "Projects — Based ID",
-  description: "Browse all partner projects running drops for Based ID holders on Base.",
+  description: "Browse all partner projects running campaigns for Based ID holders on Base.",
 };
 
-const D = { fontFamily: "var(--font-display), system-ui, sans-serif" };
+const D    = { fontFamily: "var(--font-display), system-ui, sans-serif" };
+const BODY = { fontFamily: "var(--font-sans), system-ui, sans-serif" };
 
-type ProjectWithStats = Project & { drop_count: number; active_count: number };
+type ProjectWithStats = Project & { campaign_count: number; active_count: number };
 
 async function getProjects(): Promise<ProjectWithStats[]> {
   try {
@@ -21,17 +23,20 @@ async function getProjects(): Promise<ProjectWithStats[]> {
     const { data: projects } = await db.from("projects").select("*").order("created_at", { ascending: false });
     if (!projects?.length) return [];
 
-    const { data: drops } = await db.from("drops").select("partner_address, status").in("status", ["active", "ended", "drawn"]);
-    const total: Record<string, number>  = {};
+    const { data: campaigns } = await db
+      .from("campaigns")
+      .select("partner_address, status")
+      .in("status", ["active", "ended", "drawn"]);
+    const total:  Record<string, number> = {};
     const active: Record<string, number> = {};
-    for (const d of drops ?? []) {
-      total[d.partner_address]  = (total[d.partner_address]  ?? 0) + 1;
-      if (d.status === "active") active[d.partner_address] = (active[d.partner_address] ?? 0) + 1;
+    for (const c of campaigns ?? []) {
+      total[c.partner_address]  = (total[c.partner_address]  ?? 0) + 1;
+      if (c.status === "active") active[c.partner_address] = (active[c.partner_address] ?? 0) + 1;
     }
     return projects.map(p => ({
       ...p,
-      drop_count:   total[p.address]  ?? 0,
-      active_count: active[p.address] ?? 0,
+      campaign_count: total[p.address]  ?? 0,
+      active_count:   active[p.address] ?? 0,
     }));
   } catch { return []; }
 }
@@ -55,140 +60,228 @@ function SocialIcon({ type }: { type: "x" | "discord" | "website" }) {
 }
 
 export default async function ProjectsPage() {
-  const projects = await getProjects();
+  const projects  = await getProjects();
   const liveTotal = projects.reduce((s, p) => s + p.active_count, 0);
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen flex flex-col" style={{ background: "#050508", ...BODY }}>
       <Nav active="/projects" />
       <MobileNav />
 
-      <div className="max-w-4xl mx-auto px-6 py-10 flex-1 w-full space-y-6">
-
-        {/* Header */}
-        <div className="flex items-center justify-between gap-4 flex-wrap">
-          <div className="space-y-1">
-            <div className="flex items-center gap-2">
-              <div className={`w-1.5 h-1.5 rounded-full ${liveTotal > 0 ? "bg-green-500 animate-pulse" : "bg-zinc-700"}`} />
-              <span className={`text-xs font-medium ${liveTotal > 0 ? "text-green-400" : "text-zinc-600"}`}>
-                {liveTotal > 0 ? `${liveTotal} drop${liveTotal !== 1 ? "s" : ""} live` : "No active drops"}
+      {/* ── Hero ─────────────────────────────────────────────────────── */}
+      <section
+        style={{ background: "#050508" }}
+        className="w-full px-6 pt-16 pb-14 border-b border-white/[0.06]"
+      >
+        <div className="max-w-6xl mx-auto flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+          <div className="space-y-3">
+            {/* Live pill */}
+            <div className="inline-flex items-center gap-2">
+              <span
+                className={`w-2 h-2 rounded-full flex-shrink-0 ${liveTotal > 0 ? "bg-green-400 animate-pulse" : "bg-zinc-700"}`}
+              />
+              <span
+                className="text-xs font-semibold tracking-wide"
+                style={{ color: liveTotal > 0 ? "#4ade80" : "#52525b", ...BODY }}
+              >
+                {liveTotal > 0
+                  ? `${liveTotal} campaign${liveTotal !== 1 ? "s" : ""} live`
+                  : "No active campaigns"}
               </span>
             </div>
-            <h1 className="text-2xl font-black tracking-tight text-white" style={D}>Projects</h1>
+
+            {/* Headline */}
+            <h1
+              className="text-7xl sm:text-8xl font-black uppercase leading-none tracking-tight text-white"
+              style={D}
+            >
+              Projects
+            </h1>
+
+            {/* Subtitle */}
+            <p className="text-base text-zinc-400 max-w-md" style={BODY}>
+              Discover teams building on Base.
+            </p>
           </div>
-          <Link href="/partner"
-            className="px-4 py-2 rounded-xl border border-white/[0.08] text-zinc-400 text-xs font-semibold hover:text-white hover:border-white/[0.16] transition-colors">
-            + List your project
-          </Link>
+
+          {/* CTA */}
+          <ListProjectButton className="self-start sm:self-auto inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-white text-[#0a0a10] text-sm font-bold hover:bg-zinc-100 transition-colors" />
         </div>
+      </section>
 
-        {/* List */}
-        {projects.length === 0 ? (
-          <div className="rounded-2xl border border-white/[0.06] bg-white/[0.01] px-8 py-20 text-center space-y-4">
-            <p className="text-zinc-400 font-bold text-xl" style={D}>No projects yet</p>
-            <p className="text-zinc-600 text-sm">Be the first to run a drop. Standard listings are free.</p>
-            <Link href="/partner" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white text-black text-sm font-bold hover:bg-zinc-100 transition-colors">
-              Become a partner →
-            </Link>
-          </div>
-        ) : (
-          <div className="rounded-2xl border border-white/[0.07] overflow-hidden">
-            {/* Table header */}
-            <div className="grid grid-cols-[1fr_80px_80px_100px] gap-4 px-5 py-2.5 border-b border-white/[0.06] bg-white/[0.02]">
-              {["Project", "Drops", "Active", ""].map(h => (
-                <span key={h} className="text-zinc-600 text-[10px] font-bold uppercase tracking-[0.15em]">{h}</span>
-              ))}
+      {/* ── Project grid (white bg) ───────────────────────────────────── */}
+      <section className="flex-1 bg-white px-6 py-12">
+        <div className="max-w-6xl mx-auto">
+          {projects.length === 0 ? (
+            /* Empty state */
+            <div className="flex flex-col items-center justify-center py-28 gap-6 text-center">
+              {/* Icon */}
+              <div
+                className="w-20 h-20 rounded-2xl border border-black/[0.08] bg-zinc-50 flex items-center justify-center"
+              >
+                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+                  <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+                </svg>
+              </div>
+
+              <div className="space-y-2">
+                <p className="text-3xl font-black uppercase tracking-tight text-[#0a0a10]" style={D}>
+                  No projects yet
+                </p>
+                <p className="text-sm text-gray-500 max-w-xs" style={BODY}>
+                  Be the first to list your project. Campaigns are free to create.
+                </p>
+              </div>
+
+              <ListProjectButton className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#0052FF] text-white text-sm font-bold hover:bg-blue-700 transition-colors" />
             </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              {projects.map(project => (
+                <div
+                  key={project.address}
+                  className="bg-white border border-black/[0.07] rounded-2xl p-5 shadow-sm hover:shadow-lg transition-all flex flex-col gap-4"
+                >
+                  {/* Top: logo + name + description */}
+                  <div className="flex items-start gap-3">
+                    <div className="w-14 h-14 rounded-xl overflow-hidden border border-black/[0.08] bg-zinc-100 flex items-center justify-center flex-shrink-0">
+                      {project.logo_url ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={project.logo_url} alt={project.name} className="w-full h-full object-cover" />
+                      ) : (
+                        <span className="text-[#0a0a10] font-black text-xl" style={D}>
+                          {project.name.slice(0, 1)}
+                        </span>
+                      )}
+                    </div>
 
-            {/* Rows */}
-            {projects.map(project => (
-              <div key={project.address}
-                className="grid grid-cols-[1fr_80px_80px_100px] gap-4 px-5 py-4 border-b border-white/[0.04] hover:bg-white/[0.02] transition-colors items-center last:border-0">
-
-                {/* Logo + name */}
-                <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-9 h-9 rounded-xl overflow-hidden border border-white/[0.08] bg-zinc-900 flex items-center justify-center flex-shrink-0">
-                    {project.logo_url ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={project.logo_url} alt={project.name} className="w-full h-full object-cover" />
-                    ) : (
-                      <span className="text-white font-black text-sm" style={D}>{project.name.slice(0,1)}</span>
-                    )}
-                  </div>
-                  <div className="min-w-0 space-y-0.5">
-                    <Link href={`/projects/${project.address}`}
-                      className="text-white text-sm font-semibold hover:text-zinc-200 transition-colors truncate block">
-                      {project.name}
-                    </Link>
-                    {project.description && (
-                      <p className="text-zinc-600 text-xs truncate">{project.description}</p>
-                    )}
-                    {/* Social links */}
-                    <div className="flex items-center gap-2 pt-0.5">
-                      {project.twitter && (
-                        <a href={`https://x.com/${project.twitter.replace("@","")}`} target="_blank" rel="noopener noreferrer"
-                          className="text-zinc-600 hover:text-zinc-300 transition-colors">
-                          <SocialIcon type="x" />
-                        </a>
+                    <div className="min-w-0 flex-1">
+                      <Link
+                        href={`/projects/${project.address}`}
+                        className="font-bold text-lg leading-tight text-[#0a0a10] hover:text-[#0052FF] transition-colors block truncate"
+                        style={BODY}
+                      >
+                        {project.name}
+                      </Link>
+                      {project.description && (
+                        <p
+                          className="text-sm text-gray-500 mt-0.5 line-clamp-2"
+                          style={BODY}
+                        >
+                          {project.description}
+                        </p>
                       )}
-                      {project.discord && (
-                        <a href={project.discord} target="_blank" rel="noopener noreferrer"
-                          className="text-zinc-600 hover:text-zinc-300 transition-colors">
-                          <SocialIcon type="discord" />
-                        </a>
-                      )}
-                      {project.website && (
-                        <a href={project.website} target="_blank" rel="noopener noreferrer"
-                          className="text-zinc-600 hover:text-zinc-300 transition-colors">
-                          <SocialIcon type="website" />
-                        </a>
-                      )}
-                      <span className="text-zinc-700 text-[10px] font-mono">
-                        {project.address.slice(0,6)}…{project.address.slice(-4)}
-                      </span>
                     </div>
                   </div>
+
+                  {/* Social links */}
+                  <div className="flex items-center gap-3">
+                    {project.twitter && (
+                      <a
+                        href={`https://x.com/${project.twitter.replace("@", "")}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-gray-400 hover:text-[#0052FF] transition-colors"
+                        aria-label="X / Twitter"
+                      >
+                        <SocialIcon type="x" />
+                      </a>
+                    )}
+                    {project.discord && (
+                      <a
+                        href={project.discord}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-gray-400 hover:text-[#0052FF] transition-colors"
+                        aria-label="Discord"
+                      >
+                        <SocialIcon type="discord" />
+                      </a>
+                    )}
+                    {project.website && (
+                      <a
+                        href={project.website}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-gray-400 hover:text-[#0052FF] transition-colors"
+                        aria-label="Website"
+                      >
+                        <SocialIcon type="website" />
+                      </a>
+                    )}
+                    <span className="text-gray-300 text-[10px] font-mono ml-auto">
+                      {project.address.slice(0, 6)}…{project.address.slice(-4)}
+                    </span>
+                  </div>
+
+                  {/* Divider */}
+                  <div className="border-t border-black/[0.06]" />
+
+                  {/* Stats + View button */}
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-gray-500" style={BODY}>
+                        {project.campaign_count} campaign{project.campaign_count !== 1 ? "s" : ""}
+                      </span>
+
+                      {project.active_count > 0 && (
+                        <span
+                          className="bg-green-50 text-green-700 border border-green-200 text-xs px-2 py-0.5 rounded-full font-semibold"
+                          style={BODY}
+                        >
+                          {project.active_count} active
+                        </span>
+                      )}
+                    </div>
+
+                    <Link
+                      href={`/projects/${project.address}`}
+                      className="border border-black/[0.10] text-sm px-4 py-2 rounded-xl text-[#0a0a10] hover:bg-black/[0.04] transition-colors font-medium flex-shrink-0"
+                      style={BODY}
+                    >
+                      View →
+                    </Link>
+                  </div>
                 </div>
-
-                {/* Total drops */}
-                <div className="text-zinc-400 text-sm font-mono tabular-nums">{project.drop_count}</div>
-
-                {/* Active drops */}
-                <div>
-                  {project.active_count > 0 ? (
-                    <span className="text-green-400 text-sm font-mono tabular-nums">{project.active_count}</span>
-                  ) : (
-                    <span className="text-zinc-700 text-sm">—</span>
-                  )}
-                </div>
-
-                {/* Actions */}
-                <div className="flex items-center gap-2 justify-end">
-                  <Link href={`/projects/${project.address}`}
-                    className="px-3 py-1.5 rounded-lg border border-white/[0.08] text-zinc-400 text-[11px] font-medium hover:bg-white/[0.05] hover:text-white transition-colors">
-                    View →
-                  </Link>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* Partner strip */}
-        <div className="flex items-center justify-between gap-4 rounded-2xl border border-white/[0.06] px-5 py-4">
-          <p className="text-zinc-500 text-sm">Running a project on Base? <span className="text-zinc-600">Drops are free to list.</span></p>
-          <Link href="/partner" className="px-4 py-2 rounded-xl bg-white text-black text-xs font-bold hover:bg-zinc-100 transition-colors">
-            Become a partner →
-          </Link>
+              ))}
+            </div>
+          )}
         </div>
-      </div>
+      </section>
 
-      <footer className="border-t border-white/[0.06] px-6 py-5">
-        <div className="max-w-4xl mx-auto flex items-center justify-between gap-4 flex-wrap">
-          <span className="text-zinc-700 text-xs">Built on Base · 2026</span>
-          <div className="flex items-center gap-5 text-xs text-zinc-700">
-            <Link href="/drops" className="hover:text-zinc-400 transition-colors">Drops</Link>
-            <Link href="/partner" className="hover:text-zinc-400 transition-colors">Partner</Link>
+      {/* ── Partner strip (blue) ─────────────────────────────────────── */}
+      <section
+        className="w-full px-6 py-14"
+        style={{ background: "#0052FF" }}
+      >
+        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6">
+          <div className="space-y-1 text-center sm:text-left">
+            <h2
+              className="text-3xl sm:text-4xl font-black uppercase tracking-tight text-white"
+              style={D}
+            >
+              Running a project on Base?
+            </h2>
+            <p className="text-blue-200 text-sm" style={BODY}>
+              Campaigns are free.
+            </p>
+          </div>
+
+          <ListProjectButton className="inline-flex items-center gap-2 bg-white text-[#0052FF] font-bold px-6 py-3 rounded-xl hover:bg-blue-50 transition-colors text-sm flex-shrink-0" />
+        </div>
+      </section>
+
+      {/* ── Footer ───────────────────────────────────────────────────── */}
+      <footer
+        className="border-t border-white/[0.06] px-6 py-5"
+        style={{ background: "#050508" }}
+      >
+        <div className="max-w-6xl mx-auto flex items-center justify-between gap-4 flex-wrap">
+          <span className="text-zinc-600 text-xs" style={BODY}>Built on Base · 2026</span>
+          <div className="flex items-center gap-5 text-xs text-zinc-600" style={BODY}>
+            <Link href="/campaigns" className="hover:text-zinc-400 transition-colors">Campaigns</Link>
+            <Link href="/hunters"   className="hover:text-zinc-400 transition-colors">Hunters</Link>
           </div>
         </div>
       </footer>

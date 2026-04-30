@@ -16,8 +16,66 @@ export type HolderRow = {
   hunterXp?:   number | null;
 };
 
+const D = { fontFamily: "var(--font-display), system-ui, sans-serif" };
+
 function addressToHue(address: string): number {
   return parseInt(address.slice(2, 6), 16) % 360;
+}
+
+// Tier badge pill styles
+function TierBadge({ tier }: { tier: string }) {
+  const styles: Record<string, React.CSSProperties> = {
+    GENESIS: {
+      background: "rgba(245,158,11,0.10)",
+      color: "#f59e0b",
+      border: "1px solid rgba(245,158,11,0.25)",
+    },
+    FOUNDING: {
+      background: "rgba(96,165,250,0.10)",
+      color: "#60a5fa",
+      border: "1px solid rgba(96,165,250,0.25)",
+    },
+    PIONEER: {
+      background: "rgba(113,113,122,0.10)",
+      color: "#a1a1aa",
+      border: "1px solid rgba(113,113,122,0.20)",
+    },
+    BUILDER: {
+      background: "rgba(39,39,42,0.8)",
+      color: "#52525b",
+      border: "1px solid rgba(63,63,70,0.5)",
+    },
+  };
+
+  return (
+    <span
+      className="inline-flex items-center px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-[0.12em] flex-shrink-0"
+      style={{ ...D, ...(styles[tier] ?? styles.BUILDER) }}
+    >
+      {tier}
+    </span>
+  );
+}
+
+// Hunter rank dot badge
+function HunterBadge({ rankIdx }: { rankIdx: number }) {
+  const label = RANK_LABELS[rankIdx];
+  const color = RANK_COLORS[rankIdx];
+
+  return (
+    <span
+      className="inline-flex items-center justify-center w-6 h-6 rounded-full font-black text-[10px] flex-shrink-0"
+      style={{
+        ...D,
+        background: `${color}18`,
+        color,
+        border: `1px solid ${color}40`,
+      }}
+      title={`${label}-Rank Hunter`}
+    >
+      {label}
+    </span>
+  );
 }
 
 export function LeaderboardTable({ rows }: { rows: HolderRow[] }) {
@@ -26,6 +84,29 @@ export function LeaderboardTable({ rows }: { rows: HolderRow[] }) {
 
   const myRow = lower ? rows.find((r) => r.holder.toLowerCase() === lower) : undefined;
   const myRank = myRow ? rows.findIndex((r) => r.holder === myRow.holder) + 1 : 0;
+
+  // Podium accent borders
+  const leftBorderStyle = (i: number, isYou: boolean): React.CSSProperties => {
+    if (isYou) return { borderLeft: "2px solid #0052FF" };
+    if (i === 0) return { borderLeft: "2px solid #fbbf24" };
+    if (i === 1) return { borderLeft: "2px solid #d4d4d8" };
+    if (i === 2) return { borderLeft: "2px solid rgba(180,110,60,0.7)" };
+    return { borderLeft: "2px solid transparent" };
+  };
+
+  const rowBgStyle = (i: number, isYou: boolean): React.CSSProperties => {
+    if (isYou) return { background: "rgba(0,82,255,0.06)" };
+    if (i === 0) return { background: "rgba(251,191,36,0.025)" };
+    return {};
+  };
+
+  const rankNumColor = (i: number, isYou: boolean): string => {
+    if (isYou) return "#0052FF";
+    if (i === 0) return "#fbbf24";
+    if (i === 1) return "#d4d4d8";
+    if (i === 2) return "rgba(205,133,63,0.85)";
+    return "#9ca3af";
+  };
 
   return (
     <>
@@ -37,52 +118,89 @@ export function LeaderboardTable({ rows }: { rows: HolderRow[] }) {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-            className={`rounded-2xl border overflow-hidden ${
+            className="rounded-2xl overflow-hidden"
+            style={
               myRow
-                ? "border-blue-500/25 bg-gradient-to-r from-blue-500/[0.06] to-blue-500/[0.02]"
-                : "border-white/[0.06] bg-white/[0.01]"
-            }`}
+                ? {
+                    background: "linear-gradient(90deg, rgba(0,82,255,0.06) 0%, transparent 100%)",
+                    border: "1px solid rgba(0,82,255,0.2)",
+                    borderLeft: "3px solid #0052FF",
+                  }
+                : {
+                    background: "#f9fafb",
+                    border: "1px solid rgba(0,0,0,0.07)",
+                  }
+            }
           >
             {myRow ? (
               <div className="px-5 py-4 flex items-center justify-between gap-4 flex-wrap">
                 <div className="flex items-center gap-4 min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" />
-                    <span className="text-blue-400 text-[10px] font-bold uppercase tracking-[0.2em]">You</span>
-                  </div>
-                  <div className="h-6 w-px bg-white/[0.08]" />
-                  <div className="flex items-center gap-3 min-w-0 flex-wrap">
-                    <span className="text-zinc-400 text-xs font-mono">
-                      Rank <span className="text-white font-bold tabular-nums">{myRank}</span>
-                      <span className="text-zinc-700"> / {rows.length}</span>
+                    <span
+                      className="w-2 h-2 rounded-full animate-pulse"
+                      style={{ background: "#0052FF" }}
+                    />
+                    <span
+                      className="font-black text-[10px] uppercase tracking-[0.25em]"
+                      style={{ ...D, color: "#0052FF" }}
+                    >
+                      You
                     </span>
-                    <span className="text-zinc-600 text-[11px]">·</span>
-                    <Link href={`/profile/${myRow.tokenId}`} className="text-amber-400 font-bold text-sm font-mono hover:text-amber-300 transition-colors">
+                  </div>
+
+                  <div className="h-5 w-px" style={{ background: "rgba(255,255,255,0.08)" }} />
+
+                  <div className="flex items-center gap-1 min-w-0 flex-wrap">
+                    {/* Big rank number */}
+                    <span className="font-black text-2xl tabular-nums text-black leading-none" style={D}>
+                      #{myRank}
+                    </span>
+                    <span className="text-gray-400 text-xs font-mono ml-1">/ {rows.length}</span>
+
+                    <span className="text-gray-300 text-[11px] mx-2">·</span>
+
+                    <Link
+                      href={`/profile/${myRow.holder}`}
+                      className="font-black text-sm font-mono hover:opacity-70 transition-opacity"
+                      style={{ color: "#f59e0b" }}
+                    >
                       Best #{myRow.tokenId}
                     </Link>
-                    <span className="text-zinc-600 text-[11px]">·</span>
-                    <span className="text-zinc-400 text-xs font-mono tabular-nums">
+
+                    <span className="text-gray-300 text-[11px] mx-2">·</span>
+
+                    <span className="text-gray-500 text-xs font-mono tabular-nums">
                       {myRow.idCount} ID{myRow.idCount !== 1 ? "s" : ""}
                     </span>
-                    <span className="text-zinc-600 text-[11px]">·</span>
-                    <span className="text-blue-300 text-xs font-mono font-semibold tabular-nums">
+
+                    <span className="text-gray-300 text-[11px] mx-2">·</span>
+
+                    <span className="font-bold text-xs font-mono tabular-nums" style={{ color: "#0052FF" }}>
                       {myRow.weight.toFixed(4)}× weight
                     </span>
                   </div>
                 </div>
-                <Link href="/dashboard" className="text-blue-400 text-[11px] font-medium hover:text-blue-300 transition-colors flex-shrink-0">
+                <Link
+                  href="/dashboard"
+                  className="font-black text-[11px] uppercase tracking-wide flex-shrink-0 hover:opacity-70 transition-opacity"
+                  style={{ ...D, color: "#0052FF" }}
+                >
                   Dashboard →
                 </Link>
               </div>
             ) : (
               <div className="px-5 py-4 flex items-center justify-between gap-4 flex-wrap">
                 <div className="flex items-center gap-3 min-w-0">
-                  <span className="w-1.5 h-1.5 rounded-full bg-zinc-600" />
-                  <span className="text-zinc-500 text-xs">
-                    Not on the leaderboard — mint a Based ID to earn $BASED weight.
+                  <span className="w-1.5 h-1.5 rounded-full flex-shrink-0 bg-gray-300" />
+                  <span className="text-gray-500 text-xs" style={{ fontFamily: "var(--font-sans), system-ui, sans-serif" }}>
+                    Get a Based ID to appear on the leaderboard.
                   </span>
                 </div>
-                <Link href="/" className="text-white text-[11px] font-bold hover:text-zinc-300 transition-colors flex-shrink-0">
+                <Link
+                  href="/"
+                  className="font-black text-[11px] uppercase tracking-wide text-black flex-shrink-0 hover:opacity-70 transition-opacity"
+                  style={D}
+                >
                   Mint your Based ID →
                 </Link>
               </div>
@@ -92,56 +210,79 @@ export function LeaderboardTable({ rows }: { rows: HolderRow[] }) {
       </AnimatePresence>
 
       {/* Table */}
-      <div className="rounded-2xl border border-white/[0.06] overflow-hidden">
-
+      <div
+        className="rounded-2xl overflow-hidden"
+        style={{ border: "1px solid rgba(0,0,0,0.07)", background: "#ffffff" }}
+      >
         {/* Column headers */}
-        <div className="grid grid-cols-[40px_minmax(0,2fr)_80px_minmax(0,1fr)_minmax(0,1fr)] px-4 sm:px-5 py-3 border-b border-white/[0.05] bg-white/[0.015]">
-          <span className="text-[10px] text-zinc-700 uppercase tracking-[0.18em]">Rank</span>
-          <span className="text-[10px] text-zinc-700 uppercase tracking-[0.18em]">Holder</span>
-          <span className="text-[10px] text-zinc-700 uppercase tracking-[0.18em]">Hunter</span>
-          <span className="text-[10px] text-zinc-700 uppercase tracking-[0.18em]">Best ID</span>
-          <span className="text-[10px] text-zinc-700 uppercase tracking-[0.18em] text-right">Weight</span>
+        <div
+          className="grid items-center px-4 sm:px-5 py-3"
+          style={{
+            gridTemplateColumns: "48px minmax(0,1fr) 110px 80px 80px 72px",
+            borderBottom: "1px solid rgba(0,0,0,0.06)",
+            background: "#f9fafb",
+            position: "sticky",
+            top: 0,
+            zIndex: 1,
+          }}
+        >
+          {["#", "WALLET", "WEIGHT", "IDs", "TIER", "RANK"].map((col, idx) => (
+            <span
+              key={col}
+              className="font-black text-[10px] uppercase tracking-[0.25em]"
+              style={{
+                ...D,
+                color: "#9ca3af",
+                textAlign: idx >= 2 ? "center" : "left",
+              }}
+            >
+              {col}
+            </span>
+          ))}
         </div>
 
         {rows.map((row, i) => {
           const hue = addressToHue(row.holder);
-          const isTop = i < 3;
           const isYou = lower ? row.holder.toLowerCase() === lower : false;
-          const rankColors = ["text-amber-400", "text-zinc-300", "text-amber-700/80"];
-
-          const leftBorder = isYou
-            ? "border-l-2 border-l-blue-400"
-            : i === 0 ? "border-l-2 border-l-amber-400/50"
-            : isTop ? "border-l-2 border-l-zinc-700/50"
-            : "";
-
-          const rowBg = isYou
-            ? "bg-blue-500/[0.04] hover:bg-blue-500/[0.07]"
-            : i === 0 ? "bg-amber-400/[0.02] hover:bg-white/[0.02]"
-            : "hover:bg-white/[0.02]";
-
           const hunterRankIdx = row.hunterRank ?? null;
-          const hunterColor   = hunterRankIdx !== null ? RANK_COLORS[hunterRankIdx] : null;
-          const hunterLabel   = hunterRankIdx !== null ? RANK_LABELS[hunterRankIdx] : null;
 
           return (
             <div
               key={row.holder}
-              className={`grid grid-cols-[40px_minmax(0,2fr)_80px_minmax(0,1fr)_minmax(0,1fr)] px-4 sm:px-5 py-3.5 border-b border-white/[0.03] last:border-0 transition-colors items-center ${leftBorder} ${rowBg}`}
+              className="grid items-center px-4 sm:px-5 py-3.5 transition-colors"
+              style={{
+                gridTemplateColumns: "48px minmax(0,1fr) 110px 80px 80px 72px",
+                borderBottom: "1px solid rgba(0,0,0,0.04)",
+                ...leftBorderStyle(i, isYou),
+                ...rowBgStyle(i, isYou),
+              }}
+              onMouseEnter={(e) => {
+                if (!isYou) {
+                  (e.currentTarget as HTMLElement).style.background = "rgba(0,0,0,0.02)";
+                }
+              }}
+              onMouseLeave={(e) => {
+                const bg = rowBgStyle(i, isYou).background;
+                (e.currentTarget as HTMLElement).style.background = typeof bg === "string" ? bg : "";
+              }}
             >
-              {/* $BASED Rank */}
-              <span className={`text-sm font-mono font-bold tabular-nums ${isTop ? rankColors[i] : "text-zinc-700"}`}>
+              {/* Rank number */}
+              <span
+                className="font-black text-2xl tabular-nums leading-none"
+                style={{ ...D, color: rankNumColor(i, isYou) }}
+              >
                 {i + 1}
               </span>
 
               {/* Holder */}
               <div className="flex items-center gap-2.5 min-w-0">
                 <div
-                  className="w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center text-[10px] font-bold"
+                  className="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center font-black text-[10px]"
                   style={{
-                    background: `hsl(${hue}, 55%, 18%)`,
-                    border: `1px solid hsl(${hue}, 55%, 28%)`,
-                    color: `hsl(${hue}, 70%, 65%)`,
+                    ...D,
+                    background: `hsl(${hue}, 55%, 92%)`,
+                    border: `1px solid hsl(${hue}, 55%, 78%)`,
+                    color: `hsl(${hue}, 55%, 35%)`,
                   }}
                 >
                   {row.holder.slice(2, 4).toUpperCase()}
@@ -150,45 +291,63 @@ export function LeaderboardTable({ rows }: { rows: HolderRow[] }) {
                   href={`${BASESCAN_URL}/address/${row.holder}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-zinc-400 text-xs font-mono hover:text-white transition-colors truncate"
+                  className="text-gray-400 text-xs font-mono hover:text-black transition-colors truncate"
                 >
                   {row.holder.slice(0, 6)}…{row.holder.slice(-4)}
                 </a>
                 {isYou && (
-                  <span className="flex-shrink-0 px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-[0.15em] bg-blue-500/15 text-blue-300 border border-blue-500/25">
+                  <span
+                    className="flex-shrink-0 px-1.5 py-0.5 rounded font-black text-[9px] uppercase tracking-[0.15em]"
+                    style={{
+                      ...D,
+                      background: "rgba(0,82,255,0.15)",
+                      color: "#60a5fa",
+                      border: "1px solid rgba(0,82,255,0.3)",
+                    }}
+                  >
                     You
                   </span>
                 )}
               </div>
 
-              {/* Hunter rank */}
-              <div>
-                {hunterLabel !== null && hunterColor ? (
-                  <span className="text-xs font-bold tabular-nums" style={{ color: hunterColor }}>
-                    {hunterLabel}
-                  </span>
-                ) : (
-                  <span className="text-zinc-800 text-xs">—</span>
+              {/* Weight */}
+              <div className="text-center">
+                <span
+                  className="font-black text-sm tabular-nums"
+                  style={{ ...D, color: row.isAuction ? "#f59e0b" : "#0052FF" }}
+                >
+                  {row.weight.toFixed(4)}
+                </span>
+                <span className="text-gray-300 text-xs ml-0.5">×</span>
+              </div>
+
+              {/* ID count */}
+              <div className="text-center">
+                <Link
+                  href={`/profile/${row.holder}`}
+                  className="font-bold text-sm font-mono hover:opacity-70 transition-opacity"
+                  style={{ color: row.isAuction ? "#f59e0b" : "#6b7280" }}
+                  title={`Best ID: #${row.tokenId}`}
+                >
+                  #{row.tokenId}
+                </Link>
+                {row.idCount > 1 && (
+                  <span className="text-gray-300 text-[10px] font-mono ml-1">+{row.idCount - 1}</span>
                 )}
               </div>
 
-              {/* Best ID */}
-              <Link href={`/profile/${row.tokenId}`} className="group">
-                <span className={`font-bold text-sm font-mono group-hover:opacity-70 transition-opacity ${
-                  row.isAuction ? "text-amber-400" : "text-blue-400"
-                }`}>
-                  #{row.tokenId.toLocaleString()}
-                </span>
-              </Link>
+              {/* Tier */}
+              <div className="flex justify-center">
+                <TierBadge tier={row.tier} />
+              </div>
 
-              {/* Total Weight */}
-              <div className="text-right">
-                <span className={`text-sm font-mono font-semibold tabular-nums ${
-                  row.isAuction ? "text-amber-300" : "text-zinc-300"
-                }`}>
-                  {row.weight.toFixed(4)}
-                </span>
-                <span className="text-zinc-600 text-xs ml-0.5">×</span>
+              {/* Hunter rank */}
+              <div className="flex justify-center">
+                {hunterRankIdx !== null ? (
+                  <HunterBadge rankIdx={hunterRankIdx} />
+                ) : (
+                  <span className="text-gray-300 text-sm">—</span>
+                )}
               </div>
             </div>
           );

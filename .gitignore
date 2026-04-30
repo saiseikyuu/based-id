@@ -12,3 +12,9 @@
 /lib
 /web/node_modules
 /web/.next
+
+# Claude Code local config
+.claude/
+
+# Product docs
+BasedID_Product_Plan_for_Claude_Code.docx
