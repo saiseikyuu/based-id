@@ -4,6 +4,8 @@ import { MobileNav } from "@/app/components/MobileNav";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { ProfileSection } from "./ProfileSection";
+import { BadgesSection } from "./BadgesSection";
+import { SquadCard } from "./SquadCard";
 
 export const revalidate = 60;
 
@@ -73,7 +75,7 @@ export default async function HunterProfilePage({ params }: { params: Promise<{ 
   const { address } = await params;
   const db = createServerClient();
 
-  const [{ data: xpData }, { data: entries }, { data: hunterProfile }] = await Promise.all([
+  const [{ data: xpData }, { data: entries }, { data: hunterProfile }, { data: rawBadges }] = await Promise.all([
     db.from("hunter_xp").select("*").eq("wallet_address", address.toLowerCase()).single(),
     db.from("entries")
       .select("id, status, created_at, campaign_id, campaigns(title, type, status, ends_at)")
@@ -81,6 +83,7 @@ export default async function HunterProfilePage({ params }: { params: Promise<{ 
       .order("created_at", { ascending: false })
       .limit(10),
     db.from("hunter_profiles").select("*").eq("wallet_address", address.toLowerCase()).single(),
+    db.from("hunter_badges").select("*, badge:badges(*)").eq("wallet_address", address.toLowerCase()).order("earned_at", { ascending: false }),
   ]);
 
   const xp        = xpData?.total_xp      ?? 0;
@@ -296,36 +299,11 @@ export default async function HunterProfilePage({ params }: { params: Promise<{ 
             <ProfileSection address={address} initialProfile={hunterProfile ?? null} />
           </div>
 
-          {/* Badges placeholder */}
-          <div className="bg-white rounded-2xl p-6 space-y-4"
-            style={{ boxShadow: "0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.06)", border: "1px solid rgba(0,0,0,0.06)" }}>
-            <p className="text-black font-bold text-sm" style={D}>Badges</p>
-            <div className="flex flex-col items-center justify-center py-8 space-y-2 text-center">
-              <div className="w-10 h-10 rounded-full bg-gray-100 border border-black/[0.06] flex items-center justify-center">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/>
-                </svg>
-              </div>
-              <p className="text-gray-400 text-xs" style={BODY}>No badges yet</p>
-              <p className="text-gray-300 text-xs" style={BODY}>Complete campaigns and streaks to earn badges</p>
-            </div>
-          </div>
+          {/* Badges */}
+          <BadgesSection address={address} initialBadges={(rawBadges ?? []) as Parameters<typeof BadgesSection>[0]["initialBadges"]} />
 
-          {/* Squad placeholder */}
-          <div className="bg-white rounded-2xl p-6 space-y-4"
-            style={{ boxShadow: "0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.06)", border: "1px solid rgba(0,0,0,0.06)" }}>
-            <p className="text-black font-bold text-sm" style={D}>Squad</p>
-            <div className="flex flex-col items-center justify-center py-8 space-y-2 text-center">
-              <div className="w-10 h-10 rounded-full bg-gray-100 border border-black/[0.06] flex items-center justify-center">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
-                  <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-                </svg>
-              </div>
-              <p className="text-gray-400 text-xs" style={BODY}>Not in a squad</p>
-              <p className="text-gray-300 text-xs" style={BODY}>Squads launching in Phase 2</p>
-            </div>
-          </div>
+          {/* Squad */}
+          <SquadCard address={address} />
         </div>
 
         {/* Rank up CTA */}
