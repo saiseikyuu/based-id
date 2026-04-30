@@ -7,11 +7,11 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 const D = { fontFamily: "var(--font-display), system-ui, sans-serif" };
 
 const links = [
-  { href: "/campaigns",   label: "Campaigns"   },
-  { href: "/hunters",     label: "Hunters"     },
-  { href: "/leaderboard", label: "Leaderboard" },
-  { href: "/projects",    label: "Projects"    },
-  { href: "/profile",     label: "Profile"     },
+  { href: "/campaigns", label: "Campaigns" },
+  { href: "/squads",    label: "Squads"    },
+  { href: "/hunters",   label: "Hunters"   },
+  { href: "/projects",  label: "Projects"  },
+  { href: "/profile",   label: "Profile"   },
 ];
 
 export function Nav({ active }: { active?: string }) {
