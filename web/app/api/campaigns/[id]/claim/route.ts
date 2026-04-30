@@ -1,5 +1,6 @@
 import { createServerClient } from "@/lib/supabase";
 import { isAddress } from "viem";
+import { awardBadges } from "@/lib/badges";
 
 export const runtime = "nodejs";
 
@@ -116,6 +117,24 @@ export async function POST(
   }, { onConflict: "wallet_address" });
 
   const newRank = xpToRank(newTotalXp);
+
+  // Award badges and increment squad contribution XP (fire and forget)
+  Promise.all([
+    awardBadges(addr, db),
+    (async () => {
+      const { data: membership } = await db
+        .from("squad_members")
+        .select("squad_id, contribution_xp")
+        .eq("wallet_address", addr)
+        .maybeSingle();
+      if (membership) {
+        await db.from("squad_members").update({
+          contribution_xp: membership.contribution_xp + xpEarned,
+        }).eq("squad_id", membership.squad_id).eq("wallet_address", addr);
+        await db.rpc("increment_squad_xp", { squad_id_param: membership.squad_id, amount: xpEarned });
+      }
+    })(),
+  ]).catch(() => {});
 
   return Response.json({ xp_earned: xpEarned, total_xp: newTotalXp, rank: newRank });
 }

@@ -1,4 +1,5 @@
 import { createServerClient } from "@/lib/supabase";
+import { awardBadges } from "@/lib/badges";
 
 export const runtime = "nodejs";
 
@@ -63,6 +64,24 @@ export async function POST(req: Request) {
     checkin_streak: streak,
     updated_at:     now.toISOString(),
   }).eq("wallet_address", wallet.toLowerCase());
+
+  // Award badges and increment squad contribution XP (fire and forget)
+  Promise.all([
+    awardBadges(wallet.toLowerCase(), db),
+    (async () => {
+      const { data: membership } = await db
+        .from("squad_members")
+        .select("squad_id, contribution_xp")
+        .eq("wallet_address", wallet.toLowerCase())
+        .maybeSingle();
+      if (membership) {
+        await db.from("squad_members").update({
+          contribution_xp: membership.contribution_xp + earned,
+        }).eq("squad_id", membership.squad_id).eq("wallet_address", wallet.toLowerCase());
+        await db.rpc("increment_squad_xp", { squad_id_param: membership.squad_id, amount: earned });
+      }
+    })(),
+  ]).catch(() => {});
 
   return Response.json({
     success: true,

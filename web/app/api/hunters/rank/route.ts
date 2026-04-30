@@ -1,6 +1,7 @@
 import { createServerClient } from "@/lib/supabase";
 import { createPublicClient, http, keccak256, encodeAbiParameters, parseAbiParameters } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
+import { awardBadges } from "@/lib/badges";
 import { base, baseSepolia } from "viem/chains";
 
 export const runtime = "nodejs";
@@ -95,6 +96,9 @@ export async function POST(req: Request) {
   ));
   const oracle  = privateKeyToAccount(ORACLE_PK);
   const sig     = await oracle.signMessage({ message: { raw: hash } });
+
+  // Award rank badges (fire and forget)
+  awardBadges(wallet.toLowerCase(), db).catch(() => {});
 
   // Calculate XP to next rank
   const nextRankXp  = RANK_XP_THRESHOLDS[newRank + 1] ?? null;
