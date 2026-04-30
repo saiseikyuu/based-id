@@ -14,28 +14,29 @@ export function createServerClient() {
   return createClient(url, svc);
 }
 
-export type DropType     = "whitelist" | "raffle" | "token_drop" | "nft_mint";
-export type DropTier     = "standard"  | "featured";
-export type DropStatus   = "pending_payment" | "pending_review" | "active" | "ended" | "drawn" | "cancelled";
-export type EntryStatus  = "entered" | "disqualified" | "won" | "lost";
-export type TaskType     = "follow_x" | "join_discord" | "hold_nft" | "hold_based_id" | "min_hunter_rank";
-export type VerifyMethod = "self_attest" | "onchain";
+export type CampaignType   = "whitelist" | "raffle" | "token_drop" | "nft_mint" | "quest" | "bounty" | "creator_campaign";
+export type DropTier       = "standard"  | "featured";
+export type CampaignStatus = "pending_payment" | "pending_review" | "active" | "ended" | "drawn" | "completed" | "cancelled";
+export type EntryStatus    = "entered" | "disqualified" | "won" | "lost";
+export type TaskType       = "follow_x" | "hold_nft" | "hold_based_id" | "min_hunter_rank";
+export type VerifyMethod   = "self_attest" | "onchain";
 
-export interface Drop {
+export interface Campaign {
   id: string;
   partner_address: string;
   title: string;
   description: string;
   image_url: string | null;
-  type: DropType;
+  type: CampaignType;
   tier: DropTier;
   fee_amount_usdc: number;
   fee_paid_tx: string | null;
   prize_details: Record<string, unknown>;
   winner_count: number;
+  xp_reward: number;
   starts_at: string;
   ends_at: string;
-  status: DropStatus;
+  status: CampaignStatus;
   winners: string[];
   created_at: string;
   tasks?: Task[];
@@ -45,14 +46,14 @@ export interface Drop {
 
 export interface Task {
   id: string;
-  drop_id: string;
+  campaign_id: string;
   type: TaskType;
   params: Record<string, unknown>; // {handle:"basedidofficial"} or {contract:"0x...",minCount:1}
 }
 
 export interface Entry {
   id: string;
-  drop_id: string;
+  campaign_id: string;
   wallet_address: string;
   status: EntryStatus;
   created_at: string;
@@ -80,3 +81,86 @@ export interface TaskCompletion {
   verified_at: string;
   method: VerifyMethod;
 }
+
+export interface QuestCompletion {
+  id: string;
+  wallet_address: string;
+  quest_id: string;
+  earned_xp: number;
+  period: string;
+  created_at: string;
+}
+
+export interface CampaignClaim {
+  id: string;
+  campaign_id: string;
+  wallet_address: string;
+  xp_earned: number;
+  claimed_at: string;
+}
+
+export interface BountySubmission {
+  id: string;
+  campaign_id: string;
+  wallet_address: string;
+  content_url: string | null;
+  submission_text: string | null;
+  status: "pending" | "approved" | "rejected";
+  reviewer_notes: string | null;
+  xp_awarded: number;
+  paid_at: string | null;
+  created_at: string;
+}
+
+export interface HunterProfile {
+  wallet_address: string;
+  skills: string[];
+  availability: "available" | "open_to_offers" | "not_looking";
+  region: string | null;
+  timezone: string | null;
+  portfolio_links: string[];
+  updated_at: string;
+}
+
+export interface HunterXP {
+  id: string;
+  wallet_address: string;
+  total_xp: number;
+  entries_xp: number;
+  wins_xp: number;
+  checkin_xp: number;
+  quest_xp: number;
+  reputation_score: number;
+  reputation_breakdown: Record<string, number>;
+  last_checkin_at: string | null;
+  checkin_streak: number;
+  updated_at: string;
+}
+
+export interface PlatformStats {
+  hunters: number;
+  campaigns: number;
+  total_xp: number;
+  rewards_paid: number;
+  projects: number;
+}
+
+export const HUNTER_SKILLS = [
+  "meme_creator", "designer", "writer", "community_mod",
+  "ambassador", "developer", "qa_tester", "translator",
+  "video_editor", "growth_lead",
+] as const;
+export type HunterSkill = typeof HUNTER_SKILLS[number];
+
+export const HUNTER_SKILL_LABELS: Record<HunterSkill, string> = {
+  meme_creator:  "Meme Creator",
+  designer:      "Designer",
+  writer:        "Writer",
+  community_mod: "Community Mod",
+  ambassador:    "Ambassador",
+  developer:     "Developer",
+  qa_tester:     "QA Tester",
+  translator:    "Translator",
+  video_editor:  "Video Editor",
+  growth_lead:   "Growth Lead",
+};
