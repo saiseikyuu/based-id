@@ -239,3 +239,70 @@ CREATE TABLE IF NOT EXISTS hunter_profiles (
 ALTER TABLE hunter_profiles ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "hp_public_read" ON hunter_profiles FOR SELECT USING (true);
 CREATE POLICY "hp_service_all" ON hunter_profiles FOR ALL USING (true) WITH CHECK (true);
+
+-- ─── Phase 2A Migrations ─────────────────────────────────────────────────────
+
+CREATE TABLE IF NOT EXISTS squads (
+  id            uuid        PRIMARY KEY DEFAULT uuid_generate_v4(),
+  name          text        NOT NULL UNIQUE,
+  slug          text        NOT NULL UNIQUE,
+  description   text,
+  logo_url      text,
+  region        text,
+  type          text        NOT NULL DEFAULT 'general',
+  owner_wallet  text        NOT NULL,
+  total_xp      int         NOT NULL DEFAULT 0,
+  member_count  int         NOT NULL DEFAULT 0,
+  created_at    timestamptz NOT NULL DEFAULT now(),
+  CONSTRAINT squads_type_check CHECK (type IN ('general','regional','skill','project'))
+);
+CREATE INDEX IF NOT EXISTS squads_owner_idx  ON squads (owner_wallet);
+CREATE INDEX IF NOT EXISTS squads_region_idx ON squads (region);
+ALTER TABLE squads ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "squads_public_read" ON squads FOR SELECT USING (true);
+CREATE POLICY "squads_service_all" ON squads FOR ALL USING (true) WITH CHECK (true);
+
+CREATE TABLE IF NOT EXISTS squad_members (
+  squad_id        uuid        NOT NULL REFERENCES squads(id) ON DELETE CASCADE,
+  wallet_address  text        NOT NULL,
+  role            text        NOT NULL DEFAULT 'member',
+  contribution_xp int         NOT NULL DEFAULT 0,
+  joined_at       timestamptz NOT NULL DEFAULT now(),
+  PRIMARY KEY (squad_id, wallet_address),
+  CONSTRAINT sm_role_check CHECK (role IN ('owner','officer','member'))
+);
+CREATE INDEX IF NOT EXISTS sm_wallet_idx ON squad_members (wallet_address);
+ALTER TABLE squad_members ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "sm_public_read" ON squad_members FOR SELECT USING (true);
+CREATE POLICY "sm_service_all" ON squad_members FOR ALL USING (true) WITH CHECK (true);
+
+CREATE TABLE IF NOT EXISTS badges (
+  id             uuid        PRIMARY KEY DEFAULT uuid_generate_v4(),
+  name           text        NOT NULL UNIQUE,
+  description    text,
+  image_url      text,
+  criteria_type  text        NOT NULL,
+  criteria_value int         NOT NULL DEFAULT 1,
+  soulbound      boolean     NOT NULL DEFAULT true,
+  created_at     timestamptz NOT NULL DEFAULT now()
+);
+ALTER TABLE badges ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "badges_public_read" ON badges FOR SELECT USING (true);
+CREATE POLICY "badges_service_all" ON badges FOR ALL USING (true) WITH CHECK (true);
+
+CREATE TABLE IF NOT EXISTS hunter_badges (
+  id             uuid        PRIMARY KEY DEFAULT uuid_generate_v4(),
+  wallet_address text        NOT NULL,
+  badge_id       uuid        NOT NULL REFERENCES badges(id) ON DELETE CASCADE,
+  earned_at      timestamptz NOT NULL DEFAULT now(),
+  UNIQUE (wallet_address, badge_id)
+);
+CREATE INDEX IF NOT EXISTS hb_wallet_idx ON hunter_badges (wallet_address);
+ALTER TABLE hunter_badges ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "hb_public_read" ON hunter_badges FOR SELECT USING (true);
+CREATE POLICY "hb_service_all" ON hunter_badges FOR ALL USING (true) WITH CHECK (true);
+
+CREATE OR REPLACE FUNCTION increment_squad_xp(squad_id_param uuid, amount int)
+RETURNS void LANGUAGE sql AS $$
+  UPDATE squads SET total_xp = total_xp + amount WHERE id = squad_id_param;
+$$;
