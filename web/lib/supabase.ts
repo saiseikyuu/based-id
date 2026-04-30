@@ -164,3 +164,52 @@ export const HUNTER_SKILL_LABELS: Record<HunterSkill, string> = {
   video_editor:  "Video Editor",
   growth_lead:   "Growth Lead",
 };
+
+export interface Squad {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  logo_url: string | null;
+  region: string | null;
+  type: "general" | "regional" | "skill" | "project";
+  owner_wallet: string;
+  total_xp: number;
+  member_count: number;
+  created_at: string;
+}
+
+export interface SquadMember {
+  squad_id: string;
+  wallet_address: string;
+  role: "owner" | "officer" | "member";
+  contribution_xp: number;
+  joined_at: string;
+}
+
+export interface Badge {
+  id: string;
+  name: string;
+  description: string | null;
+  image_url: string | null;
+  criteria_type: string;
+  criteria_value: number;
+  soulbound: boolean;
+  created_at: string;
+}
+
+export interface HunterBadge {
+  id: string;
+  wallet_address: string;
+  badge_id: string;
+  earned_at: string;
+  badge?: Badge;
+}
+
+export const BADGE_CRITERIA_LABELS: Record<string, string> = {
+  campaign_count: "Campaigns completed",
+  streak_days:    "Day streak",
+  rank_reached:   "Rank reached",
+  squad_role:     "Squad role",
+  bounty_count:   "Bounties approved",
+};
