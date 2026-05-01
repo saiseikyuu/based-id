@@ -306,3 +306,59 @@ CREATE OR REPLACE FUNCTION increment_squad_xp(squad_id_param uuid, amount int)
 RETURNS void LANGUAGE sql AS $$
   UPDATE squads SET total_xp = total_xp + amount WHERE id = squad_id_param;
 $$;
+
+-- ─── Phase 2B Migrations ─────────────────────────────────────────────────────
+
+CREATE TABLE IF NOT EXISTS meme_wars (
+  id               uuid        PRIMARY KEY DEFAULT uuid_generate_v4(),
+  contract_war_id  int,
+  contract_address text,
+  creator_wallet   text        NOT NULL,
+  title            text        NOT NULL,
+  theme            text,
+  prize_pool_usdc  numeric     NOT NULL,
+  vote_cost_usdc   numeric     NOT NULL DEFAULT 0.10,
+  starts_at        timestamptz NOT NULL DEFAULT now(),
+  ends_at          timestamptz NOT NULL,
+  status           text        NOT NULL DEFAULT 'active',
+  winner_entry_id  uuid,
+  created_at       timestamptz NOT NULL DEFAULT now(),
+  CONSTRAINT mw_status_check CHECK (status IN ('active','ended','settled','cancelled'))
+);
+CREATE INDEX IF NOT EXISTS mw_status_idx ON meme_wars (status);
+ALTER TABLE meme_wars ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "mw_public_read" ON meme_wars FOR SELECT USING (true);
+CREATE POLICY "mw_service_all" ON meme_wars FOR ALL USING (true) WITH CHECK (true);
+
+CREATE TABLE IF NOT EXISTS meme_entries (
+  id            uuid        PRIMARY KEY DEFAULT uuid_generate_v4(),
+  meme_war_id   uuid        NOT NULL REFERENCES meme_wars(id) ON DELETE CASCADE,
+  on_chain_id   int         NOT NULL,
+  hunter_wallet text        NOT NULL,
+  media_url     text        NOT NULL,
+  caption       text,
+  vote_count    int         NOT NULL DEFAULT 0,
+  support_amt   numeric     NOT NULL DEFAULT 0,
+  rank          int,
+  created_at    timestamptz NOT NULL DEFAULT now(),
+  UNIQUE (meme_war_id, hunter_wallet),
+  UNIQUE (meme_war_id, on_chain_id)
+);
+CREATE INDEX IF NOT EXISTS me_war_idx ON meme_entries (meme_war_id);
+ALTER TABLE meme_entries ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "me_public_read" ON meme_entries FOR SELECT USING (true);
+CREATE POLICY "me_service_all" ON meme_entries FOR ALL USING (true) WITH CHECK (true);
+
+CREATE TABLE IF NOT EXISTS meme_votes (
+  id           uuid        PRIMARY KEY DEFAULT uuid_generate_v4(),
+  entry_id     uuid        NOT NULL REFERENCES meme_entries(id) ON DELETE CASCADE,
+  voter_wallet text        NOT NULL,
+  vote_count   int         NOT NULL,
+  amount_paid  numeric     NOT NULL,
+  tx_hash      text,
+  created_at   timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS mv_entry_idx ON meme_votes (entry_id);
+ALTER TABLE meme_votes ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "mv_public_read" ON meme_votes FOR SELECT USING (true);
+CREATE POLICY "mv_service_all" ON meme_votes FOR ALL USING (true) WITH CHECK (true);
