@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
-import { createServerClient } from "@/lib/supabase";
+import { createBrowserClient } from "@/lib/supabase";
 
-export const runtime = "nodejs";
+export const runtime = "edge";
 
 const RANK_THRESHOLDS = [0, 300, 800, 2000, 5000, 12000, 30000];
 const RANK_LABELS     = ["E", "D", "C", "B", "A", "S", "N"];
@@ -22,7 +22,7 @@ export async function GET(
 ) {
   const { wallet } = await params;
 
-  const db = createServerClient();
+  const db = createBrowserClient();
   const { data: xpRow } = await db
     .from("hunter_xp")
     .select("total_xp, checkin_streak, reputation_score")

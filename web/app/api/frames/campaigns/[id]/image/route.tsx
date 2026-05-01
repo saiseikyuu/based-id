@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
-import { createServerClient } from "@/lib/supabase";
+import { createBrowserClient } from "@/lib/supabase";
 
-export const runtime = "nodejs";
+export const runtime = "edge";
 
 const TYPE_LABELS: Record<string, string> = {
   quest:            "Quest",
@@ -26,7 +26,7 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  const db = createServerClient();
+  const db = createBrowserClient();
 
   const [{ data: campaign }, { count: entryCount }] = await Promise.all([
     db.from("campaigns")
