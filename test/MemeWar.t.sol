@@ -140,13 +140,33 @@ contract MemeWarTest is Test {
         memeWar.submitEntry(warId);
     }
 
+    function testCreatorCanSettle() public {
+        (uint256 warId, uint64 endTime) = _createWar();
+        vm.prank(alice); memeWar.submitEntry(warId);
+        vm.warp(endTime + 1);
+        // creator (not owner) can settle
+        vm.prank(creator);
+        memeWar.settleWar(warId, 1, 0, 0, alice, address(0), address(0));
+        (,,,,,,bool settled) = memeWar.wars(warId);
+        assertTrue(settled);
+    }
+
     function testCannotDoubleSettle() public {
         (uint256 warId, uint64 endTime) = _createWar();
         vm.prank(alice); memeWar.submitEntry(warId);
         vm.warp(endTime + 1);
-        vm.prank(owner); memeWar.settleWar(warId, 1, 0, 0, alice, address(0), address(0));
-        vm.prank(owner);
+        vm.prank(creator); memeWar.settleWar(warId, 1, 0, 0, alice, address(0), address(0));
+        vm.prank(creator);
         vm.expectRevert("Already settled");
+        memeWar.settleWar(warId, 1, 0, 0, alice, address(0), address(0));
+    }
+
+    function testRandomCannotSettle() public {
+        (uint256 warId, uint64 endTime) = _createWar();
+        vm.prank(alice); memeWar.submitEntry(warId);
+        vm.warp(endTime + 1);
+        vm.prank(bob);
+        vm.expectRevert("Not authorized");
         memeWar.settleWar(warId, 1, 0, 0, alice, address(0), address(0));
     }
 }

@@ -110,7 +110,7 @@ contract MemeWar is Ownable, ReentrancyGuard {
         emit VoteCast(warId, entryId, msg.sender, voteCount, cost);
     }
 
-    /// @notice Platform settles war after endTime. Pass address(0) for missing 2nd/3rd.
+    /// @notice Settle war after endTime. Callable by war creator or platform owner.
     function settleWar(
         uint256 warId,
         uint256 firstEntryId,
@@ -119,8 +119,9 @@ contract MemeWar is Ownable, ReentrancyGuard {
         address firstWinner,
         address secondWinner,
         address thirdWinner
-    ) external onlyOwner nonReentrant {
+    ) external nonReentrant {
         War storage war = wars[warId];
+        require(msg.sender == war.creator || msg.sender == owner(), "Not authorized");
         require(!war.settled,                   "Already settled");
         require(block.timestamp >= war.endTime, "War not ended yet");
         require(firstWinner != address(0),      "First winner required");
@@ -146,9 +147,10 @@ contract MemeWar is Ownable, ReentrancyGuard {
         emit WarSettled(warId, firstEntryId, secondEntryId, thirdEntryId);
     }
 
-    /// @notice Refund creator if war had no entries.
-    function cancelWar(uint256 warId) external onlyOwner {
+    /// @notice Refund creator if war had no entries. Callable by creator or owner.
+    function cancelWar(uint256 warId) external nonReentrant {
         War storage war = wars[warId];
+        require(msg.sender == war.creator || msg.sender == owner(), "Not authorized");
         require(!war.settled,                   "Already settled");
         require(block.timestamp >= war.endTime, "War not ended yet");
         war.settled = true;
