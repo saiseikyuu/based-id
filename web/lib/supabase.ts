@@ -18,7 +18,7 @@ export type CampaignType   = "whitelist" | "raffle" | "token_drop" | "nft_mint" 
 export type DropTier       = "standard"  | "featured";
 export type CampaignStatus = "pending_payment" | "pending_review" | "active" | "ended" | "drawn" | "completed" | "cancelled";
 export type EntryStatus    = "entered" | "disqualified" | "won" | "lost";
-export type TaskType       = "follow_x" | "hold_nft" | "hold_based_id" | "min_hunter_rank";
+export type TaskType       = "follow_x" | "hold_nft" | "hold_based_id" | "min_hunter_rank" | "min_reputation_score";
 export type VerifyMethod   = "self_attest" | "onchain";
 
 export interface Campaign {
@@ -251,5 +251,12 @@ export interface MemeVote {
   vote_count: number;
   amount_paid: number;
   tx_hash: string | null;
+  created_at: string;
+}
+
+export interface ProjectShortlist {
+  project_address: string;
+  wallet_address: string;
+  note: string | null;
   created_at: string;
 }
