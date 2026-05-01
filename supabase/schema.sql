@@ -362,3 +362,16 @@ CREATE INDEX IF NOT EXISTS mv_entry_idx ON meme_votes (entry_id);
 ALTER TABLE meme_votes ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "mv_public_read" ON meme_votes FOR SELECT USING (true);
 CREATE POLICY "mv_service_all" ON meme_votes FOR ALL USING (true) WITH CHECK (true);
+
+-- ─── Phase 3 Migrations ──────────────────────────────────────────────────────
+ALTER TYPE task_type ADD VALUE IF NOT EXISTS 'min_reputation_score';
+
+CREATE TABLE IF NOT EXISTS project_shortlists (
+  project_address  text        NOT NULL,
+  wallet_address   text        NOT NULL,
+  note             text,
+  created_at       timestamptz NOT NULL DEFAULT now(),
+  PRIMARY KEY (project_address, wallet_address)
+);
+ALTER TABLE project_shortlists ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "psl_service_all" ON project_shortlists FOR ALL USING (true) WITH CHECK (true);
