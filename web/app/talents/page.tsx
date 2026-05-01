@@ -213,6 +213,7 @@ export default async function TalentsPage({
               <div className="space-y-2">
                 <label className="text-black text-xs font-bold uppercase tracking-wider" style={D}>Min Rank</label>
                 <select name="rank" defaultValue={params.rank ?? "0"}
+                  suppressHydrationWarning
                   className="w-full border border-black/[0.1] rounded-xl px-3 py-2.5 text-sm outline-none focus:border-black/30 bg-white" style={BODY}>
                   {RANK_OPTIONS.map(({ value, label }) => (
                     <option key={value} value={value}>{label}</option>
@@ -223,6 +224,7 @@ export default async function TalentsPage({
               <div className="space-y-2">
                 <label className="text-black text-xs font-bold uppercase tracking-wider" style={D}>Min Rep Score</label>
                 <input type="number" name="reputation" defaultValue={params.reputation ?? "0"}
+                  suppressHydrationWarning
                   min="0" max="1000" step="50"
                   className="w-full border border-black/[0.1] rounded-xl px-3 py-2.5 text-sm outline-none focus:border-black/30" style={BODY} />
               </div>
@@ -230,12 +232,13 @@ export default async function TalentsPage({
               <div className="space-y-2">
                 <label className="text-black text-xs font-bold uppercase tracking-wider" style={D}>Region</label>
                 <input type="text" name="region" defaultValue={params.region ?? ""}
+                  suppressHydrationWarning
                   placeholder="e.g. Philippines"
                   className="w-full border border-black/[0.1] rounded-xl px-3 py-2.5 text-sm outline-none focus:border-black/30 placeholder-gray-300" style={BODY} />
               </div>
 
               <div className="flex gap-2">
-                <button type="submit"
+                <button type="submit" suppressHydrationWarning
                   className="flex-1 py-2.5 rounded-xl bg-black text-white text-sm font-bold hover:bg-zinc-800 transition-colors" style={BODY}>
                   Apply
                 </button>
