@@ -50,6 +50,27 @@ export async function POST(
     return Response.json({ error: "Already entered", entry_id: existing.id }, { status: 409 });
   }
 
+  // Check min_reputation_score gate
+  const repTask = (campaign.tasks ?? []).find((t: { type: string }) => t.type === "min_reputation_score");
+  if (repTask) {
+    const minScore = Number((repTask.params as Record<string, unknown>)?.min_score ?? 0);
+    if (minScore > 0) {
+      const { data: xpRow } = await db
+        .from("hunter_xp")
+        .select("reputation_score")
+        .eq("wallet_address", addr)
+        .single();
+      const repScore = xpRow?.reputation_score ?? 0;
+      if (repScore < minScore) {
+        return Response.json({
+          error: `Reputation score too low. Required: ${minScore}, yours: ${repScore}`,
+          required: minScore,
+          current: repScore,
+        }, { status: 403 });
+      }
+    }
+  }
+
   const requiredTaskIds = (campaign.tasks ?? []).map((t: { id: string }) => t.id);
   const completedIds    = (body.completed_tasks ?? []).map((c) => c.task_id);
   const missing         = requiredTaskIds.filter((tid: string) => !completedIds.includes(tid));

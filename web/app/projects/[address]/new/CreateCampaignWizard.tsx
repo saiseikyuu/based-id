@@ -30,8 +30,9 @@ const DURATION_PRESETS = [
 ];
 
 const TASK_CONFIGS: { value: TaskType; label: string; desc: string }[] = [
-  { value: "follow_x", label: "Follow on X",      desc: "Users must follow your X account to enter" },
-  { value: "hold_nft", label: "Hold specific NFT", desc: "Users must hold at least 1 of a specific NFT" },
+  { value: "follow_x",             label: "Follow on X",          desc: "Users must follow your X account to enter" },
+  { value: "hold_nft",             label: "Hold specific NFT",    desc: "Users must hold at least 1 of a specific NFT" },
+  { value: "min_reputation_score", label: "Min Reputation Score", desc: "Users must meet a minimum reputation score" },
 ];
 
 function FieldLabel({ label, hint, required }: { label: string; hint?: string; required?: boolean }) {
@@ -437,6 +438,12 @@ export function CreateCampaignWizard({ partnerAddress }: { partnerAddress: strin
                       <div>
                         <FieldLabel label="X handle" hint="Without the @ symbol" required />
                         <Input value={t.params.handle ?? ""} onChange={v => updateTaskParam(idx, "handle", v)} placeholder="basedidofficial" />
+                      </div>
+                    )}
+                    {t.type === "min_reputation_score" && (
+                      <div>
+                        <FieldLabel label="Minimum reputation score" hint="Hunters below this score cannot enter (0–1000)" required />
+                        <Input value={String(t.params.min_score ?? "")} onChange={v => updateTaskParam(idx, "min_score", v)} placeholder="e.g. 100" type="number" />
                       </div>
                     )}
                     {t.type === "hold_nft" && (
