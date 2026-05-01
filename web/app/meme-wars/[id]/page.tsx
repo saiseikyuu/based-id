@@ -161,7 +161,13 @@ export default async function MemeWarDetailPage({ params }: { params: Promise<{ 
                 style={{ boxShadow: "0 1px 3px rgba(0,0,0,0.06)" }}>
                 <p className="text-black font-black text-base" style={D}>Submit Your Meme</p>
                 <p className="text-gray-400 text-xs" style={BODY}>One entry per wallet · +10 XP</p>
-                <SubmitEntry warId={war.id} warEnded={warEnded} onSubmitted={() => {}} />
+                <SubmitEntry
+                  warId={war.id}
+                  onChainWarId={(war as MemeWar).contract_war_id}
+                  submissionFeeUsdc={Number((war as MemeWar).submission_fee_usdc ?? 0)}
+                  warEnded={warEnded}
+                  onSubmitted={() => {}}
+                />
               </div>
             )}
             <div className="rounded-2xl border border-black/[0.07] p-5 space-y-3"

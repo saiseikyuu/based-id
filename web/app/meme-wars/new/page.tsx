@@ -31,6 +31,7 @@ export default function NewMemeWarPage() {
   const [theme,        setTheme]        = useState("");
   const [prize,        setPrize]        = useState("100");
   const [voteCost,     setVoteCost]     = useState("0.10");
+  const [subFee,       setSubFee]       = useState("0.50");
   const [durationDays, setDurationDays] = useState("7");
   const [phase,        setPhase]        = useState<"idle" | "approving" | "creating" | "saving">("idle");
 
@@ -42,6 +43,7 @@ export default function NewMemeWarPage() {
 
     const prizeWei    = BigInt(Math.round(parseFloat(prize) * 1_000_000));
     const voteCostWei = BigInt(Math.round(parseFloat(voteCost) * 1_000_000));
+    const subFeeWei   = BigInt(Math.round(parseFloat(subFee || "0") * 1_000_000));
     const endTime     = BigInt(Math.floor(Date.now() / 1000) + parseInt(durationDays) * 86400);
 
     setPhase("approving");
@@ -57,7 +59,7 @@ export default function NewMemeWarPage() {
           address: MEME_WAR_ADDRESS,
           abi: MEME_WAR_ABI,
           functionName: "createWar",
-          args: [prizeWei, voteCostWei, endTime],
+          args: [prizeWei, voteCostWei, subFeeWei, endTime],
         }, {
           onSuccess: async (hash) => {
             setPhase("saving");
@@ -74,11 +76,12 @@ export default function NewMemeWarPage() {
                   creator_wallet:   address,
                   title:            title.trim(),
                   theme:            theme.trim() || undefined,
-                  prize_pool_usdc:  parseFloat(prize),
-                  vote_cost_usdc:   parseFloat(voteCost),
-                  ends_at:          endsAt,
-                  contract_war_id:  warId,
-                  contract_address: MEME_WAR_ADDRESS,
+                  prize_pool_usdc:     parseFloat(prize),
+                  vote_cost_usdc:      parseFloat(voteCost),
+                  submission_fee_usdc: parseFloat(subFee || "0"),
+                  ends_at:             endsAt,
+                  contract_war_id:     warId,
+                  contract_address:    MEME_WAR_ADDRESS,
                 }),
               });
               const data = await res.json();
@@ -141,18 +144,26 @@ export default function NewMemeWarPage() {
               <input value={theme} onChange={e => setTheme(e.target.value)} placeholder="e.g. Based frogs, builder vibes" maxLength={80}
                 className="w-full border border-black/[0.1] rounded-xl px-4 py-3 text-sm placeholder-gray-300 outline-none focus:border-black/30 transition-all" style={BODY} />
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-3 gap-3">
               <div className="space-y-2">
                 <label className="text-black text-sm font-semibold" style={BODY}>Prize pool (USDC) *</label>
                 <input type="number" value={prize} onChange={e => setPrize(e.target.value)} min="1"
                   className="w-full border border-black/[0.1] rounded-xl px-4 py-3 text-sm outline-none focus:border-black/30 transition-all" style={BODY} />
               </div>
               <div className="space-y-2">
-                <label className="text-black text-sm font-semibold" style={BODY}>Vote cost (USDC)</label>
+                <label className="text-black text-sm font-semibold" style={BODY}>Vote cost</label>
                 <input type="number" value={voteCost} onChange={e => setVoteCost(e.target.value)} min="0.01" step="0.01"
                   className="w-full border border-black/[0.1] rounded-xl px-4 py-3 text-sm outline-none focus:border-black/30 transition-all" style={BODY} />
               </div>
+              <div className="space-y-2">
+                <label className="text-black text-sm font-semibold" style={BODY}>Entry fee</label>
+                <input type="number" value={subFee} onChange={e => setSubFee(e.target.value)} min="0" step="0.10"
+                  className="w-full border border-black/[0.1] rounded-xl px-4 py-3 text-sm outline-none focus:border-black/30 transition-all" style={BODY} />
+              </div>
             </div>
+            <p className="text-gray-400 text-xs -mt-2" style={BODY}>
+              Entry fee: 20% goes to you instantly · 80% added to prize pool. Set to 0 for free entry.
+            </p>
             <div className="space-y-2">
               <label className="text-black text-sm font-semibold" style={BODY}>Duration</label>
               <div className="grid grid-cols-4 gap-2">

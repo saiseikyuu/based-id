@@ -223,6 +223,7 @@ export interface MemeWar {
   theme: string | null;
   prize_pool_usdc: number;
   vote_cost_usdc: number;
+  submission_fee_usdc: number;
   starts_at: string;
   ends_at: string;
   status: "active" | "ended" | "settled" | "cancelled";

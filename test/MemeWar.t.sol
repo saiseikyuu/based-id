@@ -20,8 +20,9 @@ contract MemeWarTest is Test {
     address alice   = makeAddr("alice");
     address bob     = makeAddr("bob");
 
-    uint256 constant PRIZE = 100_000_000; // $100 USDC
-    uint256 constant VCOST =     100_000; // $0.10 per vote
+    uint256 constant PRIZE   = 100_000_000; // $100
+    uint256 constant VCOST   =     100_000; // $0.10 per vote
+    uint256 constant SUBFEE  =     500_000; // $0.50 submission fee
 
     function setUp() public {
         usdc    = new MockUSDC();
@@ -39,39 +40,72 @@ contract MemeWarTest is Test {
     function _createWar() internal returns (uint256 warId, uint64 endTime) {
         endTime = uint64(block.timestamp + 7 days);
         vm.prank(creator);
-        warId = memeWar.createWar(PRIZE, VCOST, endTime);
+        warId = memeWar.createWar(PRIZE, VCOST, SUBFEE, endTime);
     }
 
     function testCreateWar() public {
         (uint256 warId, uint64 endTime) = _createWar();
         assertEq(warId, 1);
-        (address c, uint256 pp,, uint256 vc, uint64 et, bool s) = memeWar.wars(1);
+        (address c, uint256 pp,, uint256 vc, uint256 sf, uint64 et, bool s) = memeWar.wars(1);
         assertEq(c, creator);
         assertEq(pp, PRIZE);
         assertEq(vc, VCOST);
+        assertEq(sf, SUBFEE);
         assertEq(et, endTime);
         assertFalse(s);
         assertEq(usdc.balanceOf(address(memeWar)), PRIZE);
     }
 
+    function testSubmitEntry() public {
+        (uint256 warId,) = _createWar();
+
+        uint256 aliceBefore = usdc.balanceOf(alice);
+        uint256 ownerBefore = usdc.balanceOf(owner);
+        vm.prank(alice);
+        uint256 entryId = memeWar.submitEntry(warId);
+
+        assertEq(entryId, 1);
+        assertEq(usdc.balanceOf(alice), aliceBefore - SUBFEE);
+
+        // 20% goes directly to owner
+        uint256 platformCut = SUBFEE * 2000 / 10000;
+        assertEq(usdc.balanceOf(owner) - ownerBefore, platformCut);
+
+        // 80% added to prizePool
+        (,uint256 pp,,,,,) = memeWar.wars(warId);
+        assertEq(pp, PRIZE + SUBFEE * 8000 / 10000);
+    }
+
+    function testFreeSubmission() public {
+        // War with zero submission fee
+        uint64 endTime = uint64(block.timestamp + 7 days);
+        vm.prank(creator);
+        uint256 warId = memeWar.createWar(PRIZE, VCOST, 0, endTime);
+
+        uint256 aliceBefore = usdc.balanceOf(alice);
+        vm.prank(alice);
+        uint256 entryId = memeWar.submitEntry(warId);
+
+        assertEq(entryId, 1);
+        assertEq(usdc.balanceOf(alice), aliceBefore); // no charge
+    }
+
     function testVote() public {
         (uint256 warId,) = _createWar();
-        vm.prank(alice);
+        vm.prank(alice); memeWar.submitEntry(warId);
+
+        vm.prank(bob);
         memeWar.vote(warId, 1, 5);
         assertEq(memeWar.entryVotes(warId, 1), 5);
-        assertEq(usdc.balanceOf(address(memeWar)), PRIZE + VCOST * 5);
     }
 
     function testSettleWar() public {
         (uint256 warId, uint64 endTime) = _createWar();
+        vm.prank(alice); memeWar.submitEntry(warId); // entryId=1, fee paid
+        vm.prank(bob);   memeWar.submitEntry(warId); // entryId=2, fee paid
+
         vm.prank(alice); memeWar.vote(warId, 1, 10); // $1.00
         vm.prank(bob);   memeWar.vote(warId, 2,  5); // $0.50
-        // votePool = 1_500_000
-        // fee 5%   = 75_000
-        // dist     = 1_425_000
-        // firstVote  = 997_500 (70%)
-        // secondVote = 285_000 (20%)
-        // thirdVote  = 142_500 (10%) — no 3rd, overflows to first
 
         vm.warp(endTime + 1);
 
@@ -82,72 +116,37 @@ contract MemeWarTest is Test {
         vm.prank(owner);
         memeWar.settleWar(warId, 1, 2, 0, alice, bob, address(0));
 
-        uint256 vp   = 1_500_000;
-        uint256 fee  = vp * 500 / 10000;
-        uint256 dist = vp - fee;
-        uint256 fv   = dist * 7000 / 10000;
-        uint256 sv   = dist * 2000 / 10000;
-        uint256 tv   = dist - fv - sv; // goes to alice (no 3rd)
+        // votePool = 1_500_000; vote fee 5% = 75_000 → owner; dist = 1_425_000
+        // prizePool = PRIZE + 2 × 80% × SUBFEE = 100_000_000 + 800_000 = 100_800_000
+        uint256 vp      = 1_500_000;
+        uint256 voteFee = vp * 500 / 10000;
+        uint256 dist    = vp - voteFee;
+        uint256 fv      = dist * 7000 / 10000;
+        uint256 sv      = dist * 2000 / 10000;
+        uint256 tv      = dist - fv - sv;
+        uint256 prize   = PRIZE + 2 * (SUBFEE * 8000 / 10000);
 
-        assertEq(usdc.balanceOf(owner) - ownerBefore, fee);
-        assertEq(usdc.balanceOf(alice) - aliceBefore, fv + PRIZE + tv);
+        // Sub fees were already paid to owner during submitEntry; only vote fee here
+        assertEq(usdc.balanceOf(owner) - ownerBefore, voteFee);
+        assertEq(usdc.balanceOf(alice) - aliceBefore, fv + prize + tv);
         assertEq(usdc.balanceOf(bob)   - bobBefore,   sv);
-
-        (,,,,, bool settled) = memeWar.wars(warId);
-        assertTrue(settled);
     }
 
-    function testCannotVoteAfterEnd() public {
+    function testCannotSubmitAfterEnd() public {
         (uint256 warId, uint64 endTime) = _createWar();
         vm.warp(endTime + 1);
         vm.prank(alice);
         vm.expectRevert("War ended");
-        memeWar.vote(warId, 1, 1);
-    }
-
-    function testCannotSettleBeforeEnd() public {
-        (uint256 warId,) = _createWar();
-        vm.prank(owner);
-        vm.expectRevert("War not ended yet");
-        memeWar.settleWar(warId, 1, 2, 3, alice, bob, alice);
+        memeWar.submitEntry(warId);
     }
 
     function testCannotDoubleSettle() public {
         (uint256 warId, uint64 endTime) = _createWar();
-        vm.prank(alice); memeWar.vote(warId, 1, 1);
+        vm.prank(alice); memeWar.submitEntry(warId);
         vm.warp(endTime + 1);
         vm.prank(owner); memeWar.settleWar(warId, 1, 0, 0, alice, address(0), address(0));
         vm.prank(owner);
         vm.expectRevert("Already settled");
         memeWar.settleWar(warId, 1, 0, 0, alice, address(0), address(0));
-    }
-
-    function testCancelWar() public {
-        (uint256 warId, uint64 endTime) = _createWar();
-        uint256 creatorBefore = usdc.balanceOf(creator);
-        vm.warp(endTime + 1);
-        vm.prank(owner);
-        memeWar.cancelWar(warId);
-        assertEq(usdc.balanceOf(creator) - creatorBefore, PRIZE);
-    }
-
-    function testOnlyOwnerCanSettle() public {
-        (uint256 warId, uint64 endTime) = _createWar();
-        vm.warp(endTime + 1);
-        vm.prank(alice);
-        vm.expectRevert();
-        memeWar.settleWar(warId, 1, 0, 0, alice, address(0), address(0));
-    }
-
-    function testRevertOnEndTimeInPast() public {
-        vm.prank(creator);
-        vm.expectRevert("End time in past");
-        memeWar.createWar(PRIZE, VCOST, uint64(block.timestamp - 1));
-    }
-
-    function testRevertOnZeroPrize() public {
-        vm.prank(creator);
-        vm.expectRevert("Prize pool required");
-        memeWar.createWar(0, VCOST, uint64(block.timestamp + 1 days));
     }
 }

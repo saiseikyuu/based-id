@@ -28,6 +28,7 @@ export async function POST(req: Request) {
       theme?: string;
       prize_pool_usdc?: number;
       vote_cost_usdc?: number;
+      submission_fee_usdc?: number;
       ends_at?: string;
       contract_war_id?: number;
       contract_address?: string;
@@ -52,7 +53,8 @@ export async function POST(req: Request) {
         title:            body.title.trim(),
         theme:            body.theme?.trim() ?? null,
         prize_pool_usdc:  body.prize_pool_usdc,
-        vote_cost_usdc:   body.vote_cost_usdc ?? 0.10,
+        vote_cost_usdc:      body.vote_cost_usdc ?? 0.10,
+        submission_fee_usdc: body.submission_fee_usdc ?? 0.50,
         ends_at:          body.ends_at,
         contract_war_id:  body.contract_war_id ?? null,
         contract_address: body.contract_address ?? null,
