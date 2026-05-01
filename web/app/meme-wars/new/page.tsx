@@ -8,7 +8,8 @@ import { Nav } from "@/app/components/Nav";
 import { MobileNav } from "@/app/components/MobileNav";
 import Link from "next/link";
 import toast from "react-hot-toast";
-import { MEME_WAR_ADDRESS, MEME_WAR_ABI, USDC_ADDRESS, ERC20_ABI } from "@/lib/contracts";
+import { MEME_WAR_ADDRESS, MEME_WAR_ABI, USDC_ADDRESS, ERC20_ABI, BASED_ID_ADDRESS, BASED_ID_ABI } from "@/lib/contracts";
+import { useReadContract } from "wagmi";
 
 const D    = { fontFamily: "var(--font-display), system-ui, sans-serif" };
 const BODY = { fontFamily: "var(--font-sans), system-ui, sans-serif" };
@@ -16,6 +17,15 @@ const BODY = { fontFamily: "var(--font-sans), system-ui, sans-serif" };
 export default function NewMemeWarPage() {
   const { address, isConnected } = useAccount();
   const router = useRouter();
+
+  const { data: basedIdBalance } = useReadContract({
+    address: BASED_ID_ADDRESS,
+    abi: BASED_ID_ABI,
+    functionName: "balanceOf",
+    args: [address as `0x${string}`],
+    query: { enabled: !!address },
+  });
+  const hasBasedId = basedIdBalance !== undefined && basedIdBalance > BigInt(0);
 
   const [title,        setTitle]        = useState("");
   const [theme,        setTheme]        = useState("");
@@ -109,6 +119,15 @@ export default function NewMemeWarPage() {
           <div className="rounded-2xl border border-black/[0.07] p-10 text-center space-y-4">
             <p className="text-black font-semibold text-sm" style={BODY}>Connect wallet to start a war</p>
             <ConnectButton />
+          </div>
+        ) : !hasBasedId ? (
+          <div className="rounded-2xl border border-black/[0.07] bg-gray-50 p-10 text-center space-y-4">
+            <p className="font-black text-xl text-black" style={D}>Based ID required</p>
+            <p className="text-gray-400 text-sm" style={BODY}>You need a Based ID to start a Meme War.</p>
+            <Link href="/#mint-card"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-black text-white text-sm font-bold hover:bg-zinc-800 transition-colors" style={BODY}>
+              Mint Based ID — $2 →
+            </Link>
           </div>
         ) : (
           <div className="space-y-5">

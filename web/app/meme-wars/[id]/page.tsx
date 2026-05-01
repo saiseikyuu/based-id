@@ -6,6 +6,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { VoteButton } from "./VoteButton";
 import { SubmitEntry } from "./SubmitEntry";
+import { SettleButton } from "./SettleButton";
 
 export const revalidate = 10;
 
@@ -147,6 +148,14 @@ export default async function MemeWarDetailPage({ params }: { params: Promise<{ 
 
           {/* Sidebar */}
           <div className="space-y-4">
+            {warEnded && war.status === "active" && entries && entries.length > 0 && (
+              <SettleButton
+                warId={war.id}
+                onChainWarId={(war as MemeWar).contract_war_id}
+                entries={entries as MemeEntry[]}
+                creatorWallet={war.creator_wallet}
+              />
+            )}
             {!warEnded && (
               <div className="rounded-2xl border border-black/[0.07] p-5 space-y-3"
                 style={{ boxShadow: "0 1px 3px rgba(0,0,0,0.06)" }}>
