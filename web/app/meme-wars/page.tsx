@@ -84,6 +84,13 @@ export default async function MemeWarsPage() {
             </p>
           </div>
           <div className="flex items-center gap-4 mt-8 flex-wrap">
+            <Link href="/meme-wars/new"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white text-black text-sm font-bold hover:bg-gray-100 transition-colors" style={BODY}>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+              Start a War
+            </Link>
             <div className="bg-white/[0.06] rounded-xl px-4 py-2.5">
               <p className="text-white/30 text-[10px] uppercase tracking-wider" style={BODY}>Payout split</p>
               <p className="text-white font-bold text-sm" style={D}>1st 70% · 2nd 20% · 3rd 10%</p>
