@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 import { createServerClient } from "@/lib/supabase";
 
-export const runtime = "edge";
+export const runtime = "nodejs";
 
 const RANK_THRESHOLDS = [0, 300, 800, 2000, 5000, 12000, 30000];
 const RANK_LABELS     = ["E", "D", "C", "B", "A", "S", "N"];

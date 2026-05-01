@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 import { createServerClient } from "@/lib/supabase";
 
-export const runtime = "edge";
+export const runtime = "nodejs";
 
 const TYPE_LABELS: Record<string, string> = {
   quest:            "Quest",
