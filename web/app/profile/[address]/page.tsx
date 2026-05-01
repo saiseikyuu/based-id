@@ -141,6 +141,20 @@ export default async function HunterProfilePage({ params }: { params: Promise<{ 
               </div>
               <p className="text-gray-600 text-xs font-mono break-all" style={BODY}>{address.toLowerCase()}</p>
 
+              {/* Share rank card */}
+              <a
+                href={`/api/frame/rank/${address}?xp=${xp}&s=${streak}&rep=${xpData?.reputation_score ?? 0}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors mt-1"
+                style={{ background: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.5)", ...BODY }}
+              >
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                  <path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/>
+                </svg>
+                Share rank card
+              </a>
+
               {/* XP bar */}
               <div className="mt-3 space-y-1.5 max-w-sm">
                 <div className="flex items-center justify-between text-xs" style={BODY}>
