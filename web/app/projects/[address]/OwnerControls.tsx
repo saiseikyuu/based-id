@@ -1,11 +1,70 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useAccount } from "wagmi";
 import Link from "next/link";
 import toast from "react-hot-toast";
 import type { Campaign } from "@/lib/supabase";
 import { AnalyticsTab } from "./AnalyticsTab";
+
+const BODY_STYLE = { fontFamily: "var(--font-sans), system-ui, sans-serif" };
+
+function ShortlistTab({ projectAddress }: { projectAddress: string }) {
+  const { address } = useAccount();
+  const [shortlist, setShortlist] = useState<Array<{ wallet_address: string; note: string | null; created_at: string }>>([]);
+  const [loading,   setLoading]   = useState(true);
+
+  useEffect(() => {
+    fetch(`/api/projects/${projectAddress}/shortlist`)
+      .then(r => r.json())
+      .then(d => { setShortlist(Array.isArray(d) ? d : []); setLoading(false); })
+      .catch(() => setLoading(false));
+  }, [projectAddress]);
+
+  async function handleRemove(wallet: string) {
+    if (!address) return;
+    await fetch(`/api/projects/${projectAddress}/shortlist`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ project_owner: address, wallet_address: wallet, remove: true }),
+    });
+    setShortlist(prev => prev.filter(s => s.wallet_address !== wallet));
+  }
+
+  if (loading) return (
+    <div className="py-8 text-center">
+      <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin mx-auto" />
+    </div>
+  );
+
+  if (!shortlist.length) return (
+    <div className="py-8 text-center text-zinc-500 text-sm" style={BODY_STYLE}>
+      No hunters shortlisted yet.{" "}
+      <a href="/talents" className="text-white underline hover:text-zinc-300 transition-colors">Browse Talents</a>{" "}
+      to find contributors.
+    </div>
+  );
+
+  return (
+    <div className="space-y-2">
+      {shortlist.map(s => (
+        <div key={s.wallet_address} className="flex items-center gap-3 px-4 py-3 rounded-xl border border-white/[0.06] bg-white/[0.01]">
+          <a href={`/profile/${s.wallet_address}`}
+            className="flex-1 text-white text-sm font-mono hover:text-blue-400 transition-colors" style={BODY_STYLE}>
+            {s.wallet_address.slice(0,6)}…{s.wallet_address.slice(-4)}
+          </a>
+          {s.note && (
+            <span className="text-zinc-500 text-xs truncate max-w-[120px]" style={BODY_STYLE}>{s.note}</span>
+          )}
+          <button onClick={() => handleRemove(s.wallet_address)}
+            className="text-zinc-600 hover:text-red-400 transition-colors text-xs" style={BODY_STYLE}>
+            Remove
+          </button>
+        </div>
+      ))}
+    </div>
+  );
+}
 
 const DISPLAY = { fontFamily: "var(--font-display), system-ui, sans-serif" };
 
@@ -271,7 +330,7 @@ export function OwnerControls({
   campaigns: Campaign[];
 }) {
   const { address, isConnected } = useAccount();
-  const [activeTab, setActiveTab] = useState<"campaigns" | "analytics">("campaigns");
+  const [activeTab, setActiveTab] = useState<"campaigns" | "analytics" | "discover">("campaigns");
 
   if (!isConnected) return null;
   if (address?.toLowerCase() !== projectAddress.toLowerCase()) return null;
@@ -298,14 +357,14 @@ export function OwnerControls({
 
       {/* Tab switcher */}
       <div className="flex gap-1 border-b border-white/[0.06] pb-0">
-        {(["campaigns", "analytics"] as const).map(tab => (
+        {(["campaigns", "analytics", "discover"] as const).map(tab => (
           <button key={tab} onClick={() => setActiveTab(tab)}
             className={`px-4 py-2 text-xs font-bold uppercase tracking-wider transition-colors capitalize border-b-2 -mb-px ${
               activeTab === tab
                 ? "text-white border-white"
                 : "text-zinc-500 border-transparent hover:text-zinc-300"
             }`}>
-            {tab}
+            {tab === "discover" ? "Discover" : tab}
           </button>
         ))}
       </div>
@@ -331,6 +390,19 @@ export function OwnerControls({
 
       {activeTab === "analytics" && (
         <AnalyticsTab address={projectAddress} />
+      )}
+
+      {activeTab === "discover" && (
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <p className="text-zinc-400 text-sm" style={BODY_STYLE}>Shortlisted hunters from Talents</p>
+            <a href="/talents"
+              className="text-xs font-bold text-white border border-white/[0.1] px-3 py-1.5 rounded-lg hover:bg-white/[0.06] transition-colors" style={BODY_STYLE}>
+              Browse Talents →
+            </a>
+          </div>
+          <ShortlistTab projectAddress={projectAddress} />
+        </div>
       )}
     </section>
   );
