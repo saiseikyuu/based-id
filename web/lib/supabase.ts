@@ -29,6 +29,7 @@ export interface Campaign {
   image_url: string | null;
   type: CampaignType;
   tier: DropTier;
+  featured: boolean;
   fee_amount_usdc: number;
   fee_paid_tx: string | null;
   prize_details: Record<string, unknown>;

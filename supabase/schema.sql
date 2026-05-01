@@ -375,3 +375,7 @@ CREATE TABLE IF NOT EXISTS project_shortlists (
 );
 ALTER TABLE project_shortlists ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "psl_service_all" ON project_shortlists FOR ALL USING (true) WITH CHECK (true);
+
+-- Phase 4: Featured campaigns
+ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS featured boolean NOT NULL DEFAULT false;
+CREATE INDEX IF NOT EXISTS campaigns_featured_idx ON campaigns (featured) WHERE featured = true;

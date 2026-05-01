@@ -15,6 +15,7 @@ export async function GET(req: Request) {
   let query = db
     .from("campaigns")
     .select("*, tasks(*)")
+    .order("featured",   { ascending: false })
     .order("tier",       { ascending: false })
     .order("created_at", { ascending: false });
 

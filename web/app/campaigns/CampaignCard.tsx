@@ -63,11 +63,19 @@ export function CampaignCard({ campaign, featured = false }: { campaign: Campaig
             </span>
           </div>
 
-          {/* Type badge */}
-          <span className="text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full flex-shrink-0 ml-2"
-            style={{ color: type.color, background: type.bg }}>
-            {type.label}
-          </span>
+          {/* Badges */}
+          <div className="flex items-center gap-1 flex-shrink-0 ml-2">
+            {campaign.featured && (
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full"
+                style={{ background: "#fbbf2415", border: "1px solid #fbbf2440", color: "#d97706" }}>
+                ⭐ Featured
+              </span>
+            )}
+            <span className="text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full"
+              style={{ color: type.color, background: type.bg }}>
+              {type.label}
+            </span>
+          </div>
         </div>
 
         {/* ── Image ── */}
