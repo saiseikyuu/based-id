@@ -1,5 +1,4 @@
 import { ImageResponse } from "next/og";
-import { createBrowserClient } from "@/lib/supabase";
 
 export const runtime = "edge";
 
@@ -26,16 +25,18 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  const db = createBrowserClient();
+  const supabaseUrl  = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
+  const supabaseAnon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
+  const headers = { apikey: supabaseAnon, Authorization: `Bearer ${supabaseAnon}` };
 
-  const [{ data: campaign }, { count: entryCount }] = await Promise.all([
-    db.from("campaigns")
-      .select("title, description, type, tier, xp_reward, winner_count, ends_at, status, image_url")
-      .eq("id", id).single(),
-    db.from("entries")
-      .select("*", { count: "exact", head: true })
-      .eq("campaign_id", id).eq("status", "entered"),
+  const [campRes, countRes] = await Promise.all([
+    fetch(`${supabaseUrl}/rest/v1/campaigns?id=eq.${id}&select=title,description,type,tier,xp_reward,winner_count,ends_at,status,image_url&limit=1`, { headers }),
+    fetch(`${supabaseUrl}/rest/v1/entries?campaign_id=eq.${id}&status=eq.entered&select=id`, { headers, method: "HEAD" }),
   ]);
+
+  const campRows = campRes.ok ? await campRes.json() as Array<{ title: string; description: string; type: string; tier: string; xp_reward: number; ends_at: string; status: string; image_url: string | null }> : [];
+  const campaign = campRows[0] ?? null;
+  const entryCount = Number(countRes.headers.get("content-range")?.split("/")?.[1] ?? 0);
 
   if (!campaign) {
     return new ImageResponse(
