@@ -213,3 +213,42 @@ export const BADGE_CRITERIA_LABELS: Record<string, string> = {
   squad_role:     "Squad role",
   bounty_count:   "Bounties approved",
 };
+
+export interface MemeWar {
+  id: string;
+  contract_war_id: number | null;
+  contract_address: string | null;
+  creator_wallet: string;
+  title: string;
+  theme: string | null;
+  prize_pool_usdc: number;
+  vote_cost_usdc: number;
+  starts_at: string;
+  ends_at: string;
+  status: "active" | "ended" | "settled" | "cancelled";
+  winner_entry_id: string | null;
+  created_at: string;
+}
+
+export interface MemeEntry {
+  id: string;
+  meme_war_id: string;
+  on_chain_id: number;
+  hunter_wallet: string;
+  media_url: string;
+  caption: string | null;
+  vote_count: number;
+  support_amt: number;
+  rank: number | null;
+  created_at: string;
+}
+
+export interface MemeVote {
+  id: string;
+  entry_id: string;
+  voter_wallet: string;
+  vote_count: number;
+  amount_paid: number;
+  tx_hash: string | null;
+  created_at: string;
+}

@@ -478,3 +478,66 @@ export const ERC20_ABI = [
     stateMutability: "view",
   },
 ] as const;
+
+export const MEME_WAR_ADDRESS = (process.env.NEXT_PUBLIC_MEME_WAR_ADDRESS ||
+  "0x0000000000000000000000000000000000000000") as `0x${string}`;
+
+export const MEME_WAR_ABI = [
+  {
+    type: "function",
+    name: "createWar",
+    inputs: [
+      { name: "prizePool", type: "uint256" },
+      { name: "voteCost",  type: "uint256" },
+      { name: "endTime",   type: "uint64"  },
+    ],
+    outputs: [{ name: "warId", type: "uint256" }],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    name: "vote",
+    inputs: [
+      { name: "warId",     type: "uint256" },
+      { name: "entryId",   type: "uint256" },
+      { name: "voteCount", type: "uint256" },
+    ],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    name: "wars",
+    inputs: [{ name: "warId", type: "uint256" }],
+    outputs: [
+      { name: "creator",   type: "address" },
+      { name: "prizePool", type: "uint256" },
+      { name: "votePool",  type: "uint256" },
+      { name: "voteCost",  type: "uint256" },
+      { name: "endTime",   type: "uint64"  },
+      { name: "settled",   type: "bool"    },
+    ],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "entryVotes",
+    inputs: [
+      { name: "warId",   type: "uint256" },
+      { name: "entryId", type: "uint256" },
+    ],
+    outputs: [{ name: "", type: "uint256" }],
+    stateMutability: "view",
+  },
+  {
+    type: "event",
+    name: "VoteCast",
+    inputs: [
+      { name: "warId",   type: "uint256", indexed: true  },
+      { name: "entryId", type: "uint256", indexed: true  },
+      { name: "voter",   type: "address", indexed: false },
+      { name: "votes",   type: "uint256", indexed: false },
+      { name: "amount",  type: "uint256", indexed: false },
+    ],
+  },
+] as const;
