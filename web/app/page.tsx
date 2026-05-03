@@ -13,9 +13,7 @@ import {
 import { NftCard } from "./NftCard";
 import { motion, AnimatePresence, useInView, animate } from "motion/react";
 import { useRef } from "react";
-import { CampaignCard } from "./campaigns/CampaignCard";
 import { Nav } from "@/app/components/Nav";
-import type { Campaign } from "@/lib/supabase";
 import { createBrowserClient } from "@/lib/supabase";
 
 type MintState = "idle" | "approving" | "approved" | "minting" | "success";
@@ -237,11 +235,14 @@ function addrHue(addr: string): number {
 
 // ── FAQ ───────────────────────────────────────────────────────────────────────
 const FAQ_ITEMS = [
-  { q: "What is Based ID?",        a: "A $2 NFT on Base that acts as your permanent platform pass. It proves you're a real, committed participant and unlocks every feature: drops, hunters, leaderboard, and rewards." },
-  { q: "Why does it cost $2?",     a: "The $2 price filters bots and empty wallets. You pay once, hold forever, and access everything indefinitely. It's the lowest viable commitment that ensures a quality community." },
-  { q: "Can I browse without one?",a: "Yes. Anyone can browse drops, projects, and leaderboards. But to enter a drop, claim a Hunter NFT, or earn XP, you need a Based ID." },
-  { q: "What are Based Hunters?",  a: "Free soulbound NFTs for Based ID holders. Your Hunter License card shows your rank (E → National), which rises as you enter drops, win raffles, and check in daily." },
-  { q: "Is the ID tradeable?",     a: "Yes. Based ID is a standard ERC-721 — you can transfer or sell it. Only the current holder gets platform access." },
+  { q: "What is Based ID?",          a: "A $2 NFT on Base that acts as your permanent platform pass. It unlocks everything: Campaigns, Meme Wars, Squads, Talents, and the Hunters rank system." },
+  { q: "Why does it cost $2?",       a: "The $2 price filters bots and empty wallets. You pay once, hold forever, and access everything indefinitely. It's the lowest viable commitment that ensures a quality community." },
+  { q: "Can I browse without one?",  a: "Yes. Anyone can browse campaigns and projects. But to enter a campaign, compete in Meme Wars, join a Squad, or earn XP, you need a Based ID." },
+  { q: "What are Meme Wars?",        a: "On-chain competitive meme battles. Submit your meme, earn votes (paid in USDC), and compete for the prize pool. Winners earn XP and a share of the vote pool." },
+  { q: "What are Squads?",           a: "Groups of hunters that compete together on the leaderboard. Squad XP is the sum of all members' contributions — join one to climb higher, faster." },
+  { q: "What is the Talents page?",  a: "A searchable directory of verified hunters. Projects use it to find contributors by skill, rank, and reputation score. Hunters set their availability and portfolio." },
+  { q: "What are Based Hunters?",    a: "Free soulbound Hunter License NFTs for Based ID holders. Your rank (E → National) rises as you enter campaigns, complete bounties, and check in daily." },
+  { q: "Is the ID tradeable?",       a: "Yes. Based ID is a standard ERC-721 — you can transfer or sell it. Only the current holder gets platform access." },
 ];
 
 function FAQItem({ q, a }: { q: string; a: string }) {
@@ -276,7 +277,7 @@ export default function Home() {
   const [mintState, setMintState] = useState<MintState>("idle");
   const [mintedId,  setMintedId]  = useState<bigint | null>(null);
   const [errorMsg,  setErrorMsg]  = useState("");
-  const [liveCampaigns, setLiveCampaigns] = useState<Campaign[]>([]);
+  const [featuredProjects, setFeaturedProjects] = useState<Array<{ address: string; name: string; description: string; logo_url: string | null; banner_url: string | null; twitter: string | null; website: string | null }>>([]);
   const [topHunters, setTopHunters] = useState<Array<{wallet_address: string; total_xp: number}>>([]);
   const [hunterCount, setHunterCount] = useState<number | null>(null);
   const [totalCampaignCount, setTotalCampaignCount] = useState<number | null>(null);
@@ -324,8 +325,8 @@ export default function Home() {
   }, [isConfirmed, receipt, mintState, refetchAllowance, refetchTotal, refetchNext]);
 
   useEffect(() => {
-    fetch("/api/campaigns").then(r => r.json())
-      .then(d => { if (Array.isArray(d)) setLiveCampaigns(d.slice(0, 6)); })
+    fetch("/api/projects").then(r => r.json())
+      .then(d => { if (Array.isArray(d)) setFeaturedProjects(d.slice(0, 6)); })
       .catch(() => {});
   }, []);
 
@@ -363,17 +364,10 @@ export default function Home() {
     );
   }, [writeContract]);
 
-  const handleReset = useCallback(() => {
-    setMintState("idle"); setMintedId(null); setErrorMsg(""); refetchAllowance();
-  }, [refetchAllowance]);
-
   const isLoading           = isPending || isConfirming;
   const insufficientBalance = usdcBalance !== undefined && usdcBalance < MINT_PRICE;
   const resolvedNextId      = nextId !== undefined ? (nextId <= BigInt(100) ? BigInt(101) : nextId) : BigInt(101);
   const previewId           = mintState === "success" && mintedId ? `#${mintedId.toString()}` : `#${resolvedNextId.toString()}`;
-
-  // suppress unused warning — handleReset is available for future use
-  void handleReset;
 
   return (
     <div className="min-h-screen bg-white text-black overflow-x-hidden" style={BODY}>
@@ -419,7 +413,7 @@ export default function Home() {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.6, delay: 0.5, ease }}>
-                  The home for quests, drops, and rewards on Base. Browse free. Participate with a Based ID.
+                  Campaigns, Meme Wars, Squads, and Talents — the reputation layer for Base. Browse free. Participate with a Based ID.
                 </motion.p>
               </div>
 
@@ -435,10 +429,15 @@ export default function Home() {
                   Browse Campaigns
                   <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M2 7h10M8 3l4 4-4 4"/></svg>
                 </Link>
-                <Link href="/hunters"
+                <Link href="/meme-wars"
                   className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full font-medium text-sm text-gray-600 border transition-colors hover:text-black hover:border-black/[0.3]"
                   style={{ borderColor: "rgba(0,0,0,0.15)" }}>
-                  Hunters NFT
+                  Meme Wars
+                </Link>
+                <Link href="/squads"
+                  className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full font-medium text-sm text-gray-600 border transition-colors hover:text-black hover:border-black/[0.3]"
+                  style={{ borderColor: "rgba(0,0,0,0.15)" }}>
+                  Squads
                 </Link>
               </motion.div>
 
@@ -446,14 +445,11 @@ export default function Home() {
 
             {/* Right — Mint card with float */}
             <motion.div
-              initial={{ opacity: 0, y: 24 }}
-              animate={{ opacity: 1, y: [24, 0, -6, 0] }}
-              transition={{ duration: 2, delay: 0.1, ease, times: [0, 0.4, 0.7, 1] }}
+              initial={{ opacity: 0, x: 24 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6, delay: 0.3, ease }}
               className="flex justify-center lg:justify-end" id="mint-card">
-              <motion.div
-                animate={{ y: [0, -10, 0] }}
-                transition={{ repeat: Infinity, duration: 5, ease: "easeInOut" }}
-                className="w-full max-w-[400px]">
+              <div className="w-full max-w-[400px]">
                 <div className="rounded-3xl overflow-hidden" style={{ background: "#0d0d0d" }}>
 
                   {/* Label */}
@@ -564,7 +560,7 @@ export default function Home() {
                   </div>
 
                 </div>{/* close rounded-3xl */}
-              </motion.div>
+              </div>
             </motion.div>
           </div>
         </div>
@@ -574,13 +570,12 @@ export default function Home() {
       {/* ── STATS BAR ── */}
       <section className="bg-white" style={{ borderTop: "1px solid rgba(0,0,0,0.07)", borderBottom: "1px solid rgba(0,0,0,0.07)" }}>
         <div className="max-w-7xl mx-auto px-6">
-          <div className="grid grid-cols-2 sm:grid-cols-5 divide-x divide-black/[0.06]">
+          <div className="grid grid-cols-2 sm:grid-cols-4 divide-x divide-black/[0.06]">
             {[
-              { num: totalMinted !== undefined ? Number(totalMinted) : null, label: "IDs on Base",      blue: false },
-              { num: hunterCount,        label: "Hunters ranked",    blue: false },
-              { num: totalCampaignCount, label: "Campaigns run",     blue: true  },
-              { num: totalXP,            label: "XP distributed",    blue: false },
-              { num: rewardsPaid,        label: "Rewards paid out",   blue: false },
+              { num: totalMinted !== undefined ? Number(totalMinted) : null, label: "Total Based ID", blue: false },
+              { num: hunterCount,        label: "Active Hunters",   blue: false },
+              { num: totalCampaignCount, label: "Total Campaigns",  blue: true  },
+              { num: totalXP,            label: "XP distributed",   blue: false },
             ].map(({ num, label, blue }) => (
               <div key={label} className="px-5 py-10 first:pl-0 last:pr-0">
                 <p className="font-black text-4xl sm:text-5xl tabular-nums leading-none"
@@ -600,35 +595,89 @@ export default function Home() {
           <Reveal>
             <div className="flex items-end justify-between gap-6">
               <div className="space-y-2">
-                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-300" style={D}>Live now</p>
+                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-300" style={D}>On Base</p>
                 <h2 className="font-black text-5xl sm:text-6xl uppercase tracking-tight text-black leading-none" style={D}>
-                  Explore New<br />Campaigns
+                  Featured<br />Projects
                 </h2>
               </div>
-              <Link href="/campaigns"
+              <Link href="/projects"
                 className="flex-shrink-0 px-6 py-3 rounded-full border border-black/[0.15] text-sm font-bold text-black hover:bg-black hover:text-white transition-all">
                 View all
               </Link>
             </div>
           </Reveal>
 
-          {liveCampaigns.length > 0 ? (
+          {featuredProjects.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-              {liveCampaigns.slice(0, 6).map((c, i) => (
-                <motion.div key={c.id}
-                  initial={{ opacity: 0, y: 32 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: "-40px" }}
-                  transition={{ duration: 0.5, delay: i * 0.08, ease }}>
-                  <CampaignCard campaign={c} featured={c.tier === "featured"} />
-                </motion.div>
-              ))}
+              {featuredProjects.map((p, i) => {
+                const hue = parseInt(p.address.slice(2, 6), 16) % 360;
+                return (
+                  <motion.div key={p.address}
+                    className="h-full"
+                    initial={{ opacity: 0, y: 32 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: "-40px" }}
+                    transition={{ duration: 0.5, delay: i * 0.08, ease }}>
+                    <Link href={`/projects/${p.address}`}
+                      className="flex flex-col h-full rounded-2xl border border-black/[0.07] overflow-hidden bg-white hover:shadow-lg transition-all duration-200 hover:-translate-y-0.5"
+                      style={{ boxShadow: "0 1px 3px rgba(0,0,0,0.06)" }}>
+
+                      {/* Banner */}
+                      <div className="h-32 w-full flex-shrink-0 overflow-hidden"
+                        style={{ background: `linear-gradient(135deg, hsl(${hue},45%,90%), hsl(${(hue + 50) % 360},45%,86%))` }}>
+                        {p.banner_url && (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={p.banner_url} alt="" className="w-full h-full object-cover" />
+                        )}
+                      </div>
+
+                      {/* Content */}
+                      <div className="flex flex-col flex-1 px-5 pt-4 pb-5 gap-3">
+                        {/* Logo + name row */}
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-xl flex-shrink-0 overflow-hidden flex items-center justify-center font-black text-base border border-black/[0.06]"
+                            style={{ background: `hsl(${hue},50%,94%)`, color: `hsl(${hue},55%,38%)`, ...D }}>
+                            {p.logo_url
+                              // eslint-disable-next-line @next/next/no-img-element
+                              ? <img src={p.logo_url} alt="" className="w-full h-full object-cover" />
+                              : p.name.slice(0, 1).toUpperCase()}
+                          </div>
+                          <p className="font-black text-sm text-black leading-tight" style={D}>{p.name}</p>
+                        </div>
+
+                        {/* Description */}
+                        {p.description && (
+                          <p className="text-gray-400 text-sm leading-relaxed line-clamp-2 flex-1" style={BODY}>
+                            {p.description}
+                          </p>
+                        )}
+
+                        {/* Social links */}
+                        {(p.twitter || p.website) && (
+                          <div className="flex items-center gap-3 pt-1">
+                            {p.twitter && (
+                              <span className="text-[11px] text-gray-300 font-medium" style={BODY}>
+                                @{p.twitter.replace(/^@/, "")}
+                              </span>
+                            )}
+                            {p.website && (
+                              <span className="text-[11px] text-gray-300 font-medium truncate" style={BODY}>
+                                {p.website.replace(/^https?:\/\//, "").replace(/\/$/, "")}
+                              </span>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </Link>
+                  </motion.div>
+                );
+              })}
             </div>
           ) : (
             <Reveal delay={0.08}>
               <div className="rounded-2xl border border-black/[0.07] bg-gray-50 px-8 py-24 text-center space-y-5">
-                <p className="font-black text-3xl text-black" style={D}>First campaigns launching soon</p>
-                <p className="text-gray-400 text-sm" style={BODY}>Be the first project to run a campaign on Based ID.</p>
+                <p className="font-black text-3xl text-black" style={D}>First projects launching soon</p>
+                <p className="text-gray-400 text-sm" style={BODY}>Be the first project to list on Based ID.</p>
                 <Link href="/projects"
                   className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full bg-black text-white text-sm font-bold hover:bg-zinc-800 transition-colors">
                   List your project →
@@ -650,7 +699,7 @@ export default function Home() {
           <div className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-white/[0.07]">
             {[
               { n: "01", title: "Mint once", body: "One NFT. $2. Permanent. Based ID is your identity on Base — no subscriptions, no resets, no expiry." },
-              { n: "02", title: "Enter campaigns", body: "Quests, raffles, NFT drops, token airdrops. Every Based ID holder gets access to every campaign on the platform." },
+              { n: "02", title: "Enter campaigns", body: "Quests, raffles, NFT drops, Meme Wars, Squads — every Based ID holder gets full access to everything on the platform." },
               { n: "03", title: "Climb the ranks", body: "XP from every campaign entered, raffle won, and daily check-in. Rise from E-Rank to National Hunter." },
             ].map((step, i) => (
               <div key={step.n} className={`py-10 space-y-5 ${i === 0 ? "sm:pr-12" : i === 1 ? "sm:px-12" : "sm:pl-12"}`}>
@@ -716,7 +765,7 @@ export default function Home() {
                     Top Hunters
                   </h2>
                 </div>
-                <Link href="/leaderboard"
+                <Link href="/hunters"
                   className="text-sm font-medium text-white/30 hover:text-white transition-colors flex-shrink-0" style={BODY}>
                   View full leaderboard →
                 </Link>
@@ -788,7 +837,7 @@ export default function Home() {
           <div className="grid grid-cols-3 gap-8 mt-16 pt-12" style={{ borderTop: "1px solid rgba(255,255,255,0.12)" }}>
             {[
               { stat: "Free", label: "Standard listing" },
-              { stat: "$2",  label: "Entry filter — no bots" },
+              { stat: "Wars", label: "Meme Wars on-chain" },
               { stat: "7",   label: "Hunter rank tiers" },
             ].map(({ stat, label }) => (
               <div key={label} className="text-center">
@@ -827,7 +876,7 @@ export default function Home() {
             <span className="text-sm text-gray-400" style={BODY}>Based ID · Built on Base · 2026</span>
           </div>
           <div className="flex items-center gap-6 text-[13px] text-gray-400" style={BODY}>
-            {[["Campaigns", "/campaigns"], ["Hunters", "/hunters"], ["Projects", "/projects"], ["Leaderboard", "/leaderboard"]].map(([l, h]) => (
+            {[["Campaigns", "/campaigns"], ["Meme Wars", "/meme-wars"], ["Squads", "/squads"], ["Talents", "/talents"], ["Projects", "/projects"], ["Hunters", "/hunters"]].map(([l, h]) => (
               <Link key={h} href={h} className="transition-colors hover:text-black">{l}</Link>
             ))}
             <a href="https://x.com/basedidofficial" target="_blank" rel="noopener noreferrer"
