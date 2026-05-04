@@ -55,7 +55,7 @@ export async function POST(req: Request) {
   else if (streak % 7 === 0) earned += STREAK_7_BONUS;
 
   const newCheckinXp = (row.checkin_xp ?? 0) + earned;
-  const newTotalXp   = (row.entries_xp ?? 0) + (row.wins_xp ?? 0) + newCheckinXp;
+  const newTotalXp   = (row.total_xp ?? 0) + earned;
 
   await db.from("hunter_xp").update({
     checkin_xp:     newCheckinXp,

@@ -53,12 +53,7 @@ export async function POST(req: Request) {
   const winsXp    = winCount   * 50;
   const checkinXp = xpRow.data?.checkin_xp ?? 0;
 
-  // Sum quest bonus XP from completed quests
-  const { data: questCompletions } = await db
-    .from("quest_completions")
-    .select("earned_xp")
-    .eq("wallet_address", wallet.toLowerCase());
-  const questXp = (questCompletions ?? []).reduce((s: number, c: { earned_xp: number }) => s + (c.earned_xp ?? 0), 0);
+  const questXp = xpRow.data?.quest_xp ?? 0;
 
   const totalXp = entriesXp + winsXp + checkinXp + questXp;
 
@@ -126,11 +121,10 @@ export async function GET(req: Request) {
   if (!wallet) return Response.json({ error: "wallet required" }, { status: 400 });
 
   const db = createServerClient();
-  const [entriesRes, winsRes, xpRow, questRes] = await Promise.all([
+  const [entriesRes, winsRes, xpRow] = await Promise.all([
     db.from("entries").select("id", { count: "exact" }).eq("wallet_address", wallet.toLowerCase()).in("status", ["entered", "won", "lost"]),
     db.from("entries").select("id", { count: "exact" }).eq("wallet_address", wallet.toLowerCase()).eq("status", "won"),
     db.from("hunter_xp").select("*").eq("wallet_address", wallet.toLowerCase()).single(),
-    db.from("quest_completions").select("earned_xp").eq("wallet_address", wallet.toLowerCase()),
   ]);
 
   const entryCount = entriesRes.count ?? 0;
@@ -138,7 +132,7 @@ export async function GET(req: Request) {
   const entriesXp  = entryCount * 10;
   const winsXp     = winCount   * 50;
   const checkinXp  = xpRow.data?.checkin_xp ?? 0;
-  const questXp    = (questRes.data ?? []).reduce((s: number, c: { earned_xp: number }) => s + (c.earned_xp ?? 0), 0);
+  const questXp    = xpRow.data?.quest_xp ?? 0;
   const totalXp    = entriesXp + winsXp + checkinXp + questXp;
   const newRank    = xpToRank(totalXp);
   const nextRankXp = RANK_XP_THRESHOLDS[newRank + 1] ?? null;

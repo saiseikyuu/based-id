@@ -34,12 +34,7 @@ export function CampaignCard({ campaign, featured = false }: { campaign: Campaig
 
   return (
     <Link href={`/campaigns/${campaign.id}`} className="group block h-full">
-      <div className="h-full flex flex-col bg-white rounded-2xl overflow-hidden transition-all duration-300"
-        style={{
-          boxShadow: "0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.06)",
-        }}
-        onMouseEnter={e => (e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.08), 0 16px 40px rgba(0,0,0,0.12)")}
-        onMouseLeave={e => (e.currentTarget.style.boxShadow = "0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.06)")}>
+      <div className="h-full flex flex-col bg-white rounded-2xl overflow-hidden transition-all duration-300 shadow-[0_1px_3px_rgba(0,0,0,0.06),0_4px_16px_rgba(0,0,0,0.06)] hover:shadow-[0_4px_12px_rgba(0,0,0,0.08),0_16px_40px_rgba(0,0,0,0.12)]">
 
         {/* ── Top row: avatar + name + type badge ── */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-black/[0.05]">
@@ -65,7 +60,7 @@ export function CampaignCard({ campaign, featured = false }: { campaign: Campaig
 
           {/* Badges */}
           <div className="flex items-center gap-1 flex-shrink-0 ml-2">
-            {campaign.featured && (
+            {(featured || campaign.tier === "featured") && (
               <span className="text-[10px] font-bold px-2 py-0.5 rounded-full"
                 style={{ background: "#fbbf2415", border: "1px solid #fbbf2440", color: "#d97706" }}>
                 ⭐ Featured

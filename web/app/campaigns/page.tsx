@@ -196,7 +196,7 @@ export default async function CampaignsPage({
             </div>
             <Link href="/projects"
               className="px-4 py-2.5 rounded-xl text-sm font-semibold border border-black/[0.1] text-gray-600 hover:text-black hover:border-black/[0.25] transition-all">
-              + List campaign
+              Create campaign
             </Link>
           </div>
 

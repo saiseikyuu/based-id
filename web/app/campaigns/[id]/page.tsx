@@ -36,7 +36,7 @@ async function getEntryCount(id: string) {
     const { count } = await db
       .from("entries")
       .select("*", { count: "exact", head: true })
-      .eq("drop_id", id)
+      .eq("campaign_id", id)
       .eq("status", "entered");
     return count ?? 0;
   } catch { return 0; }
@@ -53,7 +53,7 @@ export async function generateMetadata(
   const title = `${campaign.title} — Based ID`;
   const description = campaign.description || `${TYPE_LABELS[campaign.type] ?? "Campaign"} on Based ID.`;
   const campaignUrl = `${SITE_URL}/campaigns/${id}`;
-  const frameImg    = `${SITE_URL}/api/frames/drops/${id}/image`;
+  const frameImg    = `${SITE_URL}/api/frames/campaigns/${id}/image`;
 
   return {
     title,
@@ -263,11 +263,20 @@ export default async function CampaignPage({ params }: { params: Promise<{ id: s
 
               {/* Prize details — non-quest only */}
               {!isQuest && Object.keys(campaign.prize_details ?? {}).length > 0 && (
-                <div className="rounded-xl border border-white/[0.06] bg-white/[0.01] p-4 space-y-2">
+                <div className="rounded-xl border border-white/[0.06] bg-white/[0.01] p-4 space-y-3">
                   <p className="text-zinc-600 text-[10px] uppercase tracking-[0.18em]">Prize details</p>
-                  <pre className="text-zinc-300 text-xs font-mono whitespace-pre-wrap">
-                    {JSON.stringify(campaign.prize_details, null, 2)}
-                  </pre>
+                  <div className="space-y-2">
+                    {Object.entries(campaign.prize_details as Record<string, unknown>).map(([key, val]) => (
+                      <div key={key} className="flex items-start gap-3">
+                        <span className="text-zinc-600 text-xs capitalize min-w-[90px] flex-shrink-0">
+                          {key.replace(/_/g, " ")}
+                        </span>
+                        <span className="text-zinc-200 text-xs font-medium">
+                          {typeof val === "object" ? JSON.stringify(val) : String(val)}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
 

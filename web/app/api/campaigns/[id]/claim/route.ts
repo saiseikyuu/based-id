@@ -111,7 +111,7 @@ export async function POST(
     entries_xp:     xpRow?.entries_xp  ?? 0,
     wins_xp:        xpRow?.wins_xp     ?? 0,
     checkin_xp:     xpRow?.checkin_xp  ?? 0,
-    quest_xp:       xpRow?.quest_xp    ?? 0,
+    quest_xp:       (xpRow?.quest_xp ?? 0) + xpEarned,
     total_xp:       newTotalXp,
     updated_at:     new Date().toISOString(),
   }, { onConflict: "wallet_address" });

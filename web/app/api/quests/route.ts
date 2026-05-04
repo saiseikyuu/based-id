@@ -277,19 +277,25 @@ export async function POST(req: Request) {
     return Response.json({ error: insertErr.message }, { status: 500 });
   }
 
-  // Sum up all claimed quest XP for this wallet
-  const { data: allCompletions } = await db
-    .from("quest_completions")
-    .select("earned_xp")
-    .eq("wallet_address", wallet.toLowerCase());
-  const questXp = (allCompletions ?? []).reduce((s, c) => s + (c.earned_xp ?? 0), 0);
+  const { data: xpRow } = await db
+    .from("hunter_xp")
+    .select("total_xp, entries_xp, wins_xp, checkin_xp, quest_xp")
+    .eq("wallet_address", wallet.toLowerCase())
+    .maybeSingle();
 
-  // Upsert hunter_xp with new quest_xp total
+  const questXp = (xpRow?.quest_xp ?? 0) + quest.xp;
+  const totalXp = (xpRow?.total_xp ?? 0) + quest.xp;
+
+  // Upsert hunter_xp with the new quest and total XP
   await db.from("hunter_xp").upsert({
     wallet_address: wallet.toLowerCase(),
+    entries_xp: xpRow?.entries_xp ?? 0,
+    wins_xp: xpRow?.wins_xp ?? 0,
+    checkin_xp: xpRow?.checkin_xp ?? 0,
     quest_xp: questXp,
+    total_xp: totalXp,
     updated_at: new Date().toISOString(),
   }, { onConflict: "wallet_address" });
 
-  return Response.json({ earned_xp: quest.xp, quest_xp: questXp });
+  return Response.json({ earned_xp: quest.xp, quest_xp: questXp, total_xp: totalXp });
 }
